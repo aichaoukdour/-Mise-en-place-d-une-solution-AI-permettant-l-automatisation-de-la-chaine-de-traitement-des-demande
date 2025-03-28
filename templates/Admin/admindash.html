@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Demandes et Utilisateurs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-icons"></script>
+    <style>
+        .modal {
+            background-color: rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Tabs Navigation -->
+        <div class="mb-6 flex space-x-4">
+            <button id="btnAllRequests" class="tab-btn active px-4 py-2 bg-blue-500 text-white rounded">
+                Toutes les Demandes
+            </button>
+            <button id="btnPendingRequests" class="tab-btn px-4 py-2 bg-yellow-500 text-white rounded">
+                Demandes en Attente
+            </button>
+            <button id="btnOverdueRequests" class="tab-btn px-4 py-2 bg-red-500 text-white rounded">
+                Demandes Échues
+            </button>
+            <button id="btnUsersList" class="tab-btn px-4 py-2 bg-green-500 text-white rounded">
+                Liste des Utilisateurs
+            </button>
+        </div>
+
+        <!-- Toutes les Demandes -->
+        <div id="allRequestsSection" class="tab-content">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold mb-4">Toutes les Demandes</h2>
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Utilisateur</th>
+                            <th class="p-3 text-left">Type</th>
+                            <th class="p-3 text-left">Statut</th>
+                            <th class="p-3 text-left">Date</th>
+                            <th class="p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allRequestsBody">
+                        <!-- Demandes seront ajoutées dynamiquement via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Demandes en Attente -->
+        <div id="pendingRequestsSection" class="tab-content hidden">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold mb-4">Demandes en Attente</h2>
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Utilisateur</th>
+                            <th class="p-3 text-left">Type</th>
+                            <th class="p-3 text-left">Temps d'Attente</th>
+                            <th class="p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingRequestsBody">
+                        <!-- Demandes en attente seront ajoutées dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Demandes Échues -->
+        <div id="overdueRequestsSection" class="tab-content hidden">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold mb-4">Demandes Échues</h2>
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Utilisateur</th>
+                            <th class="p-3 text-left">Type</th>
+                            <th class="p-3 text-left">Délai Dépassé</th>
+                            <th class="p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overdueRequestsBody">
+                        <!-- Demandes échues seront ajoutées dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Liste des Utilisateurs -->
+        <div id="usersListSection" class="tab-content hidden">
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Liste des Utilisateurs</h2>
+                    <button id="btnAddUser" class="bg-blue-500 text-white px-4 py-2 rounded">
+                        Ajouter un Utilisateur
+                    </button>
+                </div>
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-left">Nom</th>
+                            <th class="p-3 text-left">Prénom</th>
+                            <th class="p-3 text-left">Email</th>
+                            <th class="p-3 text-left">Rôle</th>
+                            <th class="p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersListBody">
+                        <!-- Utilisateurs seront ajoutés dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajout Utilisateur -->
+    <div id="addUserModal" class="fixed inset-0 modal hidden z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-4">Ajouter un Utilisateur</h2>
+            <form id="addUserForm">
+                <div class="mb-4">
+                    <label class="block mb-2">Nom</label>
+                    <input type="text" id="userLastName" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Prénom</label>
+                    <input type="text" id="userFirstName" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Email</label>
+                    <input type="email" id="userEmail" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Rôle</label>
+                    <select id="userRole" class="w-full border rounded px-3 py-2" required>
+                        <option value="Utilisateur">Utilisateur</option>
+                        <option value="Analyste">Analyste</option>
+                        <option value="Administrateur">Administrateur</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="btnCancelAddUser" class="bg-gray-200 px-4 py-2 rounded">Annuler</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Gestion des onglets
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Désactiver tous les onglets
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.add('hidden'));
+
+                // Activer l'onglet sélectionné
+                button.classList.add('active');
+                const targetId = button.id.replace('btn', '').toLowerCase() + 'Section';
+                document.getElementById(targetId).classList.remove('hidden');
+            });
+        });
+
+        // Données de démonstration (normalement récupérées d'un backend)
+        const requestsData = [
+            { id: 'REQ-001', user: 'jean.dupont@example.com', type: 'Analyse Ventes', status: 'En Cours', date: '2024-03-15', waitTime: '2 jours' },
+            { id: 'REQ-002', user: 'marie.martin@example.com', type: 'Support Technique', status: 'En Attente', date: '2024-03-10', waitTime: '5 jours' }
+        ];
+
+        const usersData = [
+            { lastName: 'Dupont', firstName: 'Jean', email: 'jean.dupont@example.com', role: 'Analyste' },
+            { lastName: 'Martin', firstName: 'Marie', email: 'marie.martin@example.com', role: 'Administrateur' }
+        ];
+
+        // Remplir les tableaux
+        function populateRequestsTable(tableBodyId, data, filter = null) {
+            const tableBody = document.getElementById(tableBodyId);
+            tableBody.innerHTML = '';
+            
+            const filteredData = filter 
+                ? data.filter(request => request.status === filter)
+                : data;
+
+            filteredData.forEach(request => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-3">${request.id}</td>
+                    <td class="p-3">${request.user}</td>
+                    <td class="p-3">${request.type}</td>
+                    <td class="p-3">${request.status || request.waitTime}</td>
+                    <td class="p-3">${request.date}</td>
+                    <td class="p-3">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-500" title="Détails">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="text-red-500" title="Supprimer">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Réinitialiser les icônes Lucide
+            lucide.createIcons();
+        }
+
+        function populateUsersTable(tableBodyId, data) {
+            const tableBody = document.getElementById(tableBodyId);
+            tableBody.innerHTML = '';
+
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-3">${user.lastName}</td>
+                    <td class="p-3">${user.firstName}</td>
+                    <td class="p-3">${user.email}</td>
+                    <td class="p-3">${user.role}</td>
+                    <td class="p-3">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-500" title="Modifier">
+                                <i data-lucide="edit"></i>
+                            </button>
+                            <button class="text-red-500" title="Supprimer">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Réinitialiser les icônes Lucide
+            lucide.createIcons();
+        }
+
+        // Initialisation des tables
+        populateRequestsTable('allRequestsBody', requestsData);
+        populateRequestsTable('pendingRequestsBody', requestsData, 'En Attente');
+        populateRequestsTable('overdueRequestsBody', requestsData);
+        populateUsersTable('usersListBody', usersData);
+
+        // Gestion du modal d'ajout d'utilisateur
+        const btnAddUser = document.getElementById('btnAddUser');
+        const addUserModal = document.getElementById('addUserModal');
+        const btnCancelAddUser = document.getElementById('btnCancelAddUser');
+        const addUserForm = document.getElementById('addUserForm');
+
+        btnAddUser.addEventListener('click', () => {
+            addUserModal.classList.remove('hidden');
+        });
+
+        btnCancelAddUser.addEventListener('click', () => {
+            addUserModal.classList.add('hidden');
+        });
+
+        addUserForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newUser = {
+                lastName: document.getElementById('userLastName').value,
+                firstName: document.getElementById('userFirstName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value
+            };
+
+            usersData.push(newUser);
+            populateUsersTable('usersListBody', usersData);
+            addUserModal.classList.add('hidden');
+            addUserForm.reset();
+        });
+
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>

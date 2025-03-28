@@ -1,0 +1,112 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Demandes Échues</h1>
+                <div class="flex space-x-2">
+                    <select id="overdueTypeFilter" class="border rounded px-3 py-2">
+                        <option value="">Tous les Types</option>
+                        <option value="financial">Rapport Financier</option>
+                        <option value="marketing">Analyse Marketing</option>
+                        <option value="sales">Analyse Ventes</option>
+                    </select>
+                    <button id="filterButton" class="bg-blue-500 text-white px-4 py-2 rounded">
+                        <i data-lucide="filter" class="inline-block mr-2"></i>Filtrer
+                    </button>
+                </div>
+            </div>
+
+            <table id="overdueRequestsTable" class="w-full">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">Utilisateur</th>
+                        <th class="p-3 text-left">Type de Demande</th>
+                        <th class="p-3 text-left">Date Limite</th>
+                        <th class="p-3 text-left">Retard</th>
+                        <th class="p-3 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="overdueRequestsTableBody">
+                    <!-- Overdue requests will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample overdue request data
+        const overdueRequests = [
+            {
+                id: 'REQ-005',
+                user: 'sophie.dupuis@example.com',
+                type: 'Analyse Marketing',
+                deadline: '2024-03-10',
+                typeCode: 'marketing'
+            },
+            {
+                id: 'REQ-006',
+                user: 'thomas.moreau@example.com',
+                type: 'Rapport Financier',
+                deadline: '2024-03-05',
+                typeCode: 'financial'
+            },
+            // Add more overdue requests
+        ];
+
+        function calculateOverdueTime(deadline) {
+            const deadlineDate = new Date(deadline);
+            const today = new Date();
+            const overdueDays = Math.floor((today - deadlineDate) / (1000 * 60 * 60 * 24));
+            return `${overdueDays} jours`;
+        }
+
+        function renderOverdueRequests(filteredRequests = overdueRequests) {
+            const tableBody = document.getElementById('overdueRequestsTableBody');
+            tableBody.innerHTML = '';
+
+            filteredRequests.forEach(request => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b');
+                row.innerHTML = `
+                    <td class="p-3">${request.id}</td>
+                    <td class="p-3">${request.user}</td>
+                    <td class="p-3">${request.type}</td>
+                    <td class="p-3">${request.deadline}</td>
+                    <td class="p-3 text-red-600">${calculateOverdueTime(request.deadline)}</td>
+                    <td class="p-3">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-500" title="Détails">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="text-red-500" title="Escalader">
+                                <i data-lucide="alert-triangle"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Reinitialize Lucide icons
+            lucide.createIcons();
+        }
+
+        // Filter functionality
+        document.getElementById('filterButton').addEventListener('click', () => {
+            const typeFilter = document.getElementById('overdueTypeFilter').value;
+            const filteredRequests = typeFilter 
+                ? overdueRequests.filter(req => req.typeCode === typeFilter) 
+                : overdueRequests;
+            renderOverdueRequests(filteredRequests);
+        });
+
+        // Initial render
+        renderOverdueRequests();
+    </script>
+    
+{% endblock %}

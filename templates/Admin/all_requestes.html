@@ -1,0 +1,129 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Toutes les Demandes</h1>
+                <div class="flex space-x-2">
+                    <select id="statusFilter" class="border rounded px-3 py-2">
+                        <option value="">Tous les Statuts</option>
+                        <option value="pending">En Attente</option>
+                        <option value="in-progress">En Cours</option>
+                        <option value="completed">Terminé</option>
+                        <option value="blocked">Bloqué</option>
+                    </select>
+                    <button id="filterButton" class="bg-blue-500 text-white px-4 py-2 rounded">
+                        <i data-lucide="filter" class="inline-block mr-2"></i>Filtrer
+                    </button>
+                </div>
+            </div>
+
+            <table id="requestsTable" class="w-full">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">Utilisateur</th>
+                        <th class="p-3 text-left">Type de Demande</th>
+                        <th class="p-3 text-left">Statut</th>
+                        <th class="p-3 text-left">Date</th>
+                        <th class="p-3 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                    <!-- Requests will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample request data
+        const requests = [
+            {
+                id: 'REQ-001',
+                user: 'jean.dupont@example.com',
+                type: 'Analyse Ventes',
+                status: 'completed',
+                date: '2024-03-15'
+            },
+            {
+                id: 'REQ-002',
+                user: 'marie.martin@example.com',
+                type: 'Rapport Financier',
+                status: 'pending',
+                date: '2024-03-20'
+            },
+            // Add more requests
+        ];
+
+        function renderRequests(filteredRequests = requests) {
+            const tableBody = document.getElementById('requestsTableBody');
+            tableBody.innerHTML = '';
+
+            filteredRequests.forEach(request => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b');
+                row.innerHTML = `
+                    <td class="p-3">${request.id}</td>
+                    <td class="p-3">${request.user}</td>
+                    <td class="p-3">${request.type}</td>
+                    <td class="p-3">
+                        <span class="px-3 py-1 rounded-full text-xs ${getStatusClass(request.status)}">
+                            ${getStatusLabel(request.status)}
+                        </span>
+                    </td>
+                    <td class="p-3">${request.date}</td>
+                    <td class="p-3">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-500" title="Détails">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="text-red-500" title="Bloquer">
+                                <i data-lucide="shield-off"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Reinitialize Lucide icons
+            lucide.createIcons();
+        }
+
+        function getStatusClass(status) {
+            const statusClasses = {
+                'pending': 'bg-yellow-500 text-white',
+                'in-progress': 'bg-blue-500 text-white',
+                'completed': 'bg-green-500 text-white',
+                'blocked': 'bg-red-500 text-white'
+            };
+            return statusClasses[status] || 'bg-gray-500 text-white';
+        }
+
+        function getStatusLabel(status) {
+            const statusLabels = {
+                'pending': 'En Attente',
+                'in-progress': 'En Cours',
+                'completed': 'Terminé',
+                'blocked': 'Bloqué'
+            };
+            return statusLabels[status] || status;
+        }
+
+        // Filter functionality
+        document.getElementById('filterButton').addEventListener('click', () => {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const filteredRequests = statusFilter 
+                ? requests.filter(req => req.status === statusFilter) 
+                : requests;
+            renderRequests(filteredRequests);
+        });
+
+        // Initial render
+        renderRequests();
+    </script>
+{% endblock %}

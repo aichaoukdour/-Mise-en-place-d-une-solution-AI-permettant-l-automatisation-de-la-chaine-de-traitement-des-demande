@@ -1,0 +1,190 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Liste des Utilisateurs</h1>
+                <div class="flex space-x-2">
+                    <select id="roleFilter" class="border rounded px-3 py-2">
+                        <option value="">Tous les Rôles</option>
+                        <option value="admin">Administrateur</option>
+                        <option value="analyst">Analyste</option>
+                        <option value="user">Utilisateur</option>
+                    </select>
+                    <button id="createUserBtn" class="bg-green-500 text-white px-4 py-2 rounded">
+                        <i data-lucide="user-plus" class="inline-block mr-2"></i>Créer Utilisateur
+                    </button>
+                </div>
+            </div>
+
+            <table id="usersTable" class="w-full">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">Nom</th>
+                        <th class="p-3 text-left">Prénom</th>
+                        <th class="p-3 text-left">Email</th>
+                        <th class="p-3 text-left">Rôle</th>
+                        <th class="p-3 text-left">Statut</th>
+                        <th class="p-3 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Users will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-auto mt-20">
+            <h2 class="text-xl font-semibold mb-4">Créer un Utilisateur</h2>
+            <form id="createUserForm">
+                <div class="mb-4">
+                    <label class="block mb-2">Nom</label>
+                    <input type="text" name="lastName" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Prénom</label>
+                    <input type="text" name="firstName" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Email</label>
+                    <input type="email" name="email" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Rôle</label>
+                    <select name="role" class="w-full border rounded px-3 py-2">
+                        <option value="user">Utilisateur</option>
+                        <option value="analyst">Analyste</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelCreateUser" class="bg-gray-200 px-4 py-2 rounded">Annuler</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sample user data
+        let users = [
+            {
+                id: 1,
+                firstName: 'Jean',
+                lastName: 'Dupont',
+                email: 'jean.dupont@example.com',
+                role: 'analyst',
+                status: 'active'
+            },
+            {
+                id: 2,
+                firstName: 'Marie',
+                lastName: 'Martin',
+                email: 'marie.martin@example.com',
+                role: 'admin',
+                status: 'active'
+            },
+            // Add more users
+        ];
+
+        function renderUsers(filteredUsers = users) {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b');
+                row.innerHTML = `
+                    <td class="p-3">${user.lastName}</td>
+                    <td class="p-3">${user.firstName}</td>
+                    <td class="p-3">${user.email}</td>
+                    <td class="p-3">${getRoleLabel(user.role)}</td>
+                    <td class="p-3">
+                        <span class="${getStatusClass(user.status)}">
+                            ${getStatusLabel(user.status)}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-500" title="Modifier">
+                                <i data-lucide="edit"></i>
+                            </button>
+                            <button class="text-red-500" title="Désactiver">
+                                <i data-lucide="user-x"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Reinitialize Lucide icons
+            lucide.createIcons();
+        }
+
+        function getRoleLabel(role) {
+            const roles = {
+                'admin': 'Administrateur',
+                'analyst': 'Analyste',
+                'user': 'Utilisateur'
+            };
+            return roles[role] || role;
+        }
+
+        function getStatusClass(status) {
+            return status === 'active' 
+                ? 'p-1 rounded-full text-xs bg-green-500 text-white' 
+                : 'p-1 rounded-full text-xs bg-red-500 text-white';
+        }
+
+        function getStatusLabel(status) {
+            return status === 'active' ? 'Actif' : 'Inactif';
+        }
+
+        // Role filter
+        document.getElementById('roleFilter').addEventListener('change', (e) => {
+            const roleFilter = e.target.value;
+            const filteredUsers = roleFilter 
+                ? users.filter(user => user.role === roleFilter) 
+                : users;
+            renderUsers(filteredUsers);
+        });
+
+        // Create User Modal Toggle
+        document.getElementById('createUserBtn').addEventListener('click', () => {
+            document.getElementById('createUserModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelCreateUser').addEventListener('click', () => {
+            document.getElementById('createUserModal').classList.add('hidden');
+        });
+
+        // Create User Form Submission
+        document.getElementById('createUserForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newUser = {
+                id: users.length + 1,
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                role: formData.get('role'),
+                status: 'active'
+            };
+            users.push(newUser);
+            renderUsers();
+            document.getElementById('createUserModal').classList.add('hidden');
+            e.target.reset();
+        });
+
+        // Initial render
+        renderUsers();
+    </script>
+    
+{% endblock %}

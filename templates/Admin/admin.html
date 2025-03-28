@@ -1,0 +1,168 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+        <!-- Contenu Principal -->
+        <main class="flex-1 p-6 bg-gray-100">
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <!-- Cartes de Statistiques -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-gray-500 text-sm">Total Demandes</h3>
+                            <p class="text-2xl font-bold text-blue-600">524</p>
+                        </div>
+                        <i data-lucide="file-text" class="text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-gray-500 text-sm">Demandes en Cours</h3>
+                            <p class="text-2xl font-bold text-yellow-600">87</p>
+                        </div>
+                        <i data-lucide="loader" class="text-yellow-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-gray-500 text-sm">Utilisateurs</h3>
+                            <p class="text-2xl font-bold text-green-600">246</p>
+                        </div>
+                        <i data-lucide="users" class="text-green-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-gray-500 text-sm">Demandes Bloquées</h3>
+                            <p class="text-2xl font-bold text-red-600">12</p>
+                        </div>
+                        <i data-lucide="shield-off" class="text-red-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau de Gestion des Demandes -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Gestion des Demandes</h2>
+                    <div class="flex space-x-2">
+                        <select class="border rounded px-3 py-2">
+                            <option>Tous les Statuts</option>
+                            <option>En Attente</option>
+                            <option>En Cours</option>
+                            <option>Terminé</option>
+                            <option>Bloqué</option>
+                        </select>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded">
+                            <i data-lucide="filter" class="inline-block mr-2"></i>Filtrer
+                        </button>
+                    </div>
+                </div>
+
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Utilisateur</th>
+                            <th class="p-3 text-left">Type de Demande</th>
+                            <th class="p-3 text-left">Statut</th>
+                            <th class="p-3 text-left">Date</th>
+                            <th class="p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3">REQ-001</td>
+                            <td class="p-3">jean.dupont@example.com</td>
+                            <td class="p-3">Analyse Ventes</td>
+                            <td class="p-3">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">Terminé</span>
+                            </td>
+                            <td class="p-3">2024-03-15</td>
+                            <td class="p-3">
+                                <div class="flex space-x-2">
+                                    <button class="text-blue-500" title="Détails">
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                    <button class="text-red-500" title="Bloquer">
+                                        <i data-lucide="shield-off"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Autres lignes similaires -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Gestion des Utilisateurs et Rôles -->
+            <div class="grid grid-cols-2 gap-6 mt-6">
+                <!-- Liste des Utilisateurs -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold mb-4">Utilisateurs</h2>
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-3 text-left">Email</th>
+                                <th class="p-3 text-left">Rôle</th>
+                                <th class="p-3 text-left">Statut</th>
+                                <th class="p-3 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3">jean.dupont@example.com</td>
+                                <td class="p-3">Analyste</td>
+                                <td class="p-3">
+                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">Actif</span>
+                                </td>
+                                <td class="p-3">
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-500" title="Modifier">
+                                            <i data-lucide="edit"></i>
+                                        </button>
+                                        <button class="text-red-500" title="Désactiver">
+                                            <i data-lucide="user-x"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Liste Noire et Accès Bloqués -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold mb-4">Liste Noire</h2>
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-3 text-left">Email</th>
+                                <th class="p-3 text-left">Raison</th>
+                                <th class="p-3 text-left">Date</th>
+                                <th class="p-3 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3">utilisateur.suspect@example.com</td>
+                                <td class="p-3">Abus de requêtes</td>
+                                <td class="p-3">2024-02-20</td>
+                                <td class="p-3">
+                                    <button class="text-red-500" title="Supprimer">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+{% endblock %}
+
+

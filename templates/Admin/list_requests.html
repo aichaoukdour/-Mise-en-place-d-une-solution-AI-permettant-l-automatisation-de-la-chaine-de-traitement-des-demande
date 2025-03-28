@@ -1,0 +1,78 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+
+<body class="bg-gray-100 py-10">
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-3xl font-bold mb-6 text-center">Suivi des Demandes Analytiques</h2>
+
+        <table id="requestTable" class="w-full border-collapse">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="p-3 text-left cursor-pointer" onclick="sortTable(0)">ID ⬆</th>
+                    <th class="p-3 text-left cursor-pointer" onclick="sortTable(1)">Email ⬆</th>
+                    <th class="p-3 text-left cursor-pointer" onclick="sortTable(2)">Objet ⬆</th>
+                    <th class="p-3 text-left cursor-pointer" onclick="sortTable(3)">Statut ⬆</th>
+                    <th class="p-3 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                <tr class="border-t">
+                    <td class="p-3">{{ request.Id_message }}</td>
+                    <td class="p-3">{{ request.email_agt }}</td>
+                    <td class="p-3">{{ request.Subject }}</td>
+                    <td class="p-3">
+                        <span class="px-3 py-1 rounded-lg text-white 
+                            {% if request.status.status_id == 1 %}bg-yellow-500
+                            {% elif request.status.status_id == 2 %}bg-blue-500
+                            {% elif request.status.status_id == 3 %}bg-green-500
+                            {% else %}bg-red-500{% endif %}">
+                            {{ request.status.name_status }}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <a href="{% url 'request_status' request.Id_message %}" class="text-blue-600 hover:underline">Voir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center p-3">Aucune demande trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="mt-4 flex justify-center">
+            {% if requests.has_previous %}
+                <a href="?page=1" class="mx-2 px-4 py-2 bg-gray-300 rounded">Début</a>
+                <a href="?page={{ requests.previous_page_number }}" class="mx-2 px-4 py-2 bg-gray-300 rounded">Précédent</a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-blue-500 text-white rounded">{{ requests.number }}</span>
+
+            {% if requests.has_next %}
+                <a href="?page={{ requests.next_page_number }}" class="mx-2 px-4 py-2 bg-gray-300 rounded">Suivant</a>
+                <a href="?page={{ requests.paginator.num_pages }}" class="mx-2 px-4 py-2 bg-gray-300 rounded">Fin</a>
+            {% endif %}
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="/static" class="text-blue-600 hover:underline">Retour à l'accueil</a>
+        </div>
+    </div>
+        <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function sortTable(columnIndex) {
+            let table = document.getElementById("requestTable");
+            let rows = Array.from(table.rows).slice(1);
+            let sortedRows = rows.sort((rowA, rowB) =>
+                rowA.cells[columnIndex].innerText.localeCompare(rowB.cells[columnIndex].innerText)
+            );
+            table.tBodies[0].append(...sortedRows);
+        }
+    </script>
+{% endblock %}

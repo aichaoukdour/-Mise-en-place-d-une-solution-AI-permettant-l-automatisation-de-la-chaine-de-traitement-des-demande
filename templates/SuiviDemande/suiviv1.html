@@ -1,0 +1,192 @@
+{% extends 'Navbar/NavbarSuiviDemande.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+
+    <!-- Contenu Principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <!-- En-tête avec Filtres -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Suivi des Demandes Analytiques</h2>
+                
+                <div class="flex space-x-4">
+                    <!-- Filtres -->
+                    <select class="border rounded-md px-3 py-2">
+                        <option>Tous les Statuts</option>
+                        <option>En attente</option>
+                        <option>En cours</option>
+                        <option>Terminée</option>
+                        <option>Erreur</option>
+                    </select>
+                    
+                    <select class="border rounded-md px-3 py-2">
+                        <option>Période</option>
+                        <option>Dernière semaine</option>
+                        <option>Dernier mois</option>
+                        <option>Année en cours</option>
+                    </select>
+                    
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            placeholder="Rechercher..." 
+                            class="border rounded-md px-3 py-2 pl-10"
+                        >
+                        <i data-lucide="search" class="absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des Demandes -->
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">Date</th>
+                        <th class="p-3 text-left">Utilisateur</th>
+                        <th class="p-3 text-left">Résumé</th>
+                        <th class="p-3 text-left">Statut</th>
+                        <th class="p-3 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Exemple de demande -->
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">REQ-001</td>
+                        <td class="p-3">2024-03-15 10:30</td>
+                        <td class="p-3">jean.dupont@exemple.com</td>
+                        <td class="p-3">Analyse des Ventes Q1</td>
+                        <td class="p-3">
+                            <span class="status-badge status-completed">
+                                <i data-lucide="check-circle" class="mr-2 w-4 h-4"></i>Terminée
+                            </span>
+                        </td>
+                            <td class="p-3">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'infosuivi' %}" class="text-blue-500 hover:text-blue-700" title="Détails">
+                                        <i data-lucide="eye"></i>
+                                    </a>
+                                    <a href="{% url 'infosuivi'  %}" class="text-green-500 hover:text-green-700" title="Télécharger">
+                                        <i data-lucide="download"></i>
+                                    </a>
+                                    {% if demande.status == 'in_progress' %}
+                                        <a href="{% url 'infosuivi' %}" class="text-red-500 hover:text-red-700" title="Annuler">
+                                            <i data-lucide="x-circle"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                    </tr>
+                    <!-- Exemple de demande en cours -->
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">REQ-002</td>
+                        <td class="p-3">2024-03-16 14:45</td>
+                        <td class="p-3">marie.martin@exemple.com</td>
+                        <td class="p-3">Analyse des Stocks</td>
+                        <td class="p-3">
+                            <span class="status-badge status-progress">
+                                <i data-lucide="loader" class="mr-2 w-4 h-4 animate-spin"></i>En cours
+                            </span>
+                        </td>
+                        <td class="p-3">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'infosuivi' %}" class="text-blue-500 hover:text-blue-700" title="Détails">
+                                        <i data-lucide="eye"></i>
+                                    </a>
+                                    <a href="{% url 'infosuivi'  %}" class="text-green-500 hover:text-green-700" title="Télécharger">
+                                        <i data-lucide="download"></i>
+                                    </a>
+                                    {% if demande.status == 'in_progress' %}
+                                        <a href="{% url 'infosuivi' %}" class="text-red-500 hover:text-red-700" title="Annuler">
+                                            <i data-lucide="x-circle"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-6 space-x-2">
+                <button class="px-4 py-2 bg-gray-200 rounded">
+                    <i data-lucide="chevron-left" class="inline-block mr-2"></i>Précédent
+                </button>
+                <span class="px-4 py-2 bg-blue-500 text-white rounded">1</span>
+                <button class="px-4 py-2 bg-gray-200 rounded">
+                    Suivant<i data-lucide="chevron-right" class="inline-block ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistiques Rapides -->
+        <div class="grid grid-cols-4 gap-4 mt-6">
+            <div class="bg-white shadow-md rounded-lg p-4 text-center">
+                <i data-lucide="file-text" class="mx-auto mb-2 text-blue-500"></i>
+                <h3 class="text-lg font-semibold">Total Demandes</h3>
+                <p class="text-2xl font-bold text-blue-600">124</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4 text-center">
+                <i data-lucide="check-circle" class="mx-auto mb-2 text-green-500"></i>
+                <h3 class="text-lg font-semibold">Terminées</h3>
+                <p class="text-2xl font-bold text-green-600">98</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4 text-center">
+                <i data-lucide="loader" class="mx-auto mb-2 text-yellow-500"></i>
+                <h3 class="text-lg font-semibold">En Cours</h3>
+                <p class="text-2xl font-bold text-yellow-600">22</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4 text-center">
+                <i data-lucide="alert-circle" class="mx-auto mb-2 text-red-500"></i>
+                <h3 class="text-lg font-semibold">Erreurs</h3>
+                <p class="text-2xl font-bold text-red-600">4</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Notification (exemple) -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto mt-20">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Notifications</h3>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="font-semibold">Demande REQ-002 terminée</p>
+                    <p class="text-sm text-gray-600">L'analyse des stocks est maintenant disponible.</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <p class="font-semibold">Action requise</p>
+                    <p class="text-sm text-gray-600">La demande REQ-003 nécessite une intervention manuelle.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+
+        // Exemple de gestion des notifications (à implémenter côté serveur)
+        document.addEventListener('DOMContentLoaded', () => {
+            const notificationBtn = document.querySelector('button[data-lucide="bell"]');
+            const notificationModal = document.getElementById('notificationModal');
+            
+            notificationBtn.addEventListener('click', () => {
+                notificationModal.classList.toggle('hidden');
+            });
+
+            // Fermeture du modal
+            notificationModal.querySelector('button[data-lucide="x"]').addEventListener('click', () => {
+                notificationModal.classList.add('hidden');
+            });
+        });
+    </script>
+    
+{% endblock %}
+

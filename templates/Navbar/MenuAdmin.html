@@ -1,0 +1,135 @@
+{% load static %}  <!-- Charger les fichiers statiques -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Importation de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 4rem);
+        }
+        .active-menu {
+            background-color: #3B82F6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-16">
+        <div class="max-w-full mx-auto px-4 flex justify-between items-center h-full">
+            <div class="flex items-center">
+                <img src="{%  static "logo/inwi-icon.png" %}"  alt="Logo" class="h-10 mr-4">
+                <h1 class="text-xl font-bold text-gray-800">Admin</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Recherche globale..." 
+                        class="border rounded-full px-4 py-2 pl-10 w-64"
+                    >
+                    <i data-lucide="search" class="absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                
+                <div class="relative">
+                    <!--<button class="bg-gray-200 rounded-full p-2">
+                        <i data-lucide="bell" class="text-gray-600"></i>
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs">5</span>
+                    </button>-->
+                </div>
+                <div class="flex items-center">
+                    <!--<img src="{% static 'images/profile.png' %}"  class="rounded-full mr-2">-->
+                    <button class="bg-gray-200 rounded-full p-2" >
+                        <i data-lucide="user-cog" class="inline-text-gray-600"></i>
+                    </button>
+                    <span class="font-semibold">Admin &nbsp;</span>
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-md sidebar p-4">
+            <nav class="space-y-2">
+                <h3 class="text-xs uppercase text-gray-500 mb-2">Menu Principal</h3>
+    
+                <a href="{% url 'administrationinfo' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50 active-menu">
+                    <i data-lucide="layout-dashboard" class="inline-block mr-2"></i>Tableau de Bord
+                </a>
+    
+                <h3 class="text-xs uppercase text-gray-500 mt-4 mb-2">Gestion des Demandes</h3>
+                <a href="{% url 'allrequests' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="file-text" class="inline-block mr-2"></i>Toutes les Demandes
+                </a>
+                <a href="{% url 'PendingRequests' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="clock" class="inline-block mr-2"></i>Demandes en Attente
+                </a>
+                <a href="{% url 'OverdueRequests' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="alert-triangle" class="inline-block mr-2"></i>Demandes Échues
+                </a>
+    
+                <h3 class="text-xs uppercase text-gray-500 mt-4 mb-2">Gestion des Utilisateurs</h3>
+                <a href="{% url 'UserList' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="users" class="inline-block mr-2"></i>Liste des Utilisateurs
+                </a>
+                <a href="{% url 'create_user' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="user-plus" class="inline-block mr-2"></i>Créer un Utilisateur
+                </a>
+
+    
+                <h3 class="text-xs uppercase text-gray-500 mt-4 mb-2">Sécurité</h3>
+                <a href="{% url 'blacklist' %}" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-50">
+                    <i data-lucide="list" class="inline-block mr-2"></i>Liste Noire
+                </a>
+
+            </nav>
+        </aside>
+        
+        {% block content %}
+            
+        {% endblock %}
+    </div>
+
+    <!-- Modal Création Utilisateur -->
+    <div id="createUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-auto mt-20">
+            <h2 class="text-xl font-semibold mb-4">Créer un Utilisateur</h2>
+            <form>
+                <div class="mb-4">
+                    <label class="block mb-2">Email</label>
+                    <input type="email" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Rôle</label>
+                    <select class="w-full border rounded px-3 py-2">
+                        <option>Utilisateur</option>
+                        <option>Analyste</option>
+                        <option>Administrateur</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" class="bg-gray-200 px-4 py-2 rounded">Annuler</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

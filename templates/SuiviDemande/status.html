@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi du Statut</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-3xl w-full bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-3xl font-bold text-center mb-6">Suivi du Statut</h2>
+
+        <div class="bg-gray-200 p-4 rounded-lg mb-4">
+            <p class="text-gray-700"><strong>Email :</strong> {{ request.email_agt }}</p>
+            <p class="text-gray-700"><strong>Objet :</strong> {{ request.Subject }}</p>
+            <p class="text-gray-700"><strong>Reçu le :</strong> {{ request.date_recp_message }}</p>
+        </div>
+
+        <!-- Affichage du statut avec badge -->
+        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md">
+            <span class="text-lg font-semibold">Statut :</span>
+            <span class="px-4 py-2 rounded-lg text-white text-sm font-bold
+                {% if request.status.name_status == 'En attente' %} bg-yellow-500
+                {% elif request.status.name_status == 'En cours' %} bg-blue-500
+                {% elif request.status.name_status == 'Terminé' %} bg-green-500
+                {% elif request.status.name_status == 'Échec' %} bg-red-500
+                {% else %} bg-gray-500 {% endif %}">
+                {{ request.status.name_status }}
+            </span>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="relative mt-6">
+            <div class="w-full bg-gray-300 rounded-full h-4">
+                <div class="h-4 rounded-full transition-all duration-500 ease-in-out"
+                    {% if request.status.name_status == 'En attente' %} style="width: 25%; background-color: #facc15;"
+                    {% elif request.status.name_status == 'En cours' %} style="width: 50%; background-color: #3b82f6;"
+                    {% elif request.status.name_status == 'Terminé' %} style="width: 100%; background-color: #10b981;"
+                    {% elif request.status.name_status == 'Échec' %} style="width: 100%; background-color: #ef4444;"
+                    {% else %} style="width: 10%; background-color: #6b7280;" {% endif %}>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'actions -->
+        <div class="flex justify-between mt-6">
+            <a href="/static" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg shadow hover:bg-gray-400">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <button onclick="refreshStatus()" class="bg-blue-500 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-600">
+                <i class="fas fa-sync"></i> Rafraîchir
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function refreshStatus() {
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Chatbot LLM</title>
+    <style>
+        :root {
+            --primary-color: #10a37f;
+            --sidebar-color: #202123;
+            --bg-color: #ffffff;
+            --text-color: #343541;
+            --border-color: #e5e5e5;
+            --hover-color: #f7f7f8;
+            --chat-user-bg: #e7f8ff;
+            --chat-bot-bg: #f7f7f8;
+            --sidebar-text: #ececf1;
+            --sidebar-hover: #2a2b32;
+            --navbar-color: #ffffff;
+            --navbar-text: #343541;
+        }
+        
+        [data-theme="dark"] {
+            --primary-color: #19c37d;
+            --sidebar-color: #202123;
+            --bg-color: #343541;
+            --text-color: #ececf1;
+            --border-color: #4d4d4f;
+            --hover-color: #40414f;
+            --chat-user-bg: #444654;
+            --chat-bot-bg: #343541;
+            --sidebar-text: #ececf1;
+            --sidebar-hover: #2a2b32;
+            --navbar-color: #343541;
+            --navbar-text: #ececf1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Barre latérale */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-color);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.visible {
+            transform: translateX(0);
+        }
+        
+        .new-chat-btn {
+            margin: 15px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--sidebar-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+        
+        .new-chat-btn:hover {
+            background-color: var(--sidebar-hover);
+        }
+        
+        .new-chat-btn i {
+            margin-right: 8px;
+        }
+        
+        .history-heading {
+            padding: 10px 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(236, 236, 241, 0.6);
+            margin-top: 10px;
+        }
+        
+        .conversations {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+        
+        .conversation {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .conversation:hover {
+            background-color: var(--sidebar-hover);
+        }
+        
+        .conversation.active {
+            background-color: var(--sidebar-hover);
+        }
+        
+        .conversation i {
+            margin-right: 8px;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        
+        .conversation span {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-section {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .user-info:hover {
+            background-color: var(--sidebar-hover);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .user-name {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            background-color: var(--sidebar-color);
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            bottom: 70px;
+            left: 15px;
+            width: calc(100% - 30px);
+            z-index: 10;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--sidebar-hover);
+        }
+        
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 10px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: rgba(236, 236, 241, 0.6);
+            text-align: center;
+        }
+        
+        /* Zone de contenu principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            width: 100%;
+        }
+        
+        .main-content.with-sidebar {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+        }
+        
+        /* En-tête (navbar) */
+        .navbar {
+            background-color: var(--navbar-color);
+            color: var(--navbar-text);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--hover-color);
+        }
+        
+        /* Zone de chat */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        
+        .message-container {
+            display: flex;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .message-container.user {
+            background-color: var(--chat-user-bg);
+        }
+        
+        .message-container.bot {
+            background-color: var(--chat-bot-bg);
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .user .message-avatar {
+            background-color: #9b61fc;
+        }
+        
+        .bot .message-avatar {
+            background-color: var(--primary-color);
+        }
+        
+        .message-avatar i {
+            color: white;
+            font-size: 18px;
+        }
+        
+        .message-content {
+            max-width: 800px;
+            line-height: 1.5;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        /* Zone de saisie */
+        .input-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .input-box {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+        
+        #message-input {
+            width: 100%;
+            padding: 12px 45px 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            min-height: 48px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .disclaimer {
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(107, 114, 128, 0.7);
+        }
+        
+        /* Styles pour les icônes */
+        .icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content.with-sidebar {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar.visible {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+        }
+    </style>
+    <!-- Icônes Font Awesome (version CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/api/placeholder/400/320" />
+</head>
+<body>
+    <!-- Barre latérale -->
+    <div class="sidebar" id="sidebar">
+        <button class="new-chat-btn" id="new-chat">
+            <i class="icon">+</i> Nouvelle conversation
+        </button>
+        
+        <div class="history-heading">Aujourd'hui</div>
+        <div class="conversations" id="recent-conversations">
+            <div class="conversation active">
+                <i class="icon">💬</i>
+                <span>chiffre d'affaire</span>
+            </div>
+            <div class="conversation">
+                <i class="icon">💬</i>
+                <span>b2B</span>
+            </div>
+        </div>
+        
+        <div class="history-heading">Cette semaine</div>
+        <div class="conversations" id="older-conversations">
+            <div class="conversation">
+                <i class="icon">💬</i>
+                <span>demande b2c </span>
+            </div>
+            <div class="conversation">
+                <i class="icon">💬</i>
+                <span>ADSL </span>
+            </div>
+        </div>
+        
+        <div class="user-section">
+            <div class="user-info" id="user-menu-toggle">
+                <div class="user-avatar">U</div>
+                <div class="user-name">Utilisateur</div>
+                <i class="icon">▼</i>
+            </div>
+            
+            <div class="dropdown-menu" id="user-dropdown">
+                <div class="dropdown-item">
+                    <i class="icon">👤</i> Mon compte
+                </div>
+                <div class="dropdown-item" id="theme-toggle-dropdown">
+                    <i class="icon">🌙</i> Mode sombre
+                </div>
+                <div class="dropdown-item">
+                    <i class="icon">⚙️</i> Paramètres
+                </div>
+                <div class="dropdown-item" id="logout-btn">
+                    <i class="icon">🚪</i> Déconnexion
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+             IA INWI - © 2025
+        </div>
+    </div>
+    
+    <!-- Contenu principal -->
+    <div class="main-content" id="main-content">
+        <!-- Barre de navigation -->
+        <div class="navbar">
+            <button class="menu-toggle" id="menu-toggle">☰</button>
+            <div class="brand">Assistant IA</div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle">🌙</button>
+            </div>
+        </div>
+        
+        <!-- Conteneur de chat -->
+        <div class="chat-container">
+            <!-- Messages -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="message-container bot">
+                    <div class="message-avatar">
+                        <i class="icon">🤖</i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-sender">Assistant</div>
+                        <p>Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider aujourd'hui ?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Zone de saisie -->
+            <div class="input-container">
+                <div class="input-box">
+                    <textarea id="message-input" placeholder="Envoyez un message..." rows="1"></textarea>
+                    <button class="send-button" id="send-button">
+                        <i class="icon">➤</i>
+                    </button>
+                </div>
+                <div class="disclaimer">
+                    L'assistant peut produire des informations inexactes. Considérez vérifier les réponses importantes.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Éléments DOM
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const menuToggle = document.getElementById('menu-toggle');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+        const userMenuToggle = document.getElementById('user-menu-toggle');
+        const userDropdown = document.getElementById('user-dropdown');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const chatMessages = document.getElementById('chat-messages');
+        const newChatButton = document.getElementById('new-chat');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        // Vérifier le thème initial
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            themeToggle.textContent = '☀️';
+            themeToggleDropdown.innerHTML = '<i class="icon">☀️</i> Mode clair';
+        }
+        
+        // Toggle du menu latéral
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('visible');
+            mainContent.classList.toggle('with-sidebar');
+        });
+        
+        // Toggle du thème (clair/sombre)
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+                themeToggleDropdown.innerHTML = '<i class="icon">🌙</i> Mode sombre';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+                themeToggleDropdown.innerHTML = '<i class="icon">☀️</i> Mode clair';
+            }
+        }
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        themeToggleDropdown.addEventListener('click', () => {
+            toggleTheme();
+            userDropdown.classList.remove('show');
+        });
+        
+        // Toggle du menu utilisateur
+        userMenuToggle.addEventListener('click', () => {
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Fermer le menu déroulant au clic ailleurs
+        document.addEventListener('click', (e) => {
+            if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+        
+        // Ajuster la hauteur du textarea
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
+        });
+        
+        // Envoyer un message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                // Ajouter le message de l'utilisateur
+                addMessage(message, true);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                
+                // Simuler la réponse de l'assistant
+                setTimeout(() => {
+                    addMessage(`Je réponds à votre message: "${message}". Dans une application réelle, cette réponse serait générée par un modèle de langage avancé.`, false);
+                }, 1000);
+            }
+        }
+        
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Ajouter un message au chat
+        function addMessage(content, isUser) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-container');
+            messageContainer.classList.add(isUser ? 'user' : 'bot');
+            
+            const avatar = document.createElement('div');
+            avatar.classList.add('message-avatar');
+            
+            const avatarIcon = document.createElement('i');
+            avatarIcon.classList.add('icon');
+            avatarIcon.textContent = isUser ? '👤' : '🤖';
+            
+            avatar.appendChild(avatarIcon);
+            
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
+            
+            const sender = document.createElement('div');
+            sender.classList.add('message-sender');
+            sender.textContent = isUser ? 'Vous' : 'Assistant';
+            
+            const text = document.createElement('p');
+            text.textContent = content;
+            
+            messageContent.appendChild(sender);
+            messageContent.appendChild(text);
+            
+            messageContainer.appendChild(avatar);
+            messageContainer.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageContainer);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Si c'est un message utilisateur, mettre à jour la conversation active
+            if (isUser) {
+                updateActiveConversation(content);
+            }
+        }
+        
+        // Mettre à jour la conversation active
+        function updateActiveConversation(content) {
+            const activeConversation = document.querySelector('.conversation.active');
+            if (activeConversation) {
+                activeConversation.querySelector('span').textContent = content;
+            }
+        }
+        
+        // Nouvelle conversation
+        newChatButton.addEventListener('click', () => {
+            // Supprimer l'état actif des conversations
+            document.querySelectorAll('.conversation').forEach(conv => {
+                conv.classList.remove('active');
+            });
+            
+            // Créer une nouvelle conversation
+            const newConv = document.createElement('div');
+            newConv.classList.add('conversation', 'active');
+            
+            const icon = document.createElement('i');
+            icon.classList.add('icon');
+            icon.textContent = '💬';
+            
+            const span = document.createElement('span');
+            span.textContent = 'Nouvelle conversation';
+            
+            newConv.appendChild(icon);
+            newConv.appendChild(span);
+            
+            // Ajouter au début des conversations récentes
+            document.getElementById('recent-conversations').prepend(newConv);
+            
+            // Vider la zone de chat
+            chatMessages.innerHTML = '';
+            addMessage("Bonjour ! Comment puis-je vous aider aujourd'hui ?", false);
+            
+            // Gérer le clic sur la nouvelle conversation
+            newConv.addEventListener('click', handleConversationClick);
+        });
+        
+        // Gérer les clics sur les conversations
+        function handleConversationClick() {
+            // Supprimer l'état actif des conversations
+            document.querySelectorAll('.conversation').forEach(conv => {
+                conv.classList.remove('active');
+            });
+            
+            // Ajouter l'état actif à cette conversation
+            this.classList.add('active');
+            
+            // Simuler le chargement d'une conversation
+            chatMessages.innerHTML = '';
+            addMessage('Cette conversation a été chargée. Comment puis-je vous aider ?', false);
+            
+            // Fermer la barre latérale sur mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('visible');
+                mainContent.classList.remove('with-sidebar');
+            }
+        }
+        
+        // Ajouter l'écouteur à toutes les conversations existantes
+        document.querySelectorAll('.conversation').forEach(conv => {
+            conv.addEventListener('click', handleConversationClick);
+        });
+        
+        // Gestion de la déconnexion
+        logoutBtn.addEventListener('click', () => {
+            alert('Vous avez été déconnecté.');
+            document.querySelector('.user-avatar').textContent = 'U';
+            document.querySelector('.user-name').textContent = 'Utilisateur';
+            userDropdown.classList.remove('show');
+        });
+        
+        // Ouvrir la barre latérale par défaut sur grand écran
+        if (window.innerWidth > 768) {
+            sidebar.classList.add('visible');
+            mainContent.classList.add('with-sidebar');
+        }
+    </script>
+</body>
+</html>

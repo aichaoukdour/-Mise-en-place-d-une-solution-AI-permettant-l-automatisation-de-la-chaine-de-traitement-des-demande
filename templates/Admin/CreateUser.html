@@ -1,0 +1,57 @@
+{% extends 'Navbar/MenuAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+        <main class="flex-1 p-6 bg-gray-100">
+            <div class="bg-white rounded-lg shadow p-8 max-w-2xl mx-auto">
+                <h1 class="text-2xl font-bold mb-6 text-gray-800">Créer un Nouvel Utilisateur</h1>
+                <form>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Prénom</label>
+                            <input type="text" name="first_name" class="w-full border rounded px-3 py-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Nom de Famille</label>
+                            <input type="text" name="last_name" class="w-full border rounded px-3 py-2" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-gray-700 mb-2">Email</label>
+                        <input type="email" name="email" class="w-full border rounded px-3 py-2" required>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-gray-700 mb-2">Rôle</label>
+                        <select name="role_agt" class="w-full border rounded px-3 py-2" required>
+                            <option value="">Sélectionner un rôle</option>
+                            <option value="utilisateur">Utilisateur</option>
+                            <option value="analyste">Analyste</option>
+                            <option value="administrateur">Administrateur</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-gray-700 mb-2">Priorité</label>
+                        <select name="priority" class="w-full border rounded px-3 py-2" required>
+                            <option value="">Sélectionner la priorité</option>
+                            <option value="basse">Basse</option>
+                            <option value="moyenne">Moyenne</option>
+                            <option value="haute">Haute</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-4">
+                        <button type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Annuler</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Créer Utilisateur</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+{% endblock %}

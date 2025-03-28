@@ -1,0 +1,293 @@
+{% extends 'Navbar/NavbarSuiviDemande.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+    <!-- Contenu Principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-3 gap-6">
+            <!-- Colonne Gauche: Informations Principales -->
+            <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">Détails de la Demande</h2>
+                    <div class="flex space-x-2">
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            <i data-lucide="download" class="inline-block mr-2"></i>Télécharger
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Informations de la Demande -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-gray-600 mb-2">ID de la Demande</label>
+                        <p class="font-semibold">REQ-001</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Date de Création</label>
+                        <p class="font-semibold">2024-03-15 10:30</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Email Demandeur</label>
+                        <p class="font-semibold">agent1@example.com</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Statut</label>
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs">Terminé</span>
+                    </div>
+                </div>
+
+                <!-- Détails du Rapport -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-4">Détails du Rapport</h3>
+                    <div class="bg-gray-100 p-4 rounded">
+                        <p><strong>Titre:</strong> Rapport Ventes Q1 2024</p>
+                        <p><strong>Type:</strong> Analyse Commerciale</p>
+                        <p><strong>Période:</strong> 01/01/2024 - 31/03/2024</p>
+                    </div>
+                </div>
+
+                <!-- Fichiers Générés -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Fichiers Générés</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-text" class="mr-3 text-blue-500"></i>
+                                <span>Rapport_Ventes_Q1_2024.pdf</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-500 hover:text-blue-700">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700">
+                                    <i data-lucide="download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-spreadsheet" class="mr-3 text-green-500"></i>
+                                <span>Donnees_Ventes_Q1_2024.xlsx</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-500 hover:text-blue-700">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700">
+                                    <i data-lucide="download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Droite: Historique et Progression -->
+            <div class="space-y-6">
+                <!-- Progression de la Demande -->
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Progression</h3>
+                    <div class="relative pl-6 space-y-4">
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Demande Initiée</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 10:30</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Traitement en Cours</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 11:15</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Rapport Généré</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 14:45</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Demande Terminée</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 15:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails Techniques -->
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Détails Techniques</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-600 mb-1">Requête SQL</label>
+                            <pre class="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+                                SELECT 
+                                    product_category, 
+                                    SUM(sales_amount) as total_sales,
+                                    AVG(sales_amount) as avg_sales
+                                FROM sales_data
+                                WHERE date BETWEEN '2024-01-01' AND '2024-03-31'
+                                GROUP BY product_category
+                            </pre>
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 mb-1">Nombre de Lignes Traitées</label>
+                            <p class="font-semibold">25,436</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+    </script>
+{% endblock %}
+
+
+{% comment %}
+	
+
+{% extends 'Navbar/NavbarSuiviDemande.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+    <!-- Contenu Principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-3 gap-6">
+            <!-- Colonne Gauche: Informations Principales -->
+            <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">Détails de la Demande</h2>
+                    <div class="flex space-x-2">
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            <i data-lucide="download" class="inline-block mr-2"></i>Télécharger
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Informations de la Demande -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-gray-600 mb-2">ID de la Demande</label>
+                        <p class="font-semibold">REQ-001</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Date de Création</label>
+                        <p class="font-semibold">2024-03-15 10:30</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Email Demandeur</label>
+                        <p class="font-semibold">agent1@example.com</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-2">Statut</label>
+                        <span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs">Terminé</span>
+                    </div>
+                </div>
+
+                <!-- Détails du Rapport -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-4">Détails du Rapport</h3>
+                    <div class="bg-gray-100 p-4 rounded">
+                        <p><strong>Titre:</strong> Rapport Ventes Q1 2024</p>
+                        <p><strong>Type:</strong> Analyse Commerciale</p>
+                        <p><strong>Période:</strong> 01/01/2024 - 31/03/2024</p>
+                    </div>
+                </div>
+
+                <!-- Fichiers Générés -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Fichiers Générés</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-text" class="mr-3 text-blue-500"></i>
+                                <span>Rapport_Ventes_Q1_2024.pdf</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-500 hover:text-blue-700">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700">
+                                    <i data-lucide="download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-spreadsheet" class="mr-3 text-green-500"></i>
+                                <span>Donnees_Ventes_Q1_2024.xlsx</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-500 hover:text-blue-700">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700">
+                                    <i data-lucide="download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Droite: Historique et Progression -->
+            <div class="space-y-6">
+                <!-- Progression de la Demande -->
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Progression</h3>
+                    <div class="relative pl-6 space-y-4">
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Demande Initiée</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 10:30</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Traitement en Cours</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 11:15</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Rapport Généré</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 14:45</p>
+                        </div>
+                        <div class="timeline-item completed relative">
+                            <h4 class="font-semibold">Demande Terminée</h4>
+                            <p class="text-sm text-gray-600">2024-03-15 15:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails Techniques -->
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Détails Techniques</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-600 mb-1">Requête SQL</label>
+                            <pre class="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+SELECT 
+    product_category, 
+    SUM(sales_amount) as total_sales,
+    AVG(sales_amount) as avg_sales
+FROM sales_data
+WHERE date BETWEEN '2024-01-01' AND '2024-03-31'
+GROUP BY product_category
+                            </pre>
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 mb-1">Temps de Traitement</label>
+                            <p class="font-semibold">00:12:35</p>
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 mb-1">Nombre de Lignes Traitées</label>
+                            <p class="font-semibold">25,436</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+N
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+    </script>
+{% endblock %}
+{% endcomment %}
+

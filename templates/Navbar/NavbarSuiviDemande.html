@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-icons"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        .active-menu {
+            border-bottom: 2px solid #3B82F6;
+            color: #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar Horizontale -->
+    <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="{%  static "logo/inwi-icon.png" %}" alt="Logo">
+                        <span class="ml-3 font-bold text-xl text-gray-800">Inwi Query</span>
+                    </div>
+                    
+                    <!-- Menu Principal -->
+                    <div class="ml-10 flex items-center space-x-4">
+                        
+                        <a href="{% url 'suivi' %}" class="text-gray-600 hover:text-blue-600 px-3 py-2">
+                            <i data-lucide="settings" class="inline-block mr-2"></i>Accueil
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600 px-3 py-2">
+                            <i data-lucide="file-text" class="inline-block mr-2"></i>Rapports
+                        </a>
+
+
+                    </div>
+                </div>
+                
+                <!-- Actions Utilisateur -->
+                <div class="flex items-center">
+
+                    
+                    <!-- Profil Utilisateur -->
+                    <div class="ml-3 relative">
+                        <div>                            
+                            
+                            <span class="font-semibold">demandeur &nbsp;</span>
+
+                            <button class="bg-gray-200 rounded-full p-2" >
+                                <i data-lucide="user-cog" class="inline-text-gray-600"></i>
+                            </button>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+        {% block content %}
+        {% endblock %}
+
+</body>
+</html>
