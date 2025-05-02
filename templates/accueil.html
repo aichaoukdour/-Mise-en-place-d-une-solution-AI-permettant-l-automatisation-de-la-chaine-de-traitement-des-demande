@@ -1,91 +1,125 @@
 {% load static %}
 <!DOCTYPE html>
+                                                                                                                                                                           {% load static %}
+
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - DataAnalytics Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+   
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-purple-100 min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-md bg-white shadow-2xl rounded-xl overflow-hidden">
-        <div class="bg-purple-600 py-6 px-8 text-center">
-            <img src="{%  static "logo/inwi-icon.png" %}" alt="Logo" class="mx-auto mb-4 h-12">
-            <h2 class="text-2xl font-bold text-white">&nbsp;</h2>
+<body class="flex justify-center items-center min-h-screen bg-gray-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-80 backdrop-blur-md">
+        <div class="flex justify-center border-b border-gray-200 pb-3 mb-4">
+            <img src="{% static 'logo/inwi-icon.png' %}" alt="Inwi" class="h-4 w-16 mb-1">
         </div>
         
-        <form class="p-8">
-            <div class="mb-6">
-                <label for="email" class="block text-gray-700 font-bold mb-2">
-                    <i class="fas fa-envelope mr-2 text-blue-600"></i>Adresse Email
-                </label>
-                <div class="relative">
-                    <input 
-                        type="email" 
-                        id="email" 
-                        required 
-                        placeholder="votre.email@entreprise.com"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-                    >
-                </div>
+        <form class="space-y-4">
+            <div class="flex items-center bg-gray-100 p-2.5 rounded-lg shadow-sm">
+                <i class="fas fa-user text-fuchsia-700 mx-2 text-sm"></i>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email"
+                    class="bg-transparent w-full focus:outline-none text-sm py-1"
+                    required
+                >
             </div>
             
-            <div class="mb-6">
-                <label for="password" class="block text-gray-700 font-bold mb-2">
-                    <i class="fas fa-lock mr-2 text-blue-600"></i>Mot de Passe
-                </label>
-                <div class="relative">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        required 
-                        placeholder="••••••••"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-                    >
-                    <button 
-                        type="button" 
-                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600"
-                        onclick="togglePasswordVisibility()"
-                    >
-                        <i id="password-toggle-icon" class="fas fa-eye-slash"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center">
-                    <input 
-                        type="checkbox" 
-                        id="remember" 
-                        class="mr-2 rounded text-blue-600 focus:ring-blue-500"
-                    >
-                    <label for="remember" class="text-gray-700">Se souvenir de moi</label>
-                </div>
-                
-                <a href="#" class="text-blue-600 hover:underline">Mot de passe oublié ?</a>
+            <div class="relative flex items-center bg-gray-100 p-2.5 rounded-lg shadow-sm">
+                <i class="fas fa-lock text-fuchsia-700 mx-2 text-sm"></i>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Mot de passe"
+                    class="bg-transparent w-full focus:outline-none text-sm py-1"
+                    required
+                >
+                <button
+                    type="button"
+                    class="absolute right-2 text-gray-500 hover:text-fuchsia-700"
+                    onclick="togglePasswordVisibility()"
+                >
+                    <i id="password-toggle-icon" class="fas fa-eye-slash text-sm"></i>
+                </button>
             </div>
             
             <button 
-                type="submit" 
-                class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+                type="button"
+                id="btn"
+                class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300 flex items-center justify-center shadow-sm text-sm font-medium"
             >
-                <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                <i class="fas fa-sign-in-alt mr-2 text-sm"></i>Connexion
             </button>
             
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">Pas encore de compte ? 
-                    <a href="#" class="text-blue-600 hover:underline">Demander un accès</a>
+            <div class="flex items-center justify-between text-xs pt-1">
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        id="remember"
+                        class="mr-1.5 rounded text-purple-600 focus:ring-purple-500 w-3 h-3"
+                    >
+                    <label for="remember" class="text-gray-600">Se souvenir de moi</label>
+                </div>
+                
+                <a href="#" class="text-fuchsia-700 hover:underline">Mot de passe oublié ?</a>
+            </div>
+            
+            <div class="mt-4 text-center text-xs">
+                <p class="text-gray-500">
+                    Pas encore de compte ? 
+                    <a href="#" class="text-fuchsia-700 hover:underline font-medium">Demander un accès</a>
                 </p>
             </div>
         </form>
-        
-        <div class="bg-gray-100 py-4 px-8 text-center text-sm text-gray-600">
-            <p>Connexion sécurisée | Politique de confidentialité</p>
-        </div>
     </div>
 
     <script>
+        const emailInput = document.getElementById("email");
+        const password = document.getElementById("password");
+        const loginButton = document.getElementById("btn");
+        loginButton.addEventListener("click", function () {
+            const email = emailInput.value.trim();
+            const passs = password.value.trim();
+            if (email === "" || passs === "") {
+                alert("Veuillez remplir tous les champs.");
+                return;
+            }
+            console.log(email);
+    
+            
+                checkEmail(email,passs); 
+         
+            
+        });
+
+        function checkEmail(email,password) {
+            fetch(`/check-email/?email=${email}&password=${password}`) // Django URL for checking email
+                .then(response => response.json()) // Parse JSON response
+                .then(data => {
+                    if (data.exists) {
+                        if (data.user_role === 'admin') {
+                            window.location.href = "/Admin/administration"; // Redirect to admin panel
+                        } else {
+                            window.location.href = "/suivi"; // Redirect to suivi page
+                        }
+                    } else {
+                        // User does not exist, show an alert
+                        alert("User does not exist. Please register.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking email:", error);
+                    alert("An error occurred while checking email. Please try again.");
+                });
+        }
+    
+
+
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const passwordToggleIcon = document.getElementById('password-toggle-icon');
@@ -102,4 +136,4 @@
         }
     </script>
 </body>
-</html>
+</html> 

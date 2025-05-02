@@ -149,25 +149,14 @@
                 <tbody>
                     {% for demande in demandes %}
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3">{{ demande.id }}</td>
-                        <td class="p-3">{{ demande.email }}</td>
-                        <td class="p-3">{{ demande.objet }}</td>
-                        <td class="p-3">
-                            <span class="px-3 py-1 rounded-full text-white text-xs {% if demande.statut == 'Terminé' %}bg-green-500{% elif demande.statut == 'En cours' %}bg-yellow-500{% else %}bg-red-500{% endif %}">
-                                {{ demande.statut }}
-                            </span>
-                        </td>
-                        <td class="p-3">{{ demande.date }}</td>
-                        <td class="p-3">
-                            <div class="flex space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700">
-                                    <span data-lucide="eye"></span>
-                                </button>
-                                <button class="text-green-500 hover:text-green-700">
-                                    <span data-lucide="download"></span>
-                                </button>
-                            </div>
-                        </td>
+                        <td class="p-3">{{ demande.email_rec }}</td>
+                        <td class="p-3">{{ demande.subject }}</td>
+                        <td class="p-3">{{ demande.date_rec }}</td>
+                        <td class="p-3">{{ demande.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center p-4 text-gray-500">Aucune demande trouvée</td>
                     </tr>
                     {% endfor %}
                 </tbody>

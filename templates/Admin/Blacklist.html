@@ -1,115 +1,119 @@
+{% extends 'Navbar/MenuAdmin2.html' %}
 
-{% extends 'Navbar/MenuAdmin.html' %}
-
-{% block title %}Admin{% endblock %}
+{% block title %}Admin - Liste Noire{% endblock %}
 
 {% block content %}
-        <main class="flex-1 p-6 bg-gray-100">
-            <div class="bg-white rounded-lg shadow p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800">Liste Noire</h1>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-gray-100 border-b">
-                                <th class="p-3 text-left">Nom</th>
-                                <th class="p-3 text-left">Email</th>
-                                <th class="p-3 text-left">Date d'Ajout</th>
-                                <th class="p-3 text-left">Raison</th>
-                                <th class="p-3 text-left">Statut</th>
-                                <th class="p-3 text-left">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-3">Jean Dupont</td>
-                                <td class="p-3">jean.dupont@example.com</td>
-                                <td class="p-3">2024-02-20</td>
-                                <td class="p-3">Abus de requêtes</td>
-                                <td class="p-3">
-                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Bloqué</span>
-                                </td>
-                                <td class="p-3">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-500" title="Détails">
-                                            <i data-lucide="eye"></i>
-                                        </button>
-                                        <button class="text-green-500" title="Réactiver">
-                                            <i data-lucide="unlock"></i>
-                                        </button>
-                                        <button class="text-red-500" title="Supprimer">
-                                            <i data-lucide="trash-2"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-3">Marie Durand</td>
-                                <td class="p-3">marie.durand@example.com</td>
-                                <td class="p-3">2024-03-15</td>
-                                <td class="p-3">Activité suspecte</td>
-                                <td class="p-3">
-                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Bloqué</span>
-                                </td>
-                                <td class="p-3">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-500" title="Détails">
-                                            <i data-lucide="eye"></i>
-                                        </button>
-                                        <button class="text-green-500" title="Réactiver">
-                                            <i data-lucide="unlock"></i>
-                                        </button>
-                                        <button class="text-red-500" title="Supprimer">
-                                            <i data-lucide="trash-2"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+<main class="flex-1 p-6 bg-gray-100">
+    <div class="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 class="text-lg font-bold text-gray-800 flex items-center">
+                <i data-lucide="shield-alert" class="menu-icon h-6 w-6 text-violet-600 mr-2"></i>
+                Liste Noire
+            </h1>
+        </div>
 
-                <!-- Détails de la Liste Noire -->
-                <div class="mt-6 bg-gray-100 rounded-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4">Statistiques de la Liste Noire</h2>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-gray-500 text-sm">Total Bloqués</h3>
-                            <p class="text-2xl font-bold text-red-600">12</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-gray-500 text-sm">Bloqués ce Mois</h3>
-                            <p class="text-2xl font-bold text-yellow-600">3</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-gray-500 text-sm">Raison Principale</h3>
-                            <p class="text-lg font-semibold text-gray-700">Abus</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <h3 class="text-gray-500 text-sm">Actions en Attente</h3>
-                            <p class="text-2xl font-bold text-blue-600">2</p>
-                        </div>
+
+         <!-- Statistiques de la Liste Noire -->
+         <div class="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800">Statistiques de la Liste Noire</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-violet-100 p-4 rounded-lg shadow-2xl border-l-4 border-violet-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Total Bloqués</h3>
+                    <p class="text-lg font-bold text-red-600 mt-1">12</p>
+                </div>
+                <div class="bg-violet-100 p-4 rounded-lg shadow-2xl border-l-4 border-violet-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Bloqués ce Mois</h3>
+                    <p class="text-lg font-bold text-yellow-600 mt-1">3</p>
+                </div>
+                <div class="bg-violet-100 p-4 rounded-lg shadow-2xl border-l-4 border-violet-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Raison Principale</h3>
+                    <p class="text-lg font-semibold text-gray-700 mt-1">Abus</p>
+                </div>
+                <div class="bg-violet-100 p-4 rounded-lg shadow-2xl border-l-4 border-violet-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Actions en Attente</h3>
+                    <p class="text-lg font-bold text-blue-600 mt-1">2</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-violet-100 border-b">
+                        <th class="p-3 text-left font-medium text-gray-400">Nom</th>
+                        <th class="p-3 text-left font-medium text-gray-400">Email</th>
+                        <th class="p-3 text-left font-medium text-gray-400">Date d'Ajout</th>
+                        <th class="p-3 text-left font-medium text-gray-400">Raison</th>
+                        <th class="p-3 text-left font-medium text-gray-400">Statut</th>
+                        <th class="p-3 text-left font-medium text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b hover:bg-gray-50 transition-colors text-sm">
+                        <td class="p-3 text-gray-800">Jean Dupont</td>
+                        <td class="p-3 text-gray-800">jean.dupont@example.com</td>
+                        <td class="p-3 text-gray-700">2024-02-20</td>
+                        <td class="p-3 text-gray-800">Abus de requêtes</td>
+                        <td class="p-3">
+                            <span class="bg-red-100 text-red-900 px-3 py-1 rounded-full text-xs font-medium shadow-sm">Bloqué</span>
+                        </td>
+                        <td class="p-3">
+                            <div class="flex space-x-3">
+                                <button class="text-blue-500 hover:text-blue-700 transition-colors p-1 rounded-full hover:bg-blue-50" title="Détails">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700 transition-colors p-1 rounded-full hover:bg-green-50" title="Réactiver">
+                                    <i data-lucide="unlock" class="w-4 h-4"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-red-50" title="Supprimer">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b hover:bg-gray-50 transition-colors text-sm">
+                        <td class="p-3 text-gray-800 text-sm">Marie Durand</td>
+                        <td class="p-3 text-gray-800">marie.durand@example.com</td>
+                        <td class="p-3 text-gray-700">2024-03-15</td>
+                        <td class="p-3 text-gray-800">Activité suspecte</td>
+                        <td class="p-3">
+                            <span class="bg-red-100 text-red-900 px-3 py-1 rounded-full text-xs font-medium shadow-sm">Bloqué</span>
+                        </td>
+                        <td class="p-3">
+                            <div class="flex space-x-3">
+                                <button class="text-blue-500 hover:text-blue-700 transition-colors p-1 rounded-full hover:bg-blue-50" title="Détails">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                                <button class="text-green-500 hover:text-green-700 transition-colors p-1 rounded-full hover:bg-green-50" title="Réactiver">
+                                    <i data-lucide="unlock" class="w-5 h-5"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-red-50" title="Supprimer">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+      
+        <!-- Modal Ajouter à la Liste Noire -->
+        <div id="blacklistModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 items-center justify-center">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800 border-b pb-3">Ajouter à la Liste Noire</h2>
+                <form>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-gray-700 font-medium">Nom Complet</label>
+                        <input type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-300 focus:border-red-500 outline-none transition-colors" required>
                     </div>
-                </div>
-
-                <!-- Modal Ajouter à la Liste Noire -->
-                <div id="blacklistModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center">
-                    <div class="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h2 class="text-xl font-semibold mb-4">Ajouter à la Liste Noire</h2>
-                        <form>
-                            <div class="mb-4">
-                                <label class="block mb-2">Nom Complet</label>
-                                <input type="text" class="w-full border rounded px-3 py-2" required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="block mb-2">Email</label>
-                                <input type="email" class="w-full border rounded px-3 py-2" required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="block mb-2">Raison du Blocage</label>
-                                <select class="w-full border rounded px-3 py-2">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-gray-700 font-medium">Email</label>
+                        <input type="email" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-300 focus:border-red-500 outline-none transition-colors" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-gray-700 font-medium">Raison du Blocage</label>
+                      
+ <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-300 focus:border-red-500 outline-none appearance-none bg-white bg-no-repeat bg-right transition-colors" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20fill%3D%22none%22%20stroke%3D%22%23a0aec0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E'); background-position: right 0.5rem center;">
                                     <option>Abus de Requêtes</option>
                                     <option>Activité Suspecte</option>
                                     <option>Violation des Conditions</option>
@@ -117,12 +121,12 @@
                                 </select>
                             </div>
                             <div class="mb-4">
-                                <label class="block mb-2">Commentaire</label>
-                                <textarea class="w-full border rounded px-3 py-2" rows="3"></textarea>
+                                <label class="block mb-2 text-gray-700 font-medium">Commentaire</label>
+                                <textarea class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-300 focus:border-red-500 outline-none transition-colors" rows="3"></textarea>
                             </div>
-                            <div class="flex justify-end space-x-2">
-                                <button type="button" class="bg-gray-200 px-4 py-2 rounded">Annuler</button>
-                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Bloquer</button>
+                            <div class="flex justify-end space-x-3 mt-6">
+                                <button type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">Annuler</button>
+                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors shadow-sm font-medium">Bloquer</button>
                             </div>
                         </form>
                     </div>
@@ -135,6 +139,7 @@
             // Modal Toggle Script
             const addToBlacklistBtn = document.querySelector('button[class*="bg-red-500"]');
             const blacklistModal = document.getElementById('blacklistModal');
+            const cancelBtn = blacklistModal.querySelector('button[type="button"]');
         
             addToBlacklistBtn.addEventListener('click', () => {
                 blacklistModal.classList.remove('hidden');
@@ -147,7 +152,12 @@
                     blacklistModal.classList.remove('flex');
                 }
             });
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    blacklistModal.classList.add('hidden');
+                    blacklistModal.classList.remove('flex');
+                });
+            }
         </script>
 {% endblock %}
-
-

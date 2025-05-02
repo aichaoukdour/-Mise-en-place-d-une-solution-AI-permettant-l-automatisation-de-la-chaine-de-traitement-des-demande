@@ -1,0 +1,67 @@
+{% extends 'Navbar/MenuAdmin2.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Colonne Gauche: Informations Principales -->
+        <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Détails de la Demande</h2>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center">
+                    <i data-lucide="download" class="inline-block mr-2"></i>Télécharger
+                </button>
+            </div>
+            <!-- Informations de la Demande -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-600 mb-2">ID de la Demande</label>
+                    <p class="font-semibold">{{ request.id_mail|slice:":8" }}</p>
+                </div>
+                <div>
+                    <label class="block text-gray-600 mb-2">Date de Création</label>
+                    <p class="font-semibold">{{ request.date_rec }}</p>
+                </div>
+                <div>
+                    <label class="block text-gray-600 mb-2">Email Demandeur</label>
+                    <p class="font-semibold">{{ request.email_rec }}</p>
+                </div>
+                <div>
+                    <label class="block text-gray-600 mb-2">Statut</label>
+                    <span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs">{{ request.status }}</span>
+                </div>
+            </div>
+            <!-- Détails du Rapport -->
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-4">Détails du Rapport</h3>
+                <div class="bg-gray-100 p-4 rounded">
+                    <p>{{ request.body_env }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Colonne Droite: Historique et Progression -->
+        <div class="space-y-6">
+            <!-- Progression de la Demande -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">Progression</h3>
+                <div class="relative pl-6 space-y-4">
+                    <div class="timeline-item completed relative">
+                        <h4 class="font-semibold">Demande Initiée</h4>
+                        <p class="text-sm text-gray-600">{{ request.date_rec|date:"Y-m-d H:i" }}</p>
+                    </div>
+                    <div class="timeline-item completed relative">
+                        <h4 class="font-semibold">Demande Terminée</h4>
+                        <p class="text-sm text-gray-600">{{ request.date_env|date:"Y-m-d H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Initialisation des icônes Lucide
+    lucide.createIcons();
+</script>
+{% endblock %}
