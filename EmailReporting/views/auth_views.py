@@ -15,11 +15,12 @@ from Db_handler.Database import EmailDatabase
 EmailDatabase_instance = EmailDatabase()
 
 def accueil(request):
-    request.session.clear()  # supprime les clés sans recréer une session
-    print(request.session.get('user_role'))
+    # Don't clear session data here
+    print(request.session.get('user_role'))  # This will show the current user role from the session
     response = render(request, "accueil.html")
     response['Cache-Control'] = 'no-store'
     return response
+
 
 
     user_role = request.session.get('user_role')
@@ -54,6 +55,7 @@ def check_email_view(request):
 
             request.session['email_user'] = user.email_user
             request.session['user_role'] = user.user_role
+
 
             print(f"[✔] Connexion: {user.email_user}, IP: {ip_address}, Agent: {user_agent}, Time: {current_time_str}")
 

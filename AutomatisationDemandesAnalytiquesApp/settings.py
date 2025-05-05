@@ -55,8 +55,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "AutomatisationDemandesAnalytiquesApp.middleware.AdminRequiredMiddleware"
+    "AutomatisationDemandesAnalytiquesApp.middleware.AdminRequiredMiddleware",
+    'django.contrib.sessions.middleware.SessionMiddleware'
 ]
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store sessions in the database
+SESSION_COOKIE_AGE = 3600  # Session expiry time (1 hour)
 
 ROOT_URLCONF = "AutomatisationDemandesAnalytiquesApp.urls"
 

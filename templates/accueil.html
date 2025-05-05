@@ -1,120 +1,147 @@
 {% load static %}
 <!DOCTYPE html>
+                                                                                                                                                                           {% load static %}
+
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - DataAnalytics Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+   
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="flex justify-center items-center min-h-screen bg-gray-50">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-80">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-80 backdrop-blur-md">
         <div class="flex justify-center border-b border-gray-200 pb-3 mb-4">
             <img src="{% static 'logo/inwi-icon.png' %}" alt="Inwi" class="h-4 w-16 mb-1">
         </div>
-
-        <form id="login-form" class="space-y-4">
-            {% csrf_token %}
-            <div class="flex items-center bg-gray-100 p-2.5 rounded-lg">
+        
+        <form class="space-y-4">
+            <div class="flex items-center bg-gray-100 p-2.5 rounded-lg shadow-sm">
                 <i class="fas fa-user text-fuchsia-700 mx-2 text-sm"></i>
-                <input type="email" id="email" placeholder="Email" required
-                       class="bg-transparent w-full focus:outline-none text-sm py-1"/>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email"
+                    class="bg-transparent w-full focus:outline-none text-sm py-1"
+                    required
+                >
             </div>
-
-            <div class="relative flex items-center bg-gray-100 p-2.5 rounded-lg">
+            
+            <div class="relative flex items-center bg-gray-100 p-2.5 rounded-lg shadow-sm">
                 <i class="fas fa-lock text-fuchsia-700 mx-2 text-sm"></i>
-                <input type="password" id="password" placeholder="Mot de passe" required
-                       class="bg-transparent w-full focus:outline-none text-sm py-1"/>
-                <button type="button" class="absolute right-2 text-gray-500 hover:text-fuchsia-700"
-                        onclick="togglePasswordVisibility()">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Mot de passe"
+                    class="bg-transparent w-full focus:outline-none text-sm py-1"
+                    required
+                >
+                <button
+                    type="button"
+                    class="absolute right-2 text-gray-500 hover:text-fuchsia-700"
+                    onclick="togglePasswordVisibility()"
+                >
                     <i id="password-toggle-icon" class="fas fa-eye-slash text-sm"></i>
                 </button>
             </div>
-
-            <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition flex items-center justify-center shadow-sm text-sm font-medium">
+            
+            <button 
+                type="button"
+                id="btn"
+                class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300 flex items-center justify-center shadow-sm text-sm font-medium"
+            >
                 <i class="fas fa-sign-in-alt mr-2 text-sm"></i>Connexion
             </button>
-
+            
             <div class="flex items-center justify-between text-xs pt-1">
-                <label class="flex items-center text-gray-600">
-                    <input type="checkbox" class="mr-1.5 rounded text-purple-600 w-3 h-3"/> Se souvenir de moi
-                </label>
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        id="remember"
+                        class="mr-1.5 rounded text-purple-600 focus:ring-purple-500 w-3 h-3"
+                    >
+                    <label for="remember" class="text-gray-600">Se souvenir de moi</label>
+                </div>
+                
                 <a href="#" class="text-fuchsia-700 hover:underline">Mot de passe oublié ?</a>
             </div>
-
-            <div class="mt-4 text-center text-xs text-gray-500">
-                Pas encore de compte ? <a href="#" class="text-fuchsia-700 hover:underline font-medium">Demander un accès</a>
+            
+            <div class="mt-4 text-center text-xs">
+                <p class="text-gray-500">
+                    Pas encore de compte ? 
+                    <a href="#" class="text-fuchsia-700 hover:underline font-medium">Demander un accès</a>
+                </p>
             </div>
         </form>
     </div>
 
     <script>
-        document.getElementById("login-form").addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
-
-            if (!email || !password) {
+        const emailInput = document.getElementById("email");
+        const password = document.getElementById("password");
+        const loginButton = document.getElementById("btn");
+        loginButton.addEventListener("click", function () {
+            const email = emailInput.value.trim();
+            const passs = password.value.trim();
+            if (email === "" || passs === "") {
                 alert("Veuillez remplir tous les champs.");
                 return;
             }
-
-            const csrftoken = getCookie("csrftoken");
-
-            try {
-                const response = await fetch("/check-email/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": csrftoken
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-                if (data.exists) {
-                    if (data.user_role === "admin") {
-                        window.location.href = "/Admin/administration";
-                    } else {
-                        window.location.href = "/suivi";
-                    }
-                } else {
-                    alert("Identifiants invalides. Veuillez réessayer.");
-                }
-            } catch (error) {
-                console.error("Erreur :", error);
-                alert("Une erreur s’est produite. Veuillez réessayer plus tard.");
-            }
+            console.log(email);
+    
+            
+                checkEmail(email,passs); 
+         
+            
         });
 
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById("password");
-            const icon = document.getElementById("password-toggle-icon");
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                icon.classList.replace("fa-eye-slash", "fa-eye");
-            } else {
-                passwordInput.type = "password";
-                icon.classList.replace("fa-eye", "fa-eye-slash");
-            }
-        }
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+        function checkEmail(email, password) {
+            fetch(`/check-email/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email, password: password }),
+                credentials: 'include' // Include credentials (cookies, etc.)
+            })
+            .then(response => response.json()) // Parse JSON response
+            .then(data => {
+                if (data.authenticated) {
+                    if (data.user_role === 'admin') {
+                        window.location.href = "/Admin/administration"; // Redirect to admin panel
+                    } else {
+                        window.location.href = "/suivi"; // Redirect to suivi page
                     }
+                } else {
+                    // Show alert if authentication fails
+                    alert("Échec de connexion : " + data.message);
                 }
+            })
+            .catch(error => {
+                console.error("Error during login:", error);
+                alert("Une erreur est survenue. Veuillez réessayer.");
+            });
+        }
+        
+        
+
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggleIcon = document.getElementById('password-toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggleIcon.classList.remove('fa-eye-slash');
+                passwordToggleIcon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggleIcon.classList.remove('fa-eye');
+                passwordToggleIcon.classList.add('fa-eye-slash');
             }
-            return cookieValue;
         }
     </script>
 </body>
-</html>
+</html> 
