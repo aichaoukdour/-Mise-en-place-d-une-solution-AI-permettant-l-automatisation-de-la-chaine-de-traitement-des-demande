@@ -3,230 +3,143 @@
 {% block title %}Admin{% endblock %}
 
 {% block content %}
-    <!-- Contenu Principal -->
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-3 gap-6">
-            <!-- Colonne Gauche: Informations Principales -->
-            <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Détails de la Demande</h2>
-                    <div class="flex space-x-2">
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            <i data-lucide="download" class="inline-block mr-2"></i>Télécharger
-                        </button>
-                    </div>
+<main class="pt-12 pb-8 max-w-7xl mx-auto px-3 sm:px-4 bg-gray-50">
+    <!-- En-tête avec titre et bouton -->
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-xl font-bold text-gray-800">Détails de la Demande</h1>
+        <button class="bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors flex items-center text-xs shadow">
+            <i data-lucide="download" class="w-3 h-3 mr-1"></i>Télécharger
+        </button>
+    </div>
+
+    <!-- Layout principal -->
+    <div class="grid grid-cols-12 gap-4">
+        <!-- Colonne principale (8/12) -->
+        <div class="col-span-12 md:col-span-8">
+            <!-- Carte d'informations principales -->
+            <div class="bg-white shadow rounded-lg mb-4">
+                <div class="border-b border-gray-100 px-4 py-3">
+                    <h2 class="text-sm font-semibold text-gray-700">Informations principales</h2>
                 </div>
-
-                <!-- Informations de la Demande -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-gray-600 mb-2">ID de la Demande</label>
-                        <p class="font-semibold">{{request.id_mail|slice:":8"}}</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Date de Création</label>
-                        <p class="font-semibold">{{request.date_rec}}</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Email Demandeur</label>
-                        <p class="font-semibold">{{request.email_rec}}</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Statut</label>
-                        <span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs">{{request.status}}</span>
-                    </div>
-                </div>
-
-                <!-- Détails du Rapport -->
-                <div class="mb-6">
-                    <h3 class="text-xl font-semibold mb-4">Détails du Rapport</h3>
-                    <div class="bg-gray-100 p-4 rounded">
-                        <p><strong></strong> {{request.body_env}}</p>
-                    
-                    </div>
-                </div>
-
-   
-            </div>
-
-            <!-- Colonne Droite: Historique et Progression -->
-            <div class="space-y-6">
-                <!-- Progression de la Demande -->
-                <div class="bg-white shadow-md rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4">Progression</h3>
-                    <div class="relative pl-6 space-y-4">
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Demande Initiée</h4>
-                            <p class="text-sm text-gray-600">{{request.date_rec|date:"Y-d-m H:i"}}</p>
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500 text-xs mb-1">ID de la Demande</p>
+                            <p class="font-medium">{{ request.id_mail|slice:":8" }}</p>
                         </div>
-                    
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Demande Terminée</h4>
-                            <p class="text-sm text-gray-600">{{request.date_env |date:"Y-d-m H:i"}}</p>
+                        <div>
+                            <p class="text-gray-500 text-xs mb-1">Date de Création</p>
+                            <p class="font-medium">{{ request.date_rec }}</p>
                         </div>
-                    </div>
-                </div>
-
-                
-
-            </div>
-        </div>
-    </main>
-    <script>
-        // Initialisation des icônes Lucide
-        lucide.createIcons();
-    </script>
-{% endblock %}
-
-
-{% comment %}
-	
-
-{% extends 'Navbar/NavbarSuiviDemande.html' %}
-
-{% block title %}Admin{% endblock %}
-
-{% block content %}
-    <!-- Contenu Principal -->
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-3 gap-6">
-            <!-- Colonne Gauche: Informations Principales -->
-            <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Détails de la Demande</h2>
-                    <div class="flex space-x-2">
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            <i data-lucide="download" class="inline-block mr-2"></i>Télécharger
-                        </button>
-
-                    </div>
-                </div>
-
-                <!-- Informations de la Demande -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-gray-600 mb-2">ID de la Demande</label>
-                        <p class="font-semibold">REQ-001</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Date de Création</label>
-                        <p class="font-semibold">2024-03-15 10:30</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Email Demandeur</label>
-                        <p class="font-semibold">agent1@example.com</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-2">Statut</label>
-                        <span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs">Terminé</span>
-                    </div>
-                </div>
-
-                <!-- Détails du Rapport -->
-                <div class="mb-6">
-                    <h3 class="text-xl font-semibold mb-4">Détails du Rapport</h3>
-                    <div class="bg-gray-100 p-4 rounded">
-                        <p><strong>Titre:</strong> Rapport Ventes Q1 2024</p>
-                        <p><strong>Type:</strong> Analyse Commerciale</p>
-                        <p><strong>Période:</strong> 01/01/2024 - 31/03/2024</p>
-                    </div>
-                </div>
-
-                <!-- Fichiers Générés -->
-                <div>
-                    <h3 class="text-xl font-semibold mb-4">Fichiers Générés</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
-                            <div class="flex items-center">
-                                <i data-lucide="file-text" class="mr-3 text-blue-500"></i>
-                                <span>Rapport_Ventes_Q1_2024.pdf</span>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700">
-                                    <i data-lucide="eye"></i>
-                                </button>
-                                <button class="text-green-500 hover:text-green-700">
-                                    <i data-lucide="download"></i>
-                                </button>
-                            </div>
+                        <div>
+                            <p class="text-gray-500 text-xs mb-1">Email Demandeur</p>
+                            <p class="font-medium">{{ request.email_rec }}</p>
                         </div>
-                        <div class="flex justify-between items-center bg-gray-100 p-3 rounded">
-                            <div class="flex items-center">
-                                <i data-lucide="file-spreadsheet" class="mr-3 text-green-500"></i>
-                                <span>Donnees_Ventes_Q1_2024.xlsx</span>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700">
-                                    <i data-lucide="eye"></i>
-                                </button>
-                                <button class="text-green-500 hover:text-green-700">
-                                    <i data-lucide="download"></i>
-                                </button>
-                            </div>
+                        <div>
+                            <p class="text-gray-500 text-xs mb-1">Statut</p>
+                            <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs flex items-center w-fit">
+                                <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
+                                {{ request.status }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Colonne Droite: Historique et Progression -->
-            <div class="space-y-6">
-                <!-- Progression de la Demande -->
-                <div class="bg-white shadow-md rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4">Progression</h3>
-                    <div class="relative pl-6 space-y-4">
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Demande Initiée</h4>
-                            <p class="text-sm text-gray-600">2024-03-15 10:30</p>
-                        </div>
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Traitement en Cours</h4>
-                            <p class="text-sm text-gray-600">2024-03-15 11:15</p>
-                        </div>
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Rapport Généré</h4>
-                            <p class="text-sm text-gray-600">2024-03-15 14:45</p>
-                        </div>
-                        <div class="timeline-item completed relative">
-                            <h4 class="font-semibold">Demande Terminée</h4>
-                            <p class="text-sm text-gray-600">2024-03-15 15:00</p>
-                        </div>
-                    </div>
+            <!-- Carte du rapport -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="border-b border-gray-100 px-4 py-3 flex items-center">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2 text-violet-500"></i>
+                    <h2 class="text-sm font-semibold text-gray-700">Détails du Rapport</h2>
                 </div>
-
-                <!-- Détails Techniques -->
-                <div class="bg-white shadow-md rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4">Détails Techniques</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-gray-600 mb-1">Requête SQL</label>
-                            <pre class="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
-SELECT 
-    product_category, 
-    SUM(sales_amount) as total_sales,
-    AVG(sales_amount) as avg_sales
-FROM sales_data
-WHERE date BETWEEN '2024-01-01' AND '2024-03-31'
-GROUP BY product_category
-                            </pre>
-                        </div>
-                        <div>
-                            <label class="block text-gray-600 mb-1">Temps de Traitement</label>
-                            <p class="font-semibold">00:12:35</p>
-                        </div>
-                        <div>
-                            <label class="block text-gray-600 mb-1">Nombre de Lignes Traitées</label>
-                            <p class="font-semibold">25,436</p>
-                        </div>
+                <div class="p-4">
+                    <div class="bg-gray-50 p-3 rounded border border-gray-100 text-sm">
+                        <p class="text-gray-700">{{ request.body_env }}</p>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-N
-    <script>
-        // Initialisation des icônes Lucide
-        lucide.createIcons();
-    </script>
-{% endblock %}
-{% endcomment %}
 
+        <!-- Colonne secondaire (4/12) -->
+        <div class="col-span-12 md:col-span-4 space-y-4">
+            <!-- Carte de progression -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="border-b border-gray-100 px-4 py-3 flex items-center">
+                    <i data-lucide="clock" class="w-4 h-4 mr-2 text-violet-500"></i>
+                    <h2 class="text-sm font-semibold text-gray-700">Progression</h2>
+                </div>
+                <div class="p-4">
+                    <div class="relative pl-5 space-y-4 before:content-[''] before:absolute before:left-2 before:top-1 before:bottom-1 before:w-0.5 before:bg-gray-200 text-sm">
+                        <div class="relative">
+                            <div class="absolute left-[-18px] top-1 w-3 h-3 rounded-full bg-violet-500 border-2 border-violet-100"></div>
+                            <h4 class="font-medium text-gray-800">Demande Initiée</h4>
+                            <p class="text-xs text-gray-500">{{ request.date_rec|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="relative">
+                            <div class="absolute left-[-18px] top-1 w-3 h-3 rounded-full bg-green-500 border-2 border-green-100"></div>
+                            <h4 class="font-medium text-gray-800">Demande Terminée</h4>
+                            <p class="text-xs text-gray-500">{{ request.date_env|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte d'informations supplémentaires -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="border-b border-gray-100 px-4 py-3 flex items-center">
+                    <i data-lucide="info" class="w-4 h-4 mr-2 text-violet-500"></i>
+                    <h2 class="text-sm font-semibold text-gray-700">Informations Supplémentaires</h2>
+                </div>
+                <div class="p-4">
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center">
+                            <i data-lucide="calendar" class="w-3 h-3 mr-2 text-gray-400"></i>
+                            <span class="text-gray-500 text-xs">Temps de traitement:</span>
+                            <span class="ml-1 text-gray-700">2h 35min</span>
+                        </li>
+                        
+                        <li class="flex items-center">
+                            <i data-lucide="user" class="w-3 h-3 mr-2 text-gray-400"></i>
+                            <span class="text-gray-500 text-xs">Traité par:</span>
+                            <span class="ml-1 text-gray-700">Système</span>
+                        </li>
+                        
+                        <li class="flex items-center">
+                            <i data-lucide="tag" class="w-3 h-3 mr-2 text-gray-400"></i>
+                            <span class="text-gray-500 text-xs">Catégorie:</span>
+                            <span class="ml-1 text-gray-700">Analyse</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Carte des actions -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="border-b border-gray-100 px-4 py-3 flex items-center">
+                    <i data-lucide="settings" class="w-4 h-4 mr-2 text-violet-500"></i>
+                    <h2 class="text-sm font-semibold text-gray-700">Actions</h2>
+                </div>
+                <div class="p-4 grid grid-cols-2 gap-2">
+                    <button class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 transition-colors text-xs flex items-center justify-center">
+                        <i data-lucide="mail" class="w-3 h-3 mr-1"></i>Répondre
+                    </button>
+                    <button class="bg-green-50 text-green-600 px-3 py-1.5 rounded hover:bg-green-100 transition-colors text-xs flex items-center justify-center">
+                        <i data-lucide="archive" class="w-3 h-3 mr-1"></i>Archiver
+                    </button>
+                    <button class="bg-red-50 text-red-600 px-3 py-1.5 rounded hover:bg-red-100 transition-colors text-xs flex items-center justify-center">
+                        <i data-lucide="trash-2" class="w-3 h-3 mr-1"></i>Supprimer
+                    </button>
+                    <button class="bg-purple-50 text-purple-600 px-3 py-1.5 rounded hover:bg-purple-100 transition-colors text-xs flex items-center justify-center">
+                        <i data-lucide="printer" class="w-3 h-3 mr-1"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
