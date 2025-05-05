@@ -3,6 +3,11 @@
 from datetime import datetime
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.shortcuts import redirect
+import json
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -23,48 +28,59 @@ def accueil(request):
     request.session['user_role'] = None        
     print(user_role)        
     return redirect('/')        
-    
+ 
+
+@require_POST
+@csrf_exempt  # Retire ça si tu as déjà le token CSRF dans le frontend
 def check_email_view(request):
+    try:
+        data = json.loads(request.body)
 
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
 
-    email = request.GET.get('email', '')
-    password = request.GET.get('password', '')
-    
-    exists, user = EmailDatabase_instance.email_check(email,password)
-    ip_address = request.META.get('REMOTE_ADDR')  # IP address of the client
-    user_agent = request.META.get('HTTP_USER_AGENT') 
-    current_time = datetime.now()
-    current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")# User's browser details
-   
-    if exists :
-        refresh = RefreshToken.for_user(user)  # Now user is a valid User object
-        access_token = str(refresh.access_token)  # Get the access token as a string
-        print(user.user_role)
-        request.session['email_user'] = user.email_user
-        request.session['user_role'] = user.user_role
-        print(user.user_role)
-        print(f"User: {user.email_user}, IP: {ip_address}, User Agent: {user_agent}, Time: {current_time_str}")
-        EmailDatabase_instance.create_History(user.user_id ,ip_address,True, user_agent,current_time_str)
-       
-        # Return the response with the tokens
-        return JsonResponse({
-            "user_role": user.user_role,
-            "exists": exists,
-            "authenticated": True,
-            "email_user": user.email_user,
-            "access_token": access_token,
-            "refresh_token": str(refresh)  # Return the refresh token as a string
-        })
-    else :
-        
-   
-        EmailDatabase_instance.create_History(email,  ip_address,False, user_agent,current_time_str)
+        if not email or not password:
+            return JsonResponse({"authenticated": False, "message": "Email et mot de passe requis."}, status=400)
 
-        return JsonResponse({
-        "exists": exists,
-        "authenticated": False,
-        "message": "Invalid email or password"
-    })
-        
+        exists, user = EmailDatabase_instance.email_check(email, password)
+
+        ip_address = request.META.get('REMOTE_ADDR')
+        user_agent = request.META.get('HTTP_USER_AGENT', 'Inconnu')
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if exists:
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            request.session['email_user'] = user.email_user
+            request.session['user_role'] = user.user_role
+
+            print(f"[✔] Connexion: {user.email_user}, IP: {ip_address}, Agent: {user_agent}, Time: {current_time_str}")
+
+            EmailDatabase_instance.create_History(user.user_id, ip_address, True, user_agent, current_time_str)
+
+            return JsonResponse({
+                "authenticated": True,
+                "exists": True,
+                "email_user": user.email_user,
+                "user_role": user.user_role,
+                "access_token": access_token,
+                "refresh_token": str(refresh)
+            })
+        else:
+            print(f"[✘] Échec de connexion: {email}, IP: {ip_address}, Agent: {user_agent}, Time: {current_time_str}")
+            EmailDatabase_instance.create_History(email, ip_address, False, user_agent, current_time_str)
+
+            return JsonResponse({
+                "authenticated": False,
+                "exists": False,
+                "message": "Email ou mot de passe invalide"
+            }, status=401)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Requête JSON invalide."}, status=400)
+    except Exception as e:
+        print(f"[Erreur] check_email_view: {str(e)}")
+        return JsonResponse({"error": "Erreur interne du serveur."}, status=500)
         
    

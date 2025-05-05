@@ -41,7 +41,7 @@ def conversation(request,id):
 
 
 def suivi(request):
-    return render(request, "SuiviDemande/suiviv1.html")
+    return render(request, "SuiviDemande/suivi.html")
 
 
 def suiviinfo(request,id):
