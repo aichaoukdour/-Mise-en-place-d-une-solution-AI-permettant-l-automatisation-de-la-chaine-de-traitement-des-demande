@@ -527,7 +527,108 @@ INNER JOIN (
               return None      
         
 
+    def insert_chat(self,msg,date,user_id,id_conv):
+        if self.conn == None :
+            print("No database connection. Cannot fetch data.")
+            return [] 
+        try :
+            cursor = self.conn.cursor()
+            query = """
+            INSERT INTO Cht_bt(msg_user,dt_msg,conv_id,user_id) VALUES(%s, %s, %s,%s) RETURNING *;
+            """
+            cursor.execute(query, (encrypt(msg),date,id_conv,user_id ))
+            row = cursor.fetchone()
+            print("La ligne insérée est : ",row[0])
+            self.conn.commit()
+            cursor.close()
+            return str(row[0])
+        except Exception as e:
+            print(f"Failed to connect to the database: {e}")
+            return []
+    def historique(self):
+        if self.conn == None :
+            print("No database connection. Cannot fetch data.")
+            return [] 
+        try :
+            cursor = self.conn.cursor()
+            query = """
+SELECT conv_id, msg_user, dt_msg 
+FROM cht_bt
+WHERE (conv_id, dt_msg) IN (
+    SELECT conv_id, MIN(dt_msg)
+    FROM cht_bt
+    GROUP BY conv_id
+)
+ORDER BY dt_msg;     
+     """
+            cursor.execute(query)
+            result = cursor.fetchall()
+            
+            if result :
+                s =[]
+                for row in result :
+                    s.append({
+                        "conv_id":row[0] if row[0] else " ",
+                        "subject":decrypt(row[1]) if row[1] else "",
+                        "date_u":row[2] if row[2] else " "
+                  })
+                print(s)
+                    
+                
+                
+                return s
+                
+            return None
 
+            
+        except Exception as e:
+            print(f"Failed to connect to the database: {e}")
+            return []
+    def insert_res_msg(self,msg_r,dt_r,id_msg,sql_r):
+        if self.conn == None :
+            print("No database connection. Cannot fetch data.")
+            return [] 
+        try :
+            cursor = self.conn.cursor()
+            query = """
+            UPDATE cht_bt SET res_user = %s, dt_res_user = %s, req_sql = %s WHERE mes_id = %s
+            """
+            cursor.execute(query, (encrypt(msg_r),dt_r,encrypt(sql_r) if sql_r else None,id_msg))
+            self.conn.commit()
+            cursor.close()
+            return True
+        except Exception as e:
+            print(f"Failed to connect to the database: {e}")
+            return False
+    def get_all_msg_con(self,conv_id):
+        if self.conn == None :
+            print("No database connection. Cannot fetch data.")
+            return [] 
+        try :
+            cursor = self.conn.cursor()
+            query = """
+             SELECT * FROM cht_bt WHERE conv_id = %s ORDER BY dt_msg
+            """
+            cursor.execute(query, (conv_id,))
+            result = cursor.fetchall()
+            res = [] 
+            for row in result :
+                res.append({
+                    "msg_id":row[0] if row[0] else " ",
+                    "msg_user":decrypt(row[1]) if row[1] else "",
+                    "req_sql":decrypt(row[2]) if row[2] else " ",
+                    "res_user":decrypt(row[3]) if row[3] else " ",
+                    "ct_ms":row[4] if row[4] else "",
+                    "user_id":row[5] if row[5] else " ",
+                    "date_rec":row[6].strftime("%H:%M") if row[6] else " ",
+                    "date_env":row[7].strftime("%H:%M") if row[7] else "",
+                    "conv_id":row[8] if row[8] else " ",
+                })
+            cursor.close()
+            return res
+        except Exception as e:
+            print(f"Failed to connect to the database: {e}")
+            return []
 
 def get_diff(date_tm):
     current_date  =  datetime.now()

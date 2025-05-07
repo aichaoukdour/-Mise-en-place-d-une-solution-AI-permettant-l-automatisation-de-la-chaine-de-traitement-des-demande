@@ -27,7 +27,7 @@ def admin(request):
 
 def admindash(request):
 
-    return render(request, "Admin/admindash.html")
+    return render(request, "Admin/admin.html")
 
 
 def allrequests(request):

@@ -1,5 +1,9 @@
 from django.urls import path
 
+from .views.chatbot import *
+
+
+
 from .views import *
 
 
@@ -11,7 +15,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("suivi/<str:id>/", suiviinfo_user, name="request_status"), 
     path("get_conversation/<str:id>/", conversation_user, name="get_conversation"), 
-    path("hhh", list_requests, name="list_requests"),
     path("chat", chat, name="chatbot"),
     path("suivi", get_all_mails_by_user, name="suivi"),
     path("Admin/infosuivi/<str:id>/", suiviinfo, name="infosuivi"),
@@ -33,7 +36,7 @@ urlpatterns = [
     path('Admin/delete_user',delete_user,name='delete_user'),
     path('Admin/Update_User',update_user,name='update_user'),
     path('Admin/Update/<str:id>/',user_f,name='update'),
-    
+
    
 
 

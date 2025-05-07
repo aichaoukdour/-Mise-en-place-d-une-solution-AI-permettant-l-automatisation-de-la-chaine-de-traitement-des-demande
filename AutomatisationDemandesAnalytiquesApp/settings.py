@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "EmailReporting",
     'rest_framework',
     'rest_framework_simplejwt',
+    'ChatBot',
+    
 ]
 
 MIDDLEWARE = [

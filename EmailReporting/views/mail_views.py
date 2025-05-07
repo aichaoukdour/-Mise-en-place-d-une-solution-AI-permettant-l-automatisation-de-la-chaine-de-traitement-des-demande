@@ -15,44 +15,14 @@ def request_status(request, id):
     print(id)
     mail_detail = EmailDatabase_instance.get_mail_by_id(id)
     
-    return render(request, "SuiviDemande/status.html", {"request": mail_detail})
+    return render(request, "SuiviDemande/conversation.html", {"request": mail_detail})
 
 
-def list_requests(request):
-    # Get filter parameters from GET request
-    status_filter = request.GET.get("status", "all")
-    period_filter = request.GET.get("period", "all")
-    search_value = request.GET.get("search", "").lower()
-    
-    # Retrieve all email messages
-    now = timezone.now()
-    requests_list = EmailMessage.objects.all()
-    
-    # Apply filters based on status, period, and search value
-    if status_filter != "all":
-        requests_list = requests_list.filter(status=status_filter)
 
-    if period_filter == "week":
-        requests_list = requests_list.filter(date_recp_message__gte=now - timedelta(days=7))
-    elif period_filter == "month":
-        requests_list = requests_list.filter(date_recp_message__gte=now - timedelta(days=30))
-    elif period_filter == "year":
-        requests_list = requests_list.filter(date_recp_message__gte=now - timedelta(days=365))
-
-    if search_value:
-        requests_list = requests_list.filter(subject__icontains=search_value)
-
-    # Pagination
-    paginator = Paginator(requests_list, 10)  # 10 requests per page
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    # Render the template with requests data
-    return render(request, "Admin/list_requests.html", {"requests": page_obj})
 
 def conversation_user(request,id):
     coversation_detail,subject = EmailDatabase_instance.get_all_mail_by_conversation(conversation_id=id)
-    return render(request, "SuiviDemande/status.html",{
+    return render(request, "SuiviDemande/conversation.html",{
         "conversation": coversation_detail,
         "subject":subject
     })     
@@ -68,7 +38,7 @@ def conversation(request,id):
 
 
 def suivi(request):
-    return render(request, "SuiviDemande/suivi.html")
+    return render(request, "SuiviDemande/conversastion.html")
 
 
 def suiviinfo(request,id):
@@ -80,7 +50,7 @@ def suiviinfo(request,id):
     
 def suiviinfo_user(request,id):
     mail_detail = EmailDatabase_instance.get_mail_by_id(id_mail=id)
-    return render(request, "SuiviDemande/suiviinfo.html",{
+    return render(request, "SuiviDemande/detail.html",{
         "request": mail_detail
     })    
     
@@ -126,7 +96,7 @@ def get_all_mails_by_user(request):
             logger.info(f"Failed count: {all_mail_count_fail}")
             
             # Return the rendered HTML with mail data
-            return render(request, "SuiviDemande/suiviv1.html", {
+            return render(request, "SuiviDemande/suiviUser.html", {
                 "demandes": data,
                 "all_mails_count": all_mails_count,
                 "all_mails_count_encours": all_mails_count_encours,

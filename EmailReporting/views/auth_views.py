@@ -17,18 +17,11 @@ EmailDatabase_instance = EmailDatabase()
 def accueil(request):
     # Don't clear session data here
     print(request.session.get('user_role'))  # This will show the current user role from the session
-    response = render(request, "accueil.html")
+    response = render(request, "login.html")
     response['Cache-Control'] = 'no-store'
     return response
 
-
-
-    user_role = request.session.get('user_role')
-    if user_role:
-            del request.session['user_role']
-    request.session['user_role'] = None        
-    print(user_role)        
-    return redirect('/')        
+  
  
 
 @require_POST
