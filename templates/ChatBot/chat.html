@@ -1,220 +1,33 @@
 {% extends 'Navbar/header.html' %}
 {% load static %}
 {% block content %}
-
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Whisperer Chat | inwi</title>
-    <meta name="description" content="Chatbot pour générer des requêtes SQL et analyser vos données">
-    <meta name="author" content="inwi">
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Custom Styles -->
-    <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent; /* Or match your bg color */
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: rgb(174 27 133); /* Lighter inwi color */
-            border-radius: 4px;
-            border: 2px solid transparent; /* Creates padding around thumb */
-            background-clip: padding-box;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background-color: rgb(174 27 133); /* Slightly darker inwi color for dark mode */
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: rgb(174 27 133);
-        }
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(138, 64, 231, 0.8);
-        }
-
-        /* Global transitions (for theme toggle, sidebar margin, etc.) */
-        body, #sidebar, #mainContent, .bg-white, .bg-gray-50, .bg-gray-100, .bg-gray-800, .bg-gray-900, .border-gray-200, .border-gray-700, .text-gray-800, .text-white, .text-gray-600, .text-gray-300 {
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-        }
-        #sidebar {
-             transition: transform 0.3s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
-        }
-        #mainContent {
-             transition: margin-left 0.3s ease-in-out, background-color 0.3s ease;
-        }
-
-
-        /* Loading spinner */
-        .loader {
-            border: 3px solid rgba(163, 94, 255, 0.2); /* Lighter border */
-            border-top: 3px solid #A35EFF; /* inwi color */
-            border-radius: 50%;
-            width: 20px; /* Slightly smaller */
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        .dark .loader {
-             border: 3px solid rgba(138, 64, 231, 0.3);
-             border-top: 3px solid #8A40E7; /* Darker inwi color */
-        }
-
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Message animations */
-        .message-enter {
-            opacity: 0;
-            transform: translateY(10px) scale(0.98);
-        }
-
-        .message-enter-active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        /* Ensure icons inside buttons are aligned */
-        button svg {
-            vertical-align: middle;
-        }
-
-        /* Style for the active conversation */
-        .conversation-active {
-            background-color: rgba(163, 94, 255, 0.1); /* Light purple bg */
-        }
-        .dark .conversation-active {
-             background-color: rgba(138, 64, 231, 0.2); /* Slightly darker purple bg */
-        }
-
-    </style>
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class', // Enable class-based dark mode
-            theme: {
-                extend: {
-                    colors: {
-                        inwi: {
-                            DEFAULT: 'rgb(174 27 133)', // Main Inwi Purple
-                            dark: '#8A40E7',   // Darker shade for hover/dark mode accents
-                            light: '#C09FFF', // Lighter shade
-                        },
-                        // Add other custom colors or override existing ones if needed
-                        border: 'hsl(var(--border))', // Example if using CSS variables
-                    },
-                    // Add custom animations, spacing, etc. if needed
-                     transitionTimingFunction: {
-                        'in-out': 'ease-in-out',
-                     },
-                     transitionDuration: {
-                        '300': '300ms',
-                     }
-                }
-            }
-        }
-    </script>
-</head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased">
 <div class="flex h-screen w-full overflow-hidden">
-
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform translate-x-0">
-        <!-- Sidebar Header -->
-        <div class="flex h-14 items-center border-b border-gray-200 dark:border-gray-700 px-4 flex-shrink-0">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Historique</h2>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-60 flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-300">
+        <div class="flex h-12 items-center border-b border-gray-200 dark:border-gray-700 px-4">
+            <h2 class="text-base font-semibold text-gray-800 dark:text-white">Historique</h2>
         </div>
-
-        <!-- New Conversation Button -->
-        <div class="p-4 flex-shrink-0">
-            <button id="newConversationBtn" class="w-full bg-inwi hover:bg-inwi-dark text-white px-4 py-2 rounded-md flex items-center justify-center text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-inwi focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+        <div class="p-3">
+            <button id="newConversationBtn" class="w-full bg-inwi hover:bg-inwi-dark text-white px-3 py-2 rounded-md flex items-center justify-center text-sm font-medium">
                 <svg class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Nouvelle conversation
             </button>
         </div>
-      
-        <!-- Conversation List -->
-        <div id="conversationList" class="flex-1 overflow-y-auto p-2 space-y-1">
-            
-        </div>
- =
-        
+        <div id="conversationList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
     </aside>
 
     <!-- Main Content -->
-    <div id="mainContent" class="flex-1 flex flex-col ml-64"> 
-        <!-- Navbar -->
-        <nav class="sticky top-0 z-30 w-full bg-inwi border-b border-inwi/40 backdrop-blur supports-[backdrop-filter]:bg-inwi/90 flex-shrink-0">
-            <div class="h-14 px-4 flex items-center justify-between">
-                <!-- Left Side: Toggle, Logo, Title -->
-                <div class="flex items-center gap-3">
-                    <button id="sidebarToggle" class="text-white p-2 rounded-md hover:bg-inwi-dark focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-label="Basculer la barre latérale">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                    </button>
-                    <!-- Logo Placeholder -->
-                    <img src="{% static 'Images/Logo_inwi.png' %}"
-                         alt="inwi Logo"
-                         class="h-8 w-auto">
-                    <span class="text-lg font-semibold text-white">Assistant BDA</span>
-                </div>
-                <!-- Right Side: User Info, Theme Toggle, Logout -->
-                <div class="flex items-center gap-3">
-                    <span id="username" class="text-sm text-white hidden sm:block">John Doe</span>
-                    <div class="flex items-center justify-center h-8 w-8 rounded-full bg-white text-inwi font-bold text-sm flex-shrink-0">
-                        JD 
-                    </div>
-                    <button id="themeToggle" class="p-2 text-white hover:bg-inwi-dark rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-label="Basculer le thème sombre/clair">
-                        <svg class="w-5 h-5 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                           <circle cx="12" cy="12" r="5"></circle>
-                           <line x1="12" y1="1" x2="12" y2="3"></line>
-                           <line x1="12" y1="21" x2="12" y2="23"></line>
-                           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                           <line x1="1" y1="12" x2="3" y2="12"></line>
-                           <line x1="21" y1="12" x2="23" y2="12"></line>
-                           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                         <svg class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
-                           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                         </svg>
-                    </button>
-                    <button id="logoutButton" class="p-2 text-white hover:bg-inwi-dark rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-label="Déconnexion">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Chat Area -->
+    <div id="mainContent" class="flex-1 flex flex-col ml-60 transition-all duration-300">
         <main class="flex flex-col flex-1 overflow-hidden">
-            <!-- Message Display Area -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3">
                 <div id="welcomeMessage" class="flex h-full items-center justify-center">
-                    <div class="max-w-md text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                        <h3 class="mb-2 text-xl font-semibold text-gray-800 dark:text-white">
+                    <div class="max-w-md text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                        <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white">
                             Bienvenue sur l'Assistant BDA
                         </h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -224,27 +37,25 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Chat Input Area -->
-            <form id="chatForm" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-100/90 dark:bg-gray-800/90 backdrop-blur flex-shrink-0">
+            <form id="chatForm" class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-100/90 dark:bg-gray-800/90 backdrop-blur">
                 {% csrf_token %}
-                <div class="relative flex items-end rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-inwi/50 dark:focus-within:ring-inwi-dark/60 shadow-sm">
+                <div class="relative flex items-end rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus-within:ring-1 focus-within:ring-inwi">
                     <textarea
                         id="messageInput"
                         placeholder="Posez votre question ou écrivez votre requête..."
-                        class="min-h-[44px] max-h-[150px] w-full resize-none rounded-lg border-0 bg-transparent p-3 pr-12 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none dark:text-white disabled:opacity-60"
+                        class="min-h-[40px] max-h-[120px] w-full resize-none rounded-lg border-0 bg-transparent p-2 pr-10 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none dark:text-white"
                         rows="1"
                         name="message"
                     ></textarea>
                     <button
                         type="submit"
-                        class="absolute right-2 bottom-2 h-8 w-8 rounded-full bg-inwi p-1.5 text-white transition-colors hover:bg-inwi-dark focus:outline-none focus:ring-2 focus:ring-inwi focus:ring-offset-1 dark:focus:ring-offset-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="absolute right-2 bottom-1.5 h-7 w-7 rounded-full bg-inwi p-1 text-white hover:bg-inwi-dark disabled:opacity-50"
                         aria-label="Envoyer"
-                        disabled  = " Initially disabled until input has text "
+                        disabled
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-full w-full" stroke-linecap="round" stroke-linejoin="round">
-                           <line x1="22" y1="2" x2="11" y2="13"></line>
-                           <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
                     </button>
                 </div>
@@ -252,78 +63,37 @@
         </main>
     </div>
 </div>
-<!-- Modal Container -->
+
+<!-- Modal for full table display -->
 <div id="fullTableModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-11/12 max-h-[80vh] overflow-auto relative p-4">
-      <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-black dark:hover:text-white text-2xl font-bold">&times;</button>
-      <button id="downloadExcel" class="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Télécharger Excel</button>
-      <div id="modalTableContent"></div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg w-11/12 max-h-[80vh] overflow-auto relative p-3">
+        <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-black dark:hover:text-white text-xl">&times;</button>
+        <button id="downloadExcel" class="mb-3 bg-inwi text-white px-3 py-1.5 rounded hover:bg-inwi-dark text-sm">Télécharger Excel</button>
+        <div id="modalTableContent"></div>
     </div>
-  </div>
-<!-- JavaScript Logic -->
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM loaded, initializing application...");
+document.addEventListener('DOMContentLoaded', () => {
+    // --- State ---
+    let conversations = [];
+    let activeConversationId = null;
+    let isSidebarOpen = true;
 
-        // --- State Variables ---
-        let conversations = []; // Array to hold Conversation objects
-        let activeConversationId = null; // ID of the currently active conversation
-        let isSidebarOpen = true; 
-        let conv_id = []; // Tracks sidebar visibility state
-        document.querySelectorAll(".conv-detail").forEach(button => {
-    button.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        console.log("Clicked ID:", id);
-        if (!id || id === "new") {
-            setActiveConversation(null); // Start new
-        } else {
-            setActiveConversation(id);   // Load existing
-        }
-    });
-});
-
-function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
-        tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag] || tag)
-    );
-}
-        // --- DOM Element References ---
-        const elements = {
-            sidebar: document.getElementById('sidebar'),
-            mainContent: document.getElementById('mainContent'),
-            sidebarToggle: document.getElementById('sidebarToggle'),
-            themeToggle: document.getElementById('themeToggle'),
-            logoutButton: document.getElementById('logoutButton'),
-            newConversationBtn: document.getElementById('newConversationBtn'),
-            conversationList: document.getElementById('conversationList'),
-            chatMessages: document.getElementById('chatMessages'),
-            chatForm: document.getElementById('chatForm'),
-            messageInput: document.getElementById('messageInput'),
-            submitButton: document.querySelector('#chatForm button[type="submit"]'), // Specific select for submit button
-            welcomeMessage: document.getElementById('welcomeMessage'),
-        };
-        const initEventListeners = () => {
-        elements.sidebarToggle?.addEventListener('click', toggleSidebar);
-        elements.themeToggle?.addEventListener('click', toggleTheme);
-        elements.logoutButton?.addEventListener('click', handleLogout);
-        // Use startNewConversation which handles UI and state
-        elements.newConversationBtn?.addEventListener('click', () => startNewConversation(true));
-        elements.chatForm?.addEventListener('submit', handleMessageSubmit);
-        elements.messageInput?.addEventListener('input', handleInputChange);
-        elements.messageInput?.addEventListener('keydown', handleInputKeydown);
-         // Event delegation for conversation list items is now handled within updateConversationList
-
-        console.log("Event listeners initialized.");
+    // --- Elements ---
+    const elements = {
+        sidebar: document.getElementById('sidebar'),
+        mainContent: document.getElementById('mainContent'),
+        newConversationBtn: document.getElementById('newConversationBtn'),
+        conversationList: document.getElementById('conversationList'),
+        chatMessages: document.getElementById('chatMessages'),
+        chatForm: document.getElementById('chatForm'),
+        messageInput: document.getElementById('messageInput'),
+        submitButton: document.querySelector('#chatForm button[type="submit"]'),
+        welcomeMessage: document.getElementById('welcomeMessage'),
     };
-        
-          // --- API Abstraction ---
+
+    // --- API ---
     const api = {
         getConversations: async () => {
             const response = await fetch('/all_conversations');
@@ -331,111 +101,116 @@ function escapeHTML(str) {
             return response.json();
         },
         getMessages: async (convId) => {
-            // Handle the case where convId is null or undefined (shouldn't fetch)
-            if (!convId) return { messages: [] }; // Return empty array if no ID
+            if (!convId) return { messages: [] };
             const response = await fetch(`/all_msg_by_conv/${convId}`);
             if (!response.ok) throw new Error(`Failed to fetch messages for ${convId}: ${response.statusText}`);
             return response.json();
         },
         sendMessage: async (convId, messageContent) => {
-            // The backend should handle creating a new conversation if convId is null/undefined
-            // The backend should return the bot's response and the definitive conv_id
-            const response = await fetch(`/create_conversation/`, { // Use the same endpoint
+            const response = await fetch(`/create_conversation/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    // Add CSRF token header if needed by your backend framework
-                },
-                // Send conv_id *only if it exists*
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
                     message: messageContent,
-                    ...(convId && { conv_id: convId }) // Conditionally add conv_id
+                    ...(convId && { conv_id: convId })
                 }),
             });
             if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({ detail: 'Failed to send message' })); // Try to parse error
-                 throw new Error(errorData.detail || `Failed to send message: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({ detail: 'Failed to send message' }));
+                throw new Error(errorData.detail || `Failed to send message: ${response.statusText}`);
             }
-            return response.json(); // Expect { conv_id: "...", message: { role: "bot", content: "...", ... } }
+            return response.json();
         },
-        updateConversation: async (messageContent,id_msg) => {
+        updateConversation: async (messageContent, id_msg) => {
             const response = await fetch(`/update_conversation/${encodeURIComponent(messageContent)}/${id_msg}/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                    body: new URLSearchParams({
-                        message: messageContent,
-                        id_msg: id_msg,
-                }),
-                
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ message: messageContent, id_msg: id_msg }),
             });
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: 'Failed to update message' })); // Try to parse error
+                const errorData = await response.json().catch(() => ({ detail: 'Failed to update message' }));
                 throw new Error(errorData.detail || `Failed to update message: ${response.statusText}`);
             }
             return response.json();
         }
     };
 
+    // --- UI Helpers ---
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag] || tag));
+    }
 
-        // --- Initialization Functions ---
-        const createNewConversationEntry = () => {
-        // Remove existing temporary "New Conversation" if present
-        const existingDraft = document.getElementById('conv-new');
-        if (existingDraft) {
-            existingDraft.remove();
+    function clearMessages() {
+        elements.chatMessages.innerHTML = '';
+    }
+    function showWelcomeMessage() {
+        if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'flex';
+    }
+    function hideWelcomeMessage() {
+        if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'none';
+    }
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 transition-opacity duration-300 ease-in-out';
+        errorDiv.setAttribute('role', 'alert');
+        errorDiv.innerHTML = `<strong class="font-bold">Erreur!</strong> <span class="block sm:inline">${message}</span>`;
+        document.body.appendChild(errorDiv);
+        setTimeout(() => {
+            errorDiv.style.opacity = '0';
+            setTimeout(() => { errorDiv.remove(); }, 300);
+        }, 5000);
+    }
+
+    // --- Conversation List ---
+    async function updateConversationList() {
+        try {
+            const data = await api.getConversations();
+            const conversationsFromServer = data.conversations || [];
+            const isNewConversationActive = activeConversationId === null;
+            const tempNewEntryHTML = isNewConversationActive ? document.getElementById('conv-new')?.outerHTML || '' : '';
+            elements.conversationList.innerHTML = '';
+            if (isNewConversationActive && tempNewEntryHTML) {
+                elements.conversationList.innerHTML = tempNewEntryHTML;
+                document.getElementById('conv-new')?.addEventListener('click', () => setActiveConversation(null));
+            }
+            const serverListHTML = conversationsFromServer.map(conv => {
+                const convId = conv.conv_id;
+                const convTitle = conv.subject;
+                if (!convId) return '';
+                const isActive = activeConversationId === convId;
+                return `
+                    <div id="conv-${convId}"
+                        class="group conv-detail flex items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 ${isActive ? 'conversation-active font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'}"
+                        data-id="${convId}" role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
+                        <span class="truncate flex-1 text-sm ${isActive ? 'text-inwi dark:text-inwi-light' : ''} pr-2" data-conv-id="${convId}">
+                            ${convTitle}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+            elements.conversationList.insertAdjacentHTML('beforeend', serverListHTML);
+            elements.conversationList.addEventListener('click', (event) => {
+                const targetButton = event.target.closest('.conv-detail');
+                if (targetButton) {
+                    const id = targetButton.getAttribute('data-id');
+                    if (id) setActiveConversation(id);
+                }
+            });
+            updateConversationHighlight();
+        } catch (error) {
+            elements.conversationList.innerHTML = `<div class="text-red-500 p-4">Erreur chargement conversations. ${error.message}</div>`;
         }
+    }
 
-        // Create and add the temporary entry
-        const draftHTML = `
-            <div id="conv-new"
-                 class="group flex conv-detail items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 conversation-active font-semibold"
-                 data-id="new"
-                 role="button"
-                 tabindex="0"
-                 aria-current="page">
-                <span class="truncate flex-1 text-sm text-inwi dark:text-inwi-light pr-2" data-conv-id="New Conversation">
-                    New Conversation
-                </span>
-                <!-- Add loading indicator or specific styling if needed -->
-            </div>
-        `;
-        elements.conversationList.insertAdjacentHTML("afterbegin", draftHTML);
-
-        // Add click listener specifically for this new element
-        const newConvElement = document.getElementById('conv-new');
-        newConvElement?.addEventListener('click', () => {
-             setActiveConversation(null); // Explicitly set to null when clicked
-        });
-     };
-
-    const startNewConversation = (select = true) => {
-        console.log("Starting new conversation flow...");
-        activeConversationId = null; // Set state to new
-        clearMessages();
-        hideWelcomeMessage();
-        showWelcomeMessage(); // Show welcome until first message is sent? Or keep blank? User choice.
-        elements.messageInput.value = ''; // Clear input
-        handleInputChange(); // Update button state
-        elements.messageInput.focus();
-
-        // Update sidebar
-        createNewConversationEntry(); // Add the temporary "New Conversation" entry
-        updateConversationHighlight(); // Highlight the new entry
-    };
-
-
-    const updateConversationHighlight = () => {
-        const listItems = elements.conversationList.querySelectorAll('.conv-detail'); // Select all potential items
-
+    function updateConversationHighlight() {
+        const listItems = elements.conversationList.querySelectorAll('.conv-detail');
         listItems.forEach(div => {
             const id = div.getAttribute('data-id');
-            // Check if it's the active one (comparing strings, null handled)
-            // Or if it's the 'new' placeholder and activeId is null
             const isActive = (activeConversationId !== null && id === activeConversationId) ||
-                             (activeConversationId === null && id === 'new');
-
+                (activeConversationId === null && id === 'new');
             if (isActive) {
                 div.classList.add('conversation-active', 'font-semibold');
                 div.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700/50', 'text-gray-700', 'dark:text-gray-300');
@@ -448,368 +223,206 @@ function escapeHTML(str) {
                 div.setAttribute('aria-current', 'false');
             }
         });
-    };
+    }
 
+    function createNewConversationEntry() {
+        const existingDraft = document.getElementById('conv-new');
+        if (existingDraft) existingDraft.remove();
+        const draftHTML = `
+            <div id="conv-new"
+                class="group flex conv-detail items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 conversation-active font-semibold"
+                data-id="new" role="button" tabindex="0" aria-current="page">
+                <span class="truncate flex-1 text-sm text-inwi dark:text-inwi-light pr-2" data-conv-id="New Conversation">
+                    New Conversation
+                </span>
+            </div>
+        `;
+        elements.conversationList.insertAdjacentHTML("afterbegin", draftHTML);
+        document.getElementById('conv-new')?.addEventListener('click', () => setActiveConversation(null));
+    }
 
-// --- Set Active Conversation ---
-const setActiveConversation = async (convId) => {
-        // Trim potential whitespace from attribute
+    function startNewConversation() {
+        activeConversationId = null;
+        clearMessages();
+        showWelcomeMessage();
+        elements.messageInput.value = '';
+        handleInputChange();
+        elements.messageInput.focus();
+        createNewConversationEntry();
+        updateConversationHighlight();
+    }
+
+    // --- Conversation Messages ---
+    async function setActiveConversation(convId) {
         const trimmedConvId = typeof convId === 'string' ? convId.trim() : convId;
-
-        // Handle clicking "New Conversation" placeholder
         if (trimmedConvId === 'new' || trimmedConvId === null || trimmedConvId === undefined) {
-             if (activeConversationId !== null) { // Only switch if not already in 'new' state
-                 console.log("Setting active conversation to NEW");
-                 startNewConversation();
-             }
-             return; // Already handled by startNewConversation or already in 'new' state
-        }
-
-        // Prevent reloading if already active
-        if (activeConversationId === trimmedConvId) {
-            console.log(`Conversation ${trimmedConvId} is already active.`);
+            if (activeConversationId !== null) startNewConversation();
             return;
         }
-
-        console.log(`Setting active conversation to: ${trimmedConvId}`);
-        activeConversationId = trimmedConvId; // Update state *before* loading
+        if (activeConversationId === trimmedConvId) return;
+        activeConversationId = trimmedConvId;
         clearMessages();
         hideWelcomeMessage();
-        elements.messageInput.value = ''; // Clear input for context switch
+        elements.messageInput.value = '';
         handleInputChange();
-        elements.submitButton.disabled = true; // Disable submit until loaded/typed
-
-        // Remove the temporary 'New Conversation' entry if it exists and we're loading a real one
+        elements.submitButton.disabled = true;
         const tempNewEntry = document.getElementById('conv-new');
         if (tempNewEntry) tempNewEntry.remove();
-
-        
-
-
         try {
-            // Fetch and render messages for the selected conversation
-            const data = await api.getMessages(activeConversationId); 
-            console.log("data",data)// Use the new active ID
-
-            // Clear loading message
-            const loadingElement = document.getElementById('msg-loading'); // Assuming renderMessage gives it id 'msg-loading'
-            if (loadingElement) loadingElement.remove();
-
+            const data = await api.getMessages(activeConversationId);
             if (data.messages && data.messages.length > 0) {
                 data.messages.forEach(msg => {
                     if (msg.msg_user) {
-            renderMessage({
-                data_type: "str",
-                id: `user-${msg.msg_id || Date.now()}-${Math.random()}`,
-                content: msg.msg_user,
-                role: 'user',
-                timestamp: new Date(msg.timestamp || Date.now()),
-                error: false,
-            });
-        }
-
-        // Afficher la réponse bot s'il existe ou est null (placeholder)
-        if (msg.hasOwnProperty('res_user')) {
-            let content = null;
-            if (msg.res_user) {
-                if (msg.type_res === "list") {
-                    content = msg.message;
-                }else{
-                    content = msg.res_user;
-                    
-                }
-            }else if (msg.res_user == " ") {
-                content = "le message sera affiché ici"
-            }
-            renderMessage({
-                data_type: msg.type_res,
-                id: `bot-${msg.msg_id || Date.now()}-${Math.random()}`,
-                content: content,
-                role: 'bot',
-                timestamp: new Date(msg.timestamp || Date.now()),
-                error: msg.error || false,
-            });
-        }
-
-                });
-                 elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight; // Scroll down
-            } else {
-                // No messages, maybe show welcome or a specific message?
-                 console.log(`Conversation ${activeConversationId} is empty.`);
-                 // showWelcomeMessage(); // Or keep it blank
-            }
-             updateConversationHighlight(); // Highlight the correct item in the list
-             elements.messageInput.focus();
-             elements.submitButton.disabled = false; // Re-enable submit button
-
-        } catch (error) {
-            console.error(`Failed to load conversation ${activeConversationId}:`, error);
-            showError(`Impossible de charger la conversation ${activeConversationId}.`);
-            // Clear loading message on error too
-             const loadingElement = document.getElementById('msg-loading');
-             if (loadingElement) loadingElement.remove();
-            showWelcomeMessage(); // Show welcome as fallback
-            activeConversationId = null; // Reset state if loading failed? Maybe debatable.
-            updateConversationHighlight(); // Update highlight based on reset state
-        } finally {
-             // Ensure submit is enabled if input has text, even if loading failed but we allow typing
-             handleInputChange();
-        }
-    };
-
-
-// --- Load Conversation Messages ---
-
-
-const updateConversationList = async () => {
-        console.log("Updating conversation list...");
-        try {
-            const data = await api.getConversations();
-            const conversationsFromServer = data.conversations || [];
-
-            // Preserve the temporary "New Conversation" entry if it's currently active
-            const isNewConversationActive = activeConversationId === null;
-            const tempNewEntryHTML = isNewConversationActive ? document.getElementById('conv-new')?.outerHTML || '' : '';
-
-            // Clear existing listeners before rebuilding (important!)
-            elements.conversationList.innerHTML = ''; // Clear list content
-
-
-            // Add the temporary entry back if it was active
-             if (isNewConversationActive && tempNewEntryHTML) {
-                 elements.conversationList.innerHTML = tempNewEntryHTML;
-                 // Re-attach listener if needed, though startNewConversation does this
-                  const newConvElement = document.getElementById('conv-new');
-                   newConvElement?.addEventListener('click', () => {
-                        setActiveConversation(null);
-                   });
-             }
-
-            // Build HTML for server conversations
-            const serverListHTML = conversationsFromServer.map(conv => {
-                // Use a consistent field for the ID and title, e.g., conv.id and conv.title
-                // Assuming backend sends { id: "...", title: "...", ... }
-                 const convId = conv.conv_id; // **** Adapt this to your actual API response ****
-                 const convTitle = conv.subject; // Use title if available, else ID
-                 if (!convId) return ''; // Skip if no ID
-                
-
-                 const isActive = activeConversationId === convId; // Compare with state
-
-                 return `
-                    <div id="conv-${convId}"
-                         class="group conv-detail flex items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 ${isActive ? 'conversation-active font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'}"
-                         data-id="${convId}"  role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
-                         <span class="truncate flex-1 text-sm ${isActive ? 'text-inwi dark:text-inwi-light' : ''} pr-2" data-conv-id="${convId}">
-                             ${convTitle}  </span>
-                         </div>
-                `;
-            }).join('');
-
-            // Append server list HTML (after the potential 'New Conversation' entry)
-            elements.conversationList.insertAdjacentHTML('beforeend', serverListHTML);
-
-
-            // Add event listeners using delegation (more efficient)
-             elements.conversationList.addEventListener('click', (event) => {
-                const targetButton = event.target.closest('.conv-detail'); // Find the button element
-                 if (targetButton) {
-                     const id = targetButton.getAttribute('data-id');
-                     console.log("Clicked Conversation ID:", id);
-                     if (id) { // Includes 'new' or actual IDs
-                         setActiveConversation(id); // Let setActiveConversation handle 'new' vs ID
-                     }
-                 }
-             });
-
-            // Ensure highlighting is correct after rebuild
-             updateConversationHighlight();
-
-        } catch (error) {
-            console.error('Error updating conversation list:', error);
-            elements.conversationList.innerHTML = `<div class="text-red-500 p-4">Erreur chargement conversations. ${error.message}</div>`;
-        }
-    };
-
-
-        // Message Submission
-
-// --- Message Handling ---
-// --- Message Handling ---
-
-
-const renderMessage = (message) => {
-    // message: { id, content, role ('user' | 'bot' | 'system'), timestamp (Date object), isLoading?, isError? }
-    hideWelcomeMessage(); // Hide welcome message whenever a message is rendered
-
-    const messageElement = document.createElement('div');
-    // Use provided ID or generate one; ensure loading/error messages have consistent or unique IDs
-    messageElement.id = message.id || `msg-${message.role}-${Date.now()}`;
-    
-    messageElement.className = `flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4 message-enter`;
-    // Add specific class for system messages if needed for styling
-    if (message.role === 'system') {
-        messageElement.classList.add('justify-center', 'system-message'); // Example class
-    }
-
-    // Basic sanitization - replace with a library like DOMPurify if complex HTML is needed and allowed
-    let sanitizedContent = '';
-console.log(message.data_type)
-console.log(message.content)
-if (message.data_type === "list") {
-    sanitizedContent = createResultContent(message.content); // HTML table
-} else {
-    sanitizedContent = escapeHTML(message.content || '');
-}
-
-
-
-    // Replace newlines with <br> for display within the pre-wrap whitespa
-
-    let avatarChar = '?';
-    let avatarBg = 'bg-gray-400 text-white'; // Default/System
-    let bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg'; // System/Error default
-
-    if (message.role === 'user') {
-        avatarChar = 'U';
-        avatarBg = 'bg-inwi text-white';
-        bubbleBg = 'bg-inwi text-white rounded-br-none';
-    } else if (message.role === 'bot') {
-        avatarChar = 'B';
-        avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
-        bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
-    }
-
-    // Special styling for errors (overrides bot/system style)
-    if (message.isError) {
-        avatarChar = '!';
-        avatarBg = 'bg-red-500 text-white';
-        bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg'; // Consistent rounding for errors
-    }
-
-
-    // Inner HTML structure
-    const contentHTML = `
-        <div class="flex max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
-            ${message.role !== 'system' ? `
-            <div class="flex-shrink-0">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
-                    ${avatarChar}
-                </div>
-            </div>` : '' /* No avatar for system messages */ }
-            <div class="flex flex-col ${message.role === 'user' ? 'items-end' : (message.role === 'system' ? 'items-center' : 'items-start')}">
-                <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
-                    ${message.isLoading
-                        ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 dark:text-gray-400 text-xs italic">Génération...</span></div>'
-                        // Use 'prose' for nice formatting, allow break-words and pre-wrap
-                        : `<div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>`
+                        renderMessage({
+                            data_type: "str",
+                            id: `user-${msg.msg_id || Date.now()}-${Math.random()}`,
+                            content: msg.msg_user,
+                            role: 'user',
+                            timestamp: new Date(msg.timestamp || Date.now()),
+                            error: false,
+                        });
                     }
+                    if (msg.hasOwnProperty('res_user')) {
+                        let content = null;
+                        if (msg.res_user) {
+                            content = msg.type_res === "list" ? msg.message : msg.res_user;
+                        } else if (msg.res_user == " ") {
+                            content = "le message sera affiché ici";
+                        }
+                        renderMessage({
+                            data_type: msg.type_res,
+                            id: `bot-${msg.msg_id || Date.now()}-${Math.random()}`,
+                            content: content,
+                            role: 'bot',
+                            timestamp: new Date(msg.timestamp || Date.now()),
+                            error: msg.error || false,
+                        });
+                    }
+                });
+                elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            }
+            updateConversationHighlight();
+            elements.messageInput.focus();
+            elements.submitButton.disabled = false;
+        } catch (error) {
+            showError(`Impossible de charger la conversation ${activeConversationId}.`);
+            showWelcomeMessage();
+            activeConversationId = null;
+            updateConversationHighlight();
+        } finally {
+            handleInputChange();
+        }
+    }
+
+    // --- Message Rendering ---
+    function renderMessage(message) {
+        hideWelcomeMessage();
+        const messageElement = document.createElement('div');
+        messageElement.id = message.id || `msg-${message.role}-${Date.now()}`;
+        messageElement.className = `flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4 message-enter`;
+        let sanitizedContent = '';
+        if (message.data_type === "list") {
+            sanitizedContent = createResultContent(message.content);
+        } else {
+            sanitizedContent = escapeHTML(message.content || '');
+        }
+        let avatarChar = '?', avatarBg = 'bg-gray-400 text-white', bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg';
+        if (message.role === 'user') {
+            avatarChar = 'U';
+            avatarBg = 'bg-inwi text-white';
+            bubbleBg = 'bg-inwi text-white rounded-br-none';
+        } else if (message.role === 'bot') {
+            avatarChar = 'B';
+            avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
+            bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
+        }
+        if (message.isError) {
+            avatarChar = '!';
+            avatarBg = 'bg-red-500 text-white';
+            bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg';
+        }
+        const contentHTML = `
+            <div class="flex max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
+                ${message.role !== 'system' ? `
+                <div class="flex-shrink-0">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
+                        ${avatarChar}
+                    </div>
+                </div>` : ''}
+                <div class="flex flex-col ${message.role === 'user' ? 'items-end' : (message.role === 'system' ? 'items-center' : 'items-start')}">
+                    <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                        ${message.isLoading
+                            ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 dark:text-gray-400 text-xs italic">Génération...</span></div>'
+                            : `<div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>`
+                        }
+                    </div>
+                    ${!message.isLoading ? `
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+                        ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>` : ''}
                 </div>
-                ${!message.isLoading ? `
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-                    ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>` : '' /* No timestamp for loading message */ }
             </div>
-        </div>
-    `;
+        `;
+        messageElement.innerHTML = contentHTML;
+        elements.chatMessages.appendChild(messageElement);
+        requestAnimationFrame(() => {
+            messageElement.classList.remove('message-enter');
+            messageElement.classList.add('message-enter-active');
+        });
+        if (!message.isLoading) {
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+        return messageElement;
+    }
 
-    messageElement.innerHTML = contentHTML;
-    elements.chatMessages.appendChild(messageElement);
-
-    // Animation (optional)
-    requestAnimationFrame(() => {
-        messageElement.classList.remove('message-enter');
-        messageElement.classList.add('message-enter-active');
-    });
-
-    // Scroll down, unless it's just a loading indicator that will be replaced
-    if (!message.isLoading) {
+    function updateRenderedMessage(messageElement, messageData) {
+        if (!messageElement || !messageData) return;
+        let sanitizedContent = '';
+        if (messageData.type_res === "list") {
+            sanitizedContent = createResultContent(messageData.content);
+        } else {
+            sanitizedContent = escapeHTML(messageData.content || '');
+        }
+        let avatarChar = '?', avatarBg = 'bg-gray-400 text-white', bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg';
+        if (messageData.role === 'bot') {
+            avatarChar = 'B';
+            avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
+            bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
+        }
+        if (messageData.isError) {
+            avatarChar = '!';
+            avatarBg = 'bg-red-500 text-white';
+            bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg';
+        }
+        const contentHTML = `
+            <div class="flex max-w-[85%] md:max-w-[75%] ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
+                ${messageData.role !== 'system' ? `
+                <div class="flex-shrink-0">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
+                        ${avatarChar}
+                    </div>
+                </div>` : ''}
+                <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : (messageData.role === 'system' ? 'items-center' : 'items-start')}">
+                    <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                        <div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+                        ${messageData.timestamp}
+                    </div>
+                </div>
+            </div>
+        `;
+        messageElement.innerHTML = contentHTML;
+        messageElement.id = messageData.id || messageElement.id;
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
 
-    return messageElement; // Return the created element
-};
-
- 
-const updateRenderedMessage = (messageElement, messageData) => {
-    // messageElement: The actual DOM element to update
-    // messageData: { id, content, role, timestamp (Date object), isError?, isLoading? (should be false here) }
-     if (!messageElement || !messageData) {
-         console.warn("updateRenderedMessage called with invalid arguments:", messageElement, messageData);
-         return;
-     }
-     let sanitizedContent = '';
-
-if (messageData.type_res === "list") {
-    sanitizedContent = createResultContent(messageData.content); // HTML table
-} else {
-    sanitizedContent = escapeHTML(messageData.content || '');
-}
-
-    // Only apply linebreak replacements to plain text
-    sanitizedContent = sanitizedContent.replace(/```sql\n([\s\S]*?)```/g, (match, code) => 
-        `<pre class="bg-gray-200 dark:bg-gray-900 p-3 rounded-md mt-2 overflow-x-auto"><code class="text-sm font-mono text-emerald-700 dark:text-emerald-400">${code.trim()}</code></pre>`
-    );
-    sanitizedContent = sanitizedContent.replace(/```([\s\S]*?)```/g, (match, code) => {
-        if (match.startsWith('```sql')) return match;
-        return `<pre class="bg-gray-200 dark:bg-gray-900 p-3 rounded-md mt-2 overflow-x-auto"><code class="text-sm font-mono">${code.trim()}</code></pre>`;
-    });
-
-    // Only apply <br> to non-code text
- 
-
-
-    let avatarChar = '?';
-    let avatarBg = 'bg-gray-400 text-white';
-    let bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg';
-
-    // Assume role is 'bot' or 'system' when updating (usually updating a bot loading message)
-    if (messageData.role === 'bot') {
-        avatarChar = 'B';
-        avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
-        bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
-    }
-
-    if (messageData.isError) {
-        avatarChar = '!';
-        avatarBg = 'bg-red-500 text-white';
-        bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg';
-    }
-
-    const contentHTML = `
-        <div class="flex max-w-[85%] md:max-w-[75%] ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
-             ${messageData.role !== 'system' ? `
-             <div class="flex-shrink-0">
-                 <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
-                     ${avatarChar}
-                 </div>
-             </div>` : ''}
-             <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : (messageData.role === 'system' ? 'items-center' : 'items-start')}">
-                 <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
-                    <div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>
-                 </div>
-                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-                    ${messageData.timestamp}
-                 </div>
-             </div>
-        </div>
-    `;
-
-    messageElement.innerHTML = contentHTML; // Replace the entire innerHTML
-    messageElement.id = messageData.id || messageElement.id; // Update ID if provided by backend
-
-    // Ensure it's scrolled into view
-    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-};
-
-const handleMessageSubmit = async (e) => {
+    // --- Message Submission ---
+    async function handleMessageSubmit(e) {
         e.preventDefault();
         const messageContent = elements.messageInput.value.trim();
         if (!messageContent) return;
-
-        const wasNewConversation = activeConversationId === null; // Check *before* sending
-
-        // 1. Optimistically render User Message
+        const wasNewConversation = activeConversationId === null;
         const userMessage = {
             data_type: "str",
             id: `msg-user-${Date.now()}`,
@@ -819,161 +432,71 @@ const handleMessageSubmit = async (e) => {
             error: false,
         };
         renderMessage(userMessage);
-
-        // 2. Clear input and disable form
         elements.messageInput.value = '';
-        handleInputChange(); // Resizes input, disables button
-        elements.submitButton.disabled = true; // Explicitly disable during processing
-        elements.messageInput.disabled = true; // Disable input while waiting
-
-        // 3. Render Bot Loading Placeholder
+        handleInputChange();
+        elements.submitButton.disabled = true;
+        elements.messageInput.disabled = true;
         const loadingMessageData = {
-            id: `msg-bot-loading-${Date.now()}`, // Unique ID for the loading message
+            id: `msg-bot-loading-${Date.now()}`,
             role: 'bot',
             content: 'Génération...',
-            timestamp: new Date(), // Placeholder timestamp
+            timestamp: new Date(),
             isLoading: true,
         };
-        const loadingElement = renderMessage(loadingMessageData); // Keep track of the loading element
-
+        const loadingElement = renderMessage(loadingMessageData);
         try {
-            // 4. Send message to API (pass current activeConversationId, which might be null)
-             console.log(`Sending message to conv_id: ${activeConversationId}`);
             const responseData = await api.sendMessage(activeConversationId, messageContent);
-            console.log("API Response:", responseData);
-
-            // **Crucial:** Update activeConversationId if it was a new conversation
-             if (wasNewConversation && responseData.conv_id) {
-                 activeConversationId = responseData.conv_id;
-                 console.log(`New conversation created with ID: ${activeConversationId}`);
-                 // Update the URL maybe? (optional) history.pushState({}, '', `/chat/${activeConversationId}`);
-                 // Refresh the conversation list in the sidebar to show the new one
-                 await updateConversationList(); // Await this to ensure list is updated before highlight
-                 // setActiveConversation(activeConversationId); // No need to reload all messages, just update highlight
-                 updateConversationHighlight(); // Ensure new item is highlighted
-             } else if (activeConversationId !== responseData.conv_id) {
-                 // Safety check: if backend returns a different ID than expected for existing chat
-                 console.warn(`Backend returned conv_id ${responseData.conv_id} but expected ${activeConversationId}`);
-                 activeConversationId = responseData.conv_id; // Trust the backend's ID
-                 await updateConversationList(); // Refresh list if ID changed unexpectedly
-                 updateConversationHighlight();
-             }
-
-
-            // 5. Update the loading message with the actual Bot Response
+            if (wasNewConversation && responseData.conv_id) {
+                activeConversationId = responseData.conv_id;
+                await updateConversationList();
+                updateConversationHighlight();
+            } else if (activeConversationId !== responseData.conv_id) {
+                activeConversationId = responseData.conv_id;
+                await updateConversationList();
+                updateConversationHighlight();
+            }
             if (responseData.message && responseData.message.content) {
-                response_update = await api.updateConversation(responseData.message.content,responseData.message.msg_id);
+                const response_update = await api.updateConversation(responseData.message.content, responseData.message.msg_id);
                 updateRenderedMessage(loadingElement, {
-    id: responseData.message.msg_id,
-    content: response_update.response,
-    role: 'bot',
-    timestamp: response_update.format_date, // ensure this is a Date object
-    error: false,
-    isLoading: false,
-    type_res: response_update.type_res
-});
+                    id: responseData.message.msg_id,
+                    content: response_update.response,
+                    role: 'bot',
+                    timestamp: response_update.format_date,
+                    error: false,
+                    isLoading: false,
+                    type_res: response_update.type_res
+                });
             } else {
-                 // Handle cases where response is missing expected data
-                 throw new Error("Réponse invalide du serveur.");
+                throw new Error("Réponse invalide du serveur.");
             }
-
         } catch (error) {
-            console.error("Error sending message:", error);
-            // 6. Update the loading message with an Error state
-            updateRenderedMessage(loadingElement.id, {
-                 id: loadingElement.id, // Keep the same ID for the error message
-                 content: `Erreur: ${error.message || "Impossible d'envoyer le message."}`,
-                 role: 'bot', // Still show as a 'bot response' slot, but styled as error
-                 timestamp: new Date(),
-                 error: error.message || true, // Store error message or boolean
-                 isLoading: false,
+            updateRenderedMessage(loadingElement, {
+                id: loadingElement.id,
+                content: `Erreur: ${error.message || "Impossible d'envoyer le message."}`,
+                role: 'bot',
+                timestamp: new Date(),
+                error: error.message || true,
+                isLoading: false,
             });
-
-            // If it was a new conversation attempt that failed, revert state
             if (wasNewConversation) {
-                 activeConversationId = null; // Go back to 'new' state
-                 updateConversationHighlight(); // Re-highlight the temp 'New Conversation' entry
-                 // Optionally remove the failed user message? Or leave it as context?
+                activeConversationId = null;
+                updateConversationHighlight();
             }
-
         } finally {
-            // 7. Re-enable form regardless of success/failure
             elements.submitButton.disabled = false;
             elements.messageInput.disabled = false;
-            handleInputChange(); // Adjust button based on input content (likely empty now)
+            handleInputChange();
             elements.messageInput.focus();
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight; // Ensure scrolled down
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
-    };
+    }
 
-
-
-const deleteConversation = (id) => {
-            const conversationIndex = conversations.findIndex(c => c.id === id);
-            if (conversationIndex === -1) return;
-            const conversationTitle = conversations[conversationIndex].title;
-
-            if (confirm(`Voulez-vous vraiment supprimer la conversation "${conversationTitle}" ?\nCette action est irréversible.`)) {
-                conversations.splice(conversationIndex, 1); // Remove from array
-                console.log(`Conversation ${id} deleted.`);
-
-                if (activeConversationId === id) {
-                    // If the active one was deleted, select the next available or clear
-                    const nextConversation = conversations[0] || null; // Select the new top one (most recent)
-                    if (nextConversation) {
-                        setActiveConversation(nextConversation.id);
-                    } else {
-                        activeConversationId = null;
-                        clearMessages();
-                         showWelcomeMessage(); // Show welcome if no convos left
-                    }
-                }
-                 updateConversationList(); // Update UI
-            }
-        };
-
-                    // Fonction pour créer un contenu de résultat formaté
-                    function createResultContent(result) {
-    if (Array.isArray(result) && result.length > 0) {
-        const columns = Object.keys(result[0]);
-        const rows = result.slice(0, 10); // Limiter à 10 lignes
-
-        let tableHTML = `<div class="overflow-x-auto w-full">
-            <table class="w-full border-collapse">
-                <thead class="bg-gray-100 dark:bg-gray-700">
-                    <tr>
-                        ${columns.map(col => `<th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows.map((row, i) => `
-                        <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
-                            ${columns.map(col => {
-                                const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                return `<td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm">${cellContent}</td>`;
-                            }).join('')}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>`;
-
-        if (result.length > 10) {
-            tableHTML += `
-    <div class="mt-2 text-sm text-gray-500 dark:text-gray-400 flex justify-center items-center gap-2" style="margin-top: -45px;">
-        <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
-        <button class="text-inwi hover:underline view-all-results">Voir tout</button>
-    </div>
-`;
-
-        }
-        
-
-// Handle "Voir tout" button
-document.addEventListener('click', function (e) {
-    if (e.target && e.target.classList.contains('view-all-results')) {
-        const fullTableHTML = `
-            <div class="overflow-x-auto w-full">
+    // --- Table Result Rendering ---
+    function createResultContent(result) {
+        if (Array.isArray(result) && result.length > 0) {
+            const columns = Object.keys(result[0]);
+            const rows = result.slice(0, 10);
+            let tableHTML = `<div class="overflow-x-auto w-full">
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 dark:bg-gray-700">
                         <tr>
@@ -981,7 +504,7 @@ document.addEventListener('click', function (e) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${result.map((row, i) => `
+                        ${rows.map((row, i) => `
                             <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
                                 ${columns.map(col => {
                                     const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
@@ -991,188 +514,132 @@ document.addEventListener('click', function (e) {
                         `).join('')}
                     </tbody>
                 </table>
-            </div>
-        `;
-        document.getElementById('modalTableContent').innerHTML = fullTableHTML;
-        document.getElementById('fullTableModal').classList.remove('hidden');
+            </div>`;
+            if (result.length > 10) {
+                tableHTML += `
+                    <div class="mt-2 text-sm text-gray-500 dark:text-gray-400 flex justify-center items-center gap-2" style="margin-top: -45px;">
+                        <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
+                        <button class="text-inwi hover:underline view-all-results">Voir tout</button>
+                    </div>
+                `;
+            }
+            document.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('view-all-results')) {
+                    const fullTableHTML = `
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full border-collapse">
+                                <thead class="bg-gray-100 dark:bg-gray-700">
+                                    <tr>
+                                        ${columns.map(col => `<th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${result.map((row, i) => `
+                                        <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
+                                            ${columns.map(col => {
+                                                const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
+                                                return `<td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm">${cellContent}</td>`;
+                                            }).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    document.getElementById('modalTableContent').innerHTML = fullTableHTML;
+                    document.getElementById('fullTableModal').classList.remove('hidden');
+                }
+            });
+            document.getElementById('closeModal')?.addEventListener('click', () => {
+                document.getElementById('fullTableModal').classList.add('hidden');
+            });
+            document.getElementById('downloadExcel')?.addEventListener('click', () => {
+                if (!columns.length || !result.length) return;
+                const data = [
+                    columns,
+                    ...result.map(row => columns.map(col => row[col] ?? ''))
+                ];
+                const worksheet = XLSX.utils.aoa_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
+                XLSX.writeFile(workbook, `report_${Date.now()}.xlsx`);
+            });
+            return tableHTML;
+        }
     }
-});
 
-// Close modal
-document.getElementById('closeModal')?.addEventListener('click', () => {
-    document.getElementById('fullTableModal').classList.add('hidden');
-});
-
-// Download Excel (CSV)
-document.getElementById('downloadExcel')?.addEventListener('click', () => {
-    if (!columns.length || !result.length) return;
-
-    const data = [
-        columns,
-        ...result.map(row => columns.map(col => row[col] ?? ''))
-    ];
-
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-
-    XLSX.writeFile(workbook, `report_${Date.now()}.xlsx`);
-});
-        return tableHTML;
+    // --- Input Handlers ---
+    function handleInputChange() {
+        const message = elements.messageInput.value.trim();
+        elements.submitButton.disabled = !message;
+        autoResizeTextarea();
     }
-}
-
-
-
-        const clearMessages = () => {
-            elements.chatMessages.innerHTML = ''; // Clear display area
-            // Don't show welcome message here, setActiveConversation or initial load handles it
-        };
-
-        const showWelcomeMessage = () => {
-            if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'flex';
-        };
-
-        const hideWelcomeMessage = () => {
-            if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'none';
-        };
-
-        const showError = (message) => {
-            console.error("UI Error:", message);
-            // Simple alert for now, replace with a more robust notification system if needed
-            // alert(`Erreur: ${message}`);
-             // Example inline error display (optional):
-             const errorDiv = document.createElement('div');
-             errorDiv.className = 'fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 transition-opacity duration-300 ease-in-out';
-             errorDiv.setAttribute('role', 'alert');
-             errorDiv.innerHTML = `<strong class="font-bold">Erreur!</strong> <span class="block sm:inline">${message}</span>`;
-             document.body.appendChild(errorDiv);
-             setTimeout(() => {
-                 errorDiv.style.opacity = '0';
-                 setTimeout(() => { errorDiv.remove(); }, 300); // Remove after fade out
-             }, 5000);
-        };
-        const initTheme = () => {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
+    function autoResizeTextarea() {
+        const textarea = elements.messageInput;
+        textarea.style.height = 'auto';
+        const scrollHeight = textarea.scrollHeight;
+        const maxHeight = 150, minHeight = 44;
+        textarea.style.height = `${Math.min(maxHeight, Math.max(minHeight, scrollHeight))}px`;
+    }
+    function handleInputKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (!elements.submitButton.disabled) {
+                elements.chatForm.requestSubmit();
             }
-             console.log("Theme initialized. Dark mode:", document.documentElement.classList.contains('dark'));
-        };
+        }
+    }
 
-        const initSidebarState = () => {
-            // Optional: Load sidebar state from localStorage if needed
-            // const savedState = localStorage.getItem('sidebarOpen');
-            // isSidebarOpen = savedState !== null ? JSON.parse(savedState) : true;
+    // --- Theme & Sidebar ---
+    function initTheme() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.theme = isDark ? 'dark' : 'light';
+    }
+    function initSidebarState() {
+        if (isSidebarOpen) {
+            elements.sidebar.classList.add('translate-x-0');
+            elements.sidebar.classList.remove('-translate-x-full');
+            elements.mainContent.classList.add('ml-64');
+            elements.mainContent.classList.remove('ml-0');
+        } else {
+            elements.sidebar.classList.add('-translate-x-full');
+            elements.sidebar.classList.remove('translate-x-0');
+            elements.mainContent.classList.add('ml-0');
+            elements.mainContent.classList.remove('ml-64');
+        }
+    }
+    function toggleSidebar() {
+        isSidebarOpen = !isSidebarOpen;
+        elements.sidebar.classList.toggle('translate-x-0');
+        elements.sidebar.classList.toggle('-translate-x-full');
+        elements.mainContent.classList.toggle('ml-64');
+        elements.mainContent.classList.toggle('ml-0');
+    }
 
-            if (isSidebarOpen) {
-                elements.sidebar.classList.add('translate-x-0');
-                elements.sidebar.classList.remove('-translate-x-full');
-                elements.mainContent.classList.add('ml-64');
-                elements.mainContent.classList.remove('ml-0');
-            } else {
-                elements.sidebar.classList.add('-translate-x-full');
-                elements.sidebar.classList.remove('translate-x-0');
-                elements.mainContent.classList.add('ml-0');
-                elements.mainContent.classList.remove('ml-64');
-            }
-             console.log("Sidebar state initialized. Open:", isSidebarOpen);
-        };
+    // --- Event Listeners ---
+    function initEventListeners() {
+        elements.newConversationBtn?.addEventListener('click', () => startNewConversation(true));
+        elements.chatForm?.addEventListener('submit', handleMessageSubmit);
+        elements.messageInput?.addEventListener('input', handleInputChange);
+        elements.messageInput?.addEventListener('keydown', handleInputKeydown);
+    }
 
-        // --- Core Logic Functions ---
-
-        // Theme Toggle
-        const toggleTheme = () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.theme = isDark ? 'dark' : 'light';
-            console.log("Theme toggled. Dark mode:", isDark);
-        };
-
-        // Sidebar Toggle
-        const toggleSidebar = () => {
-            isSidebarOpen = !isSidebarOpen;
-            elements.sidebar.classList.toggle('translate-x-0');
-            elements.sidebar.classList.toggle('-translate-x-full');
-            elements.mainContent.classList.toggle('ml-64');
-            elements.mainContent.classList.toggle('ml-0');
-             console.log("Sidebar toggled. Open:", isSidebarOpen);
-            // Optional: Save state
-            // localStorage.setItem('sidebarOpen', JSON.stringify(isSidebarOpen));
-        };
-
-        // Logout (Placeholder)
-        const handleLogout = () => {
-            console.log("Logout button clicked.");
-            alert("Fonctionnalité de déconnexion non implémentée dans cette démo.");
-            // Replace with actual logout logic:
-            // - Clear authentication tokens/session storage
-            // - Redirect to login page
-            // window.location.href = '/login';
-        };
-
-        // Input Change Handler (Enable/Disable Submit Button)
-         const handleInputChange = () => {
-            const message = elements.messageInput.value.trim();
-            elements.submitButton.disabled = !message; // Disable if empty, enable if not
-            autoResizeTextarea();
-         };
-
-
-        // Auto-resize Textarea
-        const autoResizeTextarea = () => {
-            const textarea = elements.messageInput;
-            textarea.style.height = 'auto'; // Temporarily shrink
-             const scrollHeight = textarea.scrollHeight;
-             const maxHeight = 150; // From max-h-[150px]
-             const minHeight = 44; // From min-h-[44px]
-             textarea.style.height = `${Math.min(maxHeight, Math.max(minHeight, scrollHeight))}px`;
-        };
-
-        // Handle Enter Key in Textarea
-        const handleInputKeydown = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Prevent newline
-                if (!elements.submitButton.disabled) { // Only submit if button is enabled
-                     elements.chatForm.requestSubmit();
-                 }
-            }
-        };
-
-        // --- Load/Save (Example Stubs - Implement with localStorage or API) ---
-      
-
-
-        // --- Application Initialization ---
-        initTheme();
-        initSidebarState();
-      
-        initEventListeners();
-
-         // Set initial state based on loaded data
-         if (conversations.length > 0) {
-             // Sort by date and select the most recent one
-             conversations.sort((a, b) => b.updatedAt - a.updatedAt);
-             setActiveConversation(conversations[0].id);
-         } else {
-             showWelcomeMessage(); // Show welcome if no conversations exist
-             updateConversationList(); // Ensure list is rendered (empty)
-         }
-
-         handleInputChange(); // Set initial state of submit button
-
-
-         // Save conversations periodically or on window close (optional)
-         // setInterval(saveConversations, 60 * 1000); // Save every minute
-
-        // --- Make necessary functions globally accessible for inline handlers ---
-        window.setActiveConversation = setActiveConversation;
-        window.deleteConversation = deleteConversation;
-
-        console.log("Application fully initialized.");
-    });
+    // --- Init ---
+    initTheme();
+    initSidebarState();
+    initEventListeners();
+    showWelcomeMessage();
+    updateConversationList();
+    handleInputChange();
+});
 </script>
-
 </body>
 </html>
 {% endblock %}
