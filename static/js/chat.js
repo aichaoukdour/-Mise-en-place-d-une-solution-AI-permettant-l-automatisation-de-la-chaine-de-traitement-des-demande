@@ -2,12 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let conversations = [];
     let activeConversationId = null;
-    let isSidebarOpen = true;
 
     // --- Elements ---
     const elements = {
-        sidebar: document.getElementById('sidebar'),
-        mainContent: document.getElementById('mainContent'),
         newConversationBtn: document.getElementById('newConversationBtn'),
         conversationList: document.getElementById('conversationList'),
         chatMessages: document.getElementById('chatMessages'),
@@ -63,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHTML(str) {
         if (!str) return '';
         return str.replace(/[&<>'"]/g, tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
+            '&': '&',
+            '<': '<',
+            '>': '>',
             "'": '&#39;',
             '"': '&quot;'
         }[tag] || tag));
@@ -111,9 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isActive = activeConversationId === convId;
                 return `
                     <div id="conv-${convId}"
-                        class="group conv-detail flex items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 ${isActive ? 'conversation-active font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'}"
+                        class="group conv-detail flex items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 ${isActive ? 'conversation-active font-semibold' : 'hover:bg-gray-100 text-gray-700'}"
                         data-id="${convId}" role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
-                        <span class="truncate flex-1 text-sm ${isActive ? 'text-inwi dark:text-inwi-light' : ''} pr-2" data-conv-id="${convId}">
+                        <span class="truncate flex-1 text-sm ${isActive ? 'text-inwi' : ''} pr-2" data-conv-id="${convId}">
                             ${convTitle}
                         </span>
                     </div>
@@ -141,13 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 (activeConversationId === null && id === 'new');
             if (isActive) {
                 div.classList.add('conversation-active', 'font-semibold');
-                div.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700/50', 'text-gray-700', 'dark:text-gray-300');
-                div.querySelector('span')?.classList.add('text-inwi', 'dark:text-inwi-light');
+                div.classList.remove('hover:bg-gray-100', 'text-gray-700');
+                div.querySelector('span')?.classList.add('text-inwi');
                 div.setAttribute('aria-current', 'page');
             } else {
                 div.classList.remove('conversation-active', 'font-semibold');
-                div.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700/50', 'text-gray-700', 'dark:text-gray-300');
-                div.querySelector('span')?.classList.remove('text-inwi', 'dark:text-inwi-light');
+                div.classList.add('hover:bg-gray-100', 'text-gray-700');
+                div.querySelector('span')?.classList.remove('text-inwi');
                 div.setAttribute('aria-current', 'false');
             }
         });
@@ -160,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="conv-new"
                 class="group flex conv-detail items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 conversation-active font-semibold"
                 data-id="new" role="button" tabindex="0" aria-current="page">
-                <span class="truncate flex-1 text-sm text-inwi dark:text-inwi-light pr-2" data-conv-id="New Conversation">
+                <span class="truncate flex-1 text-sm text-inwi pr-2" data-conv-id="New Conversation">
                     New Conversation
                 </span>
             </div>
@@ -247,45 +244,44 @@ document.addEventListener('DOMContentLoaded', () => {
         hideWelcomeMessage();
         const messageElement = document.createElement('div');
         messageElement.id = message.id || `msg-${message.role}-${Date.now()}`;
-        messageElement.className = `flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4 message-enter`;
+        messageElement.className = `chat-message ${message.role === 'user' ? 'user' : 'assistant'} mb-4 message-animation`;
         let sanitizedContent = '';
         if (message.data_type === "list") {
             sanitizedContent = createResultContent(message.content);
         } else {
             sanitizedContent = escapeHTML(message.content || '');
         }
-        let avatarChar = '?', avatarBg = 'bg-gray-400 text-white', bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg';
+        let avatarChar = '?', avatarBg = 'bg-gray-400', bubbleBg = 'bg-gray-100';
         if (message.role === 'user') {
             avatarChar = 'U';
-            avatarBg = 'bg-inwi text-white';
+            avatarBg = 'bg-inwi';
             bubbleBg = 'bg-inwi text-white rounded-br-none';
         } else if (message.role === 'bot') {
             avatarChar = 'B';
-            avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
-            bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
+            avatarBg = 'bg-gray-200';
+            bubbleBg = 'bg-white text-gray-800 rounded-bl-none';
         }
-        if (message.isError) {
+        if (message.error) {
             avatarChar = '!';
-            avatarBg = 'bg-red-500 text-white';
-            bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg';
+            avatarBg = 'bg-red-500';
+            bubbleBg = 'bg-red-100 text-red-700 border border-red-300 rounded-lg';
         }
         const contentHTML = `
             <div class="flex max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
-                ${message.role !== 'system' ? `
                 <div class="flex-shrink-0">
-                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
                         ${avatarChar}
                     </div>
-                </div>` : ''}
-                <div class="flex flex-col ${message.role === 'user' ? 'items-end' : (message.role === 'system' ? 'items-center' : 'items-start')}">
-                    <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                </div>
+                <div class="flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}">
+                    <div class="message-content px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
                         ${message.isLoading
-                            ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 dark:text-gray-400 text-xs italic">Génération...</span></div>'
-                            : `<div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>`
+                            ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 text-xs italic">Génération...</span></div>'
+                            : sanitizedContent
                         }
                     </div>
                     ${!message.isLoading ? `
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+                    <div class="text-xs text-gray-500 mt-1 px-1">
                         ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>` : ''}
                 </div>
@@ -311,31 +307,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             sanitizedContent = escapeHTML(messageData.content || '');
         }
-        let avatarChar = '?', avatarBg = 'bg-gray-400 text-white', bubbleBg = 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg';
+        let avatarChar = '?', avatarBg = 'bg-gray-400', bubbleBg = 'bg-gray-100';
         if (messageData.role === 'bot') {
             avatarChar = 'B';
-            avatarBg = 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
-            bubbleBg = 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none';
+            avatarBg = 'bg-gray-200';
+            bubbleBg = 'bg-white text-gray-800 rounded-bl-none';
         }
-        if (messageData.isError) {
+        if (messageData.error) {
             avatarChar = '!';
-            avatarBg = 'bg-red-500 text-white';
-            bubbleBg = 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg';
+            avatarBg = 'bg-red-500';
+            bubbleBg = 'bg-red-100 text-red-700 border border-red-300 rounded-lg';
         }
         const contentHTML = `
             <div class="flex max-w-[85%] md:max-w-[75%] ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
-                ${messageData.role !== 'system' ? `
                 <div class="flex-shrink-0">
-                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg}">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
                         ${avatarChar}
                     </div>
-                </div>` : ''}
-                <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : (messageData.role === 'system' ? 'items-center' : 'items-start')}">
-                    <div class="px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
-                        <div class="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-[''] prose-code:after:content-[''] whitespace-pre-wrap break-words">${sanitizedContent}</div>
+                </div>
+                <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : 'items-start'}">
+                    <div class="message-content px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                        ${sanitizedContent}
                     </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-                        ${messageData.timestamp}
+                    <div class="text-xs text-gray-500 mt-1 px-1">
+                        ${messageData.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                 </div>
             </div>
@@ -426,17 +421,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const rows = result.slice(0, 10);
             let tableHTML = `<div class="overflow-x-auto w-full">
                 <table class="w-full border-collapse">
-                    <thead class="bg-gray-100 dark:bg-gray-700">
+                    <thead class="bg-gray-100">
                         <tr>
-                            ${columns.map(col => `<th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                            ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
                         ${rows.map((row, i) => `
-                            <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
+                            <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                                 ${columns.map(col => {
                                     const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                    return `<td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm">${cellContent}</td>`;
+                                    return `<td class="border border-gray-300 px-3 py-2 text-sm">${cellContent}</td>`;
                                 }).join('')}
                             </tr>
                         `).join('')}
@@ -445,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
             if (result.length > 10) {
                 tableHTML += `
-                    <div class="mt-2 text-sm text-gray-500 dark:text-gray-400 flex justify-center items-center gap-2" style="margin-top: -45px;">
+                    <div class="mt-2 text-sm text-gray-500 flex justify-center items-center gap-2" style="margin-top: -45px;">
                         <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
                         <button class="text-inwi hover:underline view-all-results">Voir tout</button>
                     </div>
@@ -456,17 +451,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     const fullTableHTML = `
                         <div class="overflow-x-auto w-full">
                             <table class="w-full border-collapse">
-                                <thead class="bg-gray-100 dark:bg-gray-700">
+                                <thead class="bg-gray-100">
                                     <tr>
-                                        ${columns.map(col => `<th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                                        ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${result.map((row, i) => `
-                                        <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
+                                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                                             ${columns.map(col => {
                                                 const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                                return `<td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm">${cellContent}</td>`;
+                                                return `<td class="border border-gray-300 px-3 py-2 text-sm">${cellContent}</td>`;
                                             }).join('')}
                                         </tr>
                                     `).join('')}
@@ -518,37 +513,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Theme & Sidebar ---
+    // --- Theme ---
     function initTheme() {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }
-    function toggleTheme() {
-        const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.theme = isDark ? 'dark' : 'light';
-    }
-    function initSidebarState() {
-        if (isSidebarOpen) {
-            elements.sidebar.classList.add('translate-x-0');
-            elements.sidebar.classList.remove('-translate-x-full');
-            elements.mainContent.classList.add('ml-64');
-            elements.mainContent.classList.remove('ml-0');
-        } else {
-            elements.sidebar.classList.add('-translate-x-full');
-            elements.sidebar.classList.remove('translate-x-0');
-            elements.mainContent.classList.add('ml-0');
-            elements.mainContent.classList.remove('ml-64');
-        }
-    }
-    function toggleSidebar() {
-        isSidebarOpen = !isSidebarOpen;
-        elements.sidebar.classList.toggle('translate-x-0');
-        elements.sidebar.classList.toggle('-translate-x-full');
-        elements.mainContent.classList.toggle('ml-64');
-        elements.mainContent.classList.toggle('ml-0');
+        document.documentElement.classList.remove('dark'); // Force light theme
     }
 
     // --- Event Listeners ---
@@ -561,7 +528,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Init ---
     initTheme();
-    initSidebarState();
     initEventListeners();
     showWelcomeMessage();
     updateConversationList();
