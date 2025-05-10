@@ -9,53 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        /* Styles des liens de navigation normaux */
-        .nav-link {
-            position: relative;
-            transition: all 0.3s ease;
-            padding: 0.5rem 0.75rem;
-            color: #4B5563;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        /* Style pour le lien actif - celui sur lequel on navigue */
-        .active-menu {
-            background-color: rgba(147, 51, 234, 0.15);
-            border-left: 4px solid #9333EA;
-            color:rgb(132, 130, 134);
-            border-radius: 0.375rem;
-            padding-left: 0.5rem;
-        }
-        
-        /* Style survol pour les liens non-actifs */
-        .nav-link:hover:not(.active-menu) {
-            background-color: rgba(147, 51, 234, 0.05);
-            border-radius: 0.375rem;
-        }
-        
-        /* Animation pour le dropdown */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .dropdown-animation {
-            animation: fadeInUp 0.2s ease-out forwards;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+
 </head>
 <body class="bg-gray-50">
     <!-- Navbar Horizontale avec hauteur réduite -->
@@ -73,12 +28,12 @@
                     
                     <!-- Menu Principal - La classe active-menu est ajoutée dynamiquement en fonction de la page active -->
                     <div class="ml-16 flex items-center space-x-4">
-                        <a href="suivi" class="nav-link flex items-center" id="nav-accueil">
+                        <a href="accueil" class="nav-link flex items-center" id="nav-accueil">
                             <i data-lucide="home" class="h-4 w-4 mr-1"></i>
                             <span>Accueil</span>
                         </a>
                         
-                        <a href="#" class="nav-link flex items-center" id="nav-rapports">
+                        <a href="suivi" class="nav-link flex items-center" id="nav-rapports">
                             <i data-lucide="file-text" class="h-4 w-4 mr-1"></i>
                             <span>Rapports</span>
                         </a>
@@ -154,9 +109,9 @@
         });
         
         // Ajouter la classe active-menu selon l'URL actuelle
-        if (currentPath.includes('suivi')) {
+        if (currentPath.includes('accueil')) {
             document.getElementById('nav-accueil').classList.add('active-menu');
-        } else if (currentPath.includes('rapports')) {
+        } else if (currentPath.includes('suivi')) {
             document.getElementById('nav-rapports').classList.add('active-menu');
         } else if (currentPath.includes('chat')) {
             document.getElementById('nav-chatbot').classList.add('active-menu');

@@ -3,110 +3,211 @@
 {% block title %}Admin - Suivi de Demande{% endblock %}
 
 {% block content %}
-<div class="pt-20 pb-12 bg-gray-50 min-h-screen">
-  <div class="max-w-5xl mx-auto px-6">
-    <!-- En-tête de la page - Titre centré -->
-    <div class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-indigo-800 mb-4">Conversation</h1>
-      <div class="flex items-center justify-center flex-wrap gap-2">
-        <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
-          📨 Objet : {{subject}}
+<div class="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-indigo-50 min-h-screen font-sans">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold text-indigo-900 mb-4 tracking-tight fade-in-up font-['Inter']">
+        Suivi de Conversation
+      </h1>
+      <div class="flex items-center justify-center gap-4 fade-in-delay-1">
+        <span class="inline-flex items-center bg-indigo-100 text-indigo-800 px-5 py-2 rounded-full text-sm font-semibold shadow-sm">
+          <i class="fas fa-envelope mr-2"></i> Objet : {{ subject }}
         </span>
       </div>
     </div>
-    
-    {%for conv in conversation %}
 
-    <!-- Fil de conversation -->
-    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-        Statut : {{conv.status}}
-      </span>
-    <div class="space-y-6 mb-8">
-      <!-- Message initial -->
-      <div class="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all">
-        <div class="bg-indigo-50 px-6 py-3 flex justify-between items-center">
+    {% for conv in conversation %}
+    <!-- Conversation Thread -->
+    <div class="mb-12 fade-in-delay-2">
+      <div class="flex justify-start mb-6">
+        <span class="inline-flex items-center bg-green-100 text-green-800 px-5 py-2 rounded-full text-sm font-semibold shadow-sm tooltip" data-tip="Statut actuel de la conversation">
+          <i class="fas fa-info-circle mr-2"></i> Statut : {{ conv.status }}
+        </span>
+      </div>
+
+      <div class="space-y-10">
+        <!-- Initial Message -->
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card">
+          <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex items-center space-x-4">
+              <div class="bg-indigo-200 p-3 rounded-full">
+                <i class="fas fa-user text-indigo-600 text-lg"></i>
+              </div>
+              <span class="font-semibold text-indigo-900 text-lg">{{ conv.email_rec }}</span>
+            </div>
+            <div class="text-sm text-gray-600 flex items-center mt-3 sm:mt-0">
+              <span class="mr-3"><i class="fas fa-id-badge"></i></span>
+              <span><i class="fas fa-clock mr-1"></i> {{ conv.date_rec|date:"Y-m-d H:i:s" }}</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <p class="text-gray-800 text-base leading-relaxed">{{ conv.body }}</p>
+          </div>
+        </div>
+
+        {% if conv.body_env %}
+        <!-- Response with Excel Report -->
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card ml-0 sm:ml-12">
+          <div class="bg-gradient-to-r from-blue-100 to-blue-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex items-center space-x-4 mb-3 sm:mb-0">
+              <div class="bg-blue-200 p-3 rounded-full">
+                <i class="fas fa-robot text-blue-600 text-lg"></i>
+              </div>
+              <span class="font-semibold text-blue-900 text-lg">Système</span>
+            </div>
+            <div class="text-sm text-gray-600 flex items-center">
+              <span class="mr-3"><i class="fas fa-id-badge"></i></span>
+              <span><i class="fas fa-clock mr-1"></i> {{ conv.date_env|date:"Y-m-d H:i:s" }}</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <p class="text-gray-800 text-base leading-relaxed mb-6">{{ conv.body_env }}</p>
+
+            <!-- Excel File Download -->
+            <div class="bg-green-50 border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm">
+              <div class="flex items-center mb-4 sm:mb-0">
+                <div class="bg-green-100 p-3 rounded mr-4">
+                  <i class="fas fa-file-excel text-green-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">Rapport_Financier_Mars_2025.xlsx</p>
+                  <p class="text-sm text-gray-600">2.4 MB • Dernière modification: 01/04/2025</p>
+                </div>
+              </div>
+              <a href="#" class="flex items-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 button-gradient" aria-label="Télécharger le rapport">
+                <i class="fas fa-download mr-2"></i> Télécharger
+              </a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <!-- No Response Message -->
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-5 rounded-xl ml-0 sm:ml-12 shadow-sm fade-in-delay-3">
           <div class="flex items-center space-x-3">
-            <div class="bg-indigo-100 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <span class="font-medium text-indigo-800">{{conv.email_rec}}</span>
-          </div>
-          <div class="text-sm text-gray-500 flex items-center">
-            <span class="mr-3">🆔</span>
-            <span>🕒 {{conv.date_rec|date:"Y:d:m:H:i:s"}}</span>
+            <i class="fas fa-exclamation-circle text-yellow-600 text-lg"></i>
+            <p class="font-semibold text-base">Aucun retour disponible pour cette conversation.</p>
           </div>
         </div>
-        <div class="p-6">
-          <p class="text-gray-700">{{conv.body}}</p>
-        </div>
+        {% endif %}
       </div>
-     {%if conv.body_env %}
-      <!-- Réponse avec rapport Excel -->
-      <div class="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all ml-0 md:ml-8">
-        <div class="bg-blue-50 px-6 py-3 flex flex-col md:flex-row md:justify-between md:items-center">
-          <div class="flex items-center space-x-3 mb-2 md:mb-0">
-            <div class="bg-blue-100 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-            <span class="font-medium text-blue-800">Système</span>
-          </div>
-          <div class="text-sm text-gray-500 flex items-center">
-            <span class="mr-3">🆔 ID</span>
-            <span>🕒 {{conv.date_env}}</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <p class="text-gray-700 mb-4">{{conv.body_env}}</p>
-          
-          <!-- Fichier Excel à télécharger -->
-          <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-green-100 p-2 rounded mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div>
-                <p class="font-medium text-gray-800">Rapport_Financier_Mars_2025.xlsx</p>
-                <p class="text-sm text-gray-500">2.4 MB • Dernière modification: 01/04/2025</p>
-              </div>
-            </div>
-            <a href="#" class="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Télécharger
-            </a>
-          </div>
-          
-          <!-- Aperçu du rapport sous forme de table -->
-          
-        </div>
-      </div>
-      {%else%}
-        <!-- Message quand il n'y a pas de contenu -->
-  <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-6 rounded-xl ml-0 md:ml-8 shadow-sm">
-    <div class="flex items-center space-x-3">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m0-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-      </svg>
-      <p class="font-medium">Aucun Retour disponible pour cette conversation.</p>
-    </div>
-  </div>
-      {% endif %}
-    </div>
     {% endfor %}
   </div>
 </div>
 
-<!-- Script pour activer les icônes Lucide -->
+<!-- Script for Tooltips and Animations -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
+  document.addEventListener('DOMContentLoaded', function () {
+    // Simple tooltip implementation (can be replaced with Tippy.js)
+    document.querySelectorAll('.tooltip').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const tip = document.createElement('div');
+        tip.className = 'absolute bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg';
+        tip.style.top = `${el.offsetTop - 30}px`;
+        tip.style.left = `${el.offsetLeft}px`;
+        tip.textContent = el.dataset.tip;
+        document.body.appendChild(tip);
+      });
+      el.addEventListener('mouseleave', () => {
+        document.querySelectorAll('.tooltip div').forEach(tip => tip.remove());
+      });
+    });
   });
 </script>
+
+<!-- Custom CSS for Enhanced Styling -->
+<style>
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Glassmorphism Card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0% {
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .fade-in-delay-1 {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.2s;
+    opacity: 0;
+  }
+
+  .fade-in-delay-2 {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.4s;
+    opacity: 0;
+  }
+
+  .fade-in-delay-3 {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
+  }
+
+  /* Button Gradient */
+  .button-gradient {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .button-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 640px) {
+    h1 {
+      font-size: 2.25rem;
+    }
+
+    .text-lg {
+      font-size: 1rem;
+    }
+
+    .p-6 {
+      padding: 1.25rem;
+    }
+
+    .glass-card {
+      margin-left: 0 !important;
+    }
+  }
+
+  /* Tooltip Styling */
+  .tooltip {
+    position: relative;
+    cursor: pointer;
+  }
+</style>
 {% endblock %}

@@ -36,6 +36,7 @@ urlpatterns = [
     path('Admin/delete_user',delete_user,name='delete_user'),
     path('Admin/Update_User',update_user,name='update_user'),
     path('Admin/Update/<str:id>/',user_f,name='update'),
+    path('accueil', accueil_inwi, name='accueil_inwi'),
 
    
 

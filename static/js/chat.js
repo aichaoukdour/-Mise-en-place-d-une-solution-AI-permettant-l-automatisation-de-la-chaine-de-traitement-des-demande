@@ -63,23 +63,31 @@ document.addEventListener('DOMContentLoaded', () => {
             '&': '&',
             '<': '<',
             '>': '>',
-            "'": '&#39;',
-            '"': '&quot;'
+            "'": "''",
+            '"': '"'
         }[tag] || tag));
     }
 
     function clearMessages() {
-        elements.chatMessages.innerHTML = '';
+        const wrapper = elements.chatMessages.querySelector('.max-w-3xl.mx-auto.w-full');
+        if (wrapper) {
+            wrapper.innerHTML = '';
+        } else {
+            elements.chatMessages.innerHTML = '';
+        }
     }
+
     function showWelcomeMessage() {
         if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'flex';
     }
+
     function hideWelcomeMessage() {
         if (elements.welcomeMessage) elements.welcomeMessage.style.display = 'none';
     }
+
     function showError(message) {
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 transition-opacity duration-300 ease-in-out';
+        errorDiv.className = 'fixed bottom-4 right-4 bg-red-100 border border-violet-700 text-red-700 px-4 py-3 rounded shadow-lg z-50 transition-opacity duration-300 ease-in-out';
         errorDiv.setAttribute('role', 'alert');
         errorDiv.innerHTML = `<strong class="font-bold">Erreur!</strong> <span class="block sm:inline">${message}</span>`;
         document.body.appendChild(errorDiv);
@@ -96,29 +104,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const conversationsFromServer = data.conversations || [];
             const isNewConversationActive = activeConversationId === null;
             const tempNewEntryHTML = isNewConversationActive ? document.getElementById('conv-new')?.outerHTML || '' : '';
-            elements.conversationList.innerHTML = '';
+            elements.conversationList.innerHTML = `
+                <div class="px-0 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-200">Recent Chats</div>
+            `;
+
             if (isNewConversationActive && tempNewEntryHTML) {
-                elements.conversationList.innerHTML = tempNewEntryHTML;
+                elements.conversationList.innerHTML += tempNewEntryHTML;
                 document.getElementById('conv-new')?.addEventListener('click', () => setActiveConversation(null));
             }
+
             const serverListHTML = conversationsFromServer.map(conv => {
                 const convId = conv.conv_id;
-                const convTitle = conv.subject;
+                const convTitle = escapeHTML(conv.subject || 'Untitled Conversation');
                 if (!convId) return '';
                 const isActive = activeConversationId === convId;
                 return `
                     <div id="conv-${convId}"
-                        class="group conv-detail flex items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 ${isActive ? 'conversation-active font-semibold' : 'hover:bg-gray-100 text-gray-700'}"
+                        class="flex items-center px-2 py-0.25 text-xs cursor-pointer ${isActive ? 'bg-violet-200' : 'hover:bg-violet-100'} transition-colors duration-200"
                         data-id="${convId}" role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
-                        <span class="truncate flex-1 text-sm ${isActive ? 'text-inwi' : ''} pr-2" data-conv-id="${convId}">
-                            ${convTitle}
-                        </span>
+                        <div class="flex-shrink-0 w-6 h-6 mr-1">
+                            <i class="fa ${isActive ? 'fa-solid fa-comment' : 'fa-regular fa-comment'} text-sm ${isActive ? 'text-violet-600' : 'text-gray-400'}"></i>
+                        </div>
+                        <span class="truncate flex-1 text-gray-700 leading-tight">${convTitle}</span>
                     </div>
                 `;
             }).join('');
             elements.conversationList.insertAdjacentHTML('beforeend', serverListHTML);
+
             elements.conversationList.addEventListener('click', (event) => {
-                const targetButton = event.target.closest('.conv-detail');
+                const targetButton = event.target.closest('[data-id]');
                 if (targetButton) {
                     const id = targetButton.getAttribute('data-id');
                     if (id) setActiveConversation(id);
@@ -126,27 +140,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             updateConversationHighlight();
         } catch (error) {
-            elements.conversationList.innerHTML = `<div class="text-red-500 p-4">Erreur chargement conversations. ${error.message}</div>`;
+            elements.conversationList.innerHTML = `<div class="text-violet-700 p-4">Erreur chargement conversations. ${error.message}</div>`;
         }
     }
 
     function updateConversationHighlight() {
-        const listItems = elements.conversationList.querySelectorAll('.conv-detail');
+        const listItems = elements.conversationList.querySelectorAll('[data-id]');
         listItems.forEach(div => {
             const id = div.getAttribute('data-id');
             const isActive = (activeConversationId !== null && id === activeConversationId) ||
                 (activeConversationId === null && id === 'new');
             if (isActive) {
-                div.classList.add('conversation-active', 'font-semibold');
-                div.classList.remove('hover:bg-gray-100', 'text-gray-700');
-                div.querySelector('span')?.classList.add('text-inwi');
-                div.setAttribute('aria-current', 'page');
+                div.classList.add('bg-violet-50');
+                div.querySelector('i').classList.remove('fa-regular', 'text-gray-400');
+                div.querySelector('i').classList.add('fa-solid', 'text-violet-600');
             } else {
-                div.classList.remove('conversation-active', 'font-semibold');
-                div.classList.add('hover:bg-gray-100', 'text-gray-700');
-                div.querySelector('span')?.classList.remove('text-inwi');
-                div.setAttribute('aria-current', 'false');
+                div.classList.remove('bg-violet-50');
+                div.querySelector('i').classList.remove('fa-solid', 'text-violet-600');
+                div.querySelector('i').classList.add('fa-regular', 'text-gray-400');
+                div.classList.add('hover:bg-gray-50');
             }
+            div.setAttribute('aria-current', isActive ? 'page' : 'false');
         });
     }
 
@@ -155,11 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingDraft) existingDraft.remove();
         const draftHTML = `
             <div id="conv-new"
-                class="group flex conv-detail items-center justify-between rounded-md py-2 px-3 cursor-pointer transition-colors duration-150 conversation-active font-semibold"
+                class="flex items-center px-4 py-2.5 text-sm bg-violet-50 cursor-pointer transition-colors duration-200"
                 data-id="new" role="button" tabindex="0" aria-current="page">
-                <span class="truncate flex-1 text-sm text-inwi pr-2" data-conv-id="New Conversation">
-                    New Conversation
-                </span>
+                <div class="flex-shrink-0 w-6 h-6 mr-3">
+                    <i class="fa fa-solid fa-circle text-base text-violet-600"></i>
+                </div>
+                <span class="truncate flex-1 text-gray-800 font-medium leading-tight">New Chat</span>
             </div>
         `;
         elements.conversationList.insertAdjacentHTML("afterbegin", draftHTML);
@@ -225,6 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            } else {
+                renderMessage({
+                    id: `notice-${Date.now()}`,
+                    content: 'Aucun message dans cette conversation.',
+                    role: 'bot',
+                    timestamp: new Date(),
+                    error: false,
+                });
             }
             updateConversationHighlight();
             elements.messageInput.focus();
@@ -242,39 +265,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Message Rendering ---
     function renderMessage(message) {
         hideWelcomeMessage();
+        const wrapper = elements.chatMessages.querySelector('.max-w-3xl.mx-auto.w-full') || elements.chatMessages;
         const messageElement = document.createElement('div');
         messageElement.id = message.id || `msg-${message.role}-${Date.now()}`;
-        messageElement.className = `chat-message ${message.role === 'user' ? 'user' : 'assistant'} mb-4 message-animation`;
+        messageElement.className = `chat-message ${message.role === 'user' ? 'user' : 'assistant'} message-animation`;
         let sanitizedContent = '';
         if (message.data_type === "list") {
             sanitizedContent = createResultContent(message.content);
         } else {
             sanitizedContent = escapeHTML(message.content || '');
         }
-        let avatarChar = '?', avatarBg = 'bg-gray-400', bubbleBg = 'bg-gray-100';
+        let avatarChar = '?', avatarBg = 'bg-violet-300', bubbleBg = 'bg-violet-100';
         if (message.role === 'user') {
             avatarChar = 'U';
-            avatarBg = 'bg-inwi';
-            bubbleBg = 'bg-inwi text-white rounded-br-none';
+            avatarBg = 'bg-violet-600';
+            bubbleBg = 'bg-violet-300 text-gray-800 rounded-lg';
         } else if (message.role === 'bot') {
             avatarChar = 'B';
-            avatarBg = 'bg-gray-200';
-            bubbleBg = 'bg-white text-gray-800 rounded-bl-none';
+            avatarBg = 'bg-violet-300';
+            bubbleBg = 'bg-violet-200 text-gray-800 rounded-lg';
         }
         if (message.error) {
             avatarChar = '!';
-            avatarBg = 'bg-red-500';
-            bubbleBg = 'bg-red-100 text-red-700 border border-red-300 rounded-lg';
+            avatarBg = 'bg-violet-700';
+            bubbleBg = 'bg-violet-100 text-violet-700 border border-violet-700 rounded-lg';
         }
         const contentHTML = `
-            <div class="flex max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
+            <div class="flex w-full items-start gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
                 <div class="flex-shrink-0">
                     <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
                         ${avatarChar}
                     </div>
                 </div>
-                <div class="flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}">
-                    <div class="message-content px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                <div class="flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} w-full">
+                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[75%]">
                         ${message.isLoading
                             ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 text-xs italic">Génération...</span></div>'
                             : sanitizedContent
@@ -288,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         messageElement.innerHTML = contentHTML;
-        elements.chatMessages.appendChild(messageElement);
+        wrapper.appendChild(messageElement);
         requestAnimationFrame(() => {
             messageElement.classList.remove('message-enter');
             messageElement.classList.add('message-enter-active');
@@ -307,26 +331,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             sanitizedContent = escapeHTML(messageData.content || '');
         }
-        let avatarChar = '?', avatarBg = 'bg-gray-400', bubbleBg = 'bg-gray-100';
+        let avatarChar = '?', avatarBg = 'bg-violet-300', bubbleBg = 'bg-violet-100';
         if (messageData.role === 'bot') {
             avatarChar = 'B';
-            avatarBg = 'bg-gray-200';
-            bubbleBg = 'bg-white text-gray-800 rounded-bl-none';
+            avatarBg = 'bg-violet-300';
+            bubbleBg = 'bg-violet-200 text-gray-800 rounded-lg';
         }
         if (messageData.error) {
             avatarChar = '!';
-            avatarBg = 'bg-red-500';
-            bubbleBg = 'bg-red-100 text-red-700 border border-red-300 rounded-lg';
+            avatarBg = 'bg-violet-700';
+            bubbleBg = 'bg-violet-100 text-violet-700 border border-violet-700 rounded-lg';
         }
         const contentHTML = `
-            <div class="flex max-w-[85%] md:max-w-[75%] ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-2.5">
+            <div class="flex w-full items-start gap-3 ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
                 <div class="flex-shrink-0">
                     <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
                         ${avatarChar}
                     </div>
                 </div>
-                <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : 'items-start'}">
-                    <div class="message-content px-3.5 py-2.5 rounded-lg shadow-sm text-sm ${bubbleBg}">
+                <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : 'items-start'} w-full">
+                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[75%]">
                         ${sanitizedContent}
                     </div>
                     <div class="text-xs text-gray-500 mt-1 px-1">
@@ -421,17 +445,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const rows = result.slice(0, 10);
             let tableHTML = `<div class="overflow-x-auto w-full">
                 <table class="w-full border-collapse">
-                    <thead class="bg-gray-100">
+                    <thead class="bg-violet-200">
                         <tr>
-                            ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                            ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
                         ${rows.map((row, i) => `
-                            <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                            <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
                                 ${columns.map(col => {
                                     const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                    return `<td class="border border-gray-300 px-3 py-2 text-sm">${cellContent}</td>`;
+                                    return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
                                 }).join('')}
                             </tr>
                         `).join('')}
@@ -442,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableHTML += `
                     <div class="mt-2 text-sm text-gray-500 flex justify-center items-center gap-2" style="margin-top: -45px;">
                         <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
-                        <button class="text-inwi hover:underline view-all-results">Voir tout</button>
+                        <button class="text-violet-600 hover:text-violet-500 view-all-results">Voir tout</button>
                     </div>
                 `;
             }
@@ -451,17 +475,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     const fullTableHTML = `
                         <div class="overflow-x-auto w-full">
                             <table class="w-full border-collapse">
-                                <thead class="bg-gray-100">
+                                <thead class="bg-violet-200">
                                     <tr>
-                                        ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                                        ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${result.map((row, i) => `
-                                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
                                             ${columns.map(col => {
                                                 const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                                return `<td class="border border-gray-300 px-3 py-2 text-sm">${cellContent}</td>`;
+                                                return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
                                             }).join('')}
                                         </tr>
                                     `).join('')}
@@ -497,6 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.submitButton.disabled = !message;
         autoResizeTextarea();
     }
+
     function autoResizeTextarea() {
         const textarea = elements.messageInput;
         textarea.style.height = 'auto';
@@ -504,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxHeight = 150, minHeight = 44;
         textarea.style.height = `${Math.min(maxHeight, Math.max(minHeight, scrollHeight))}px`;
     }
+
     function handleInputKeydown(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

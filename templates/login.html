@@ -15,7 +15,7 @@
 <body class="flex justify-center items-center min-h-screen bg-gray-50">
     <div class="bg-white p-6 rounded-xl shadow-lg w-80 backdrop-blur-md">
         <div class="flex justify-center border-b border-gray-200 pb-3 mb-4">
-            <img src="{% static 'logo/inwi-icon.png' %}" alt="Inwi" class="h-4 w-16 mb-1">
+            <img src="{% static 'logo/logo.png' %}" alt="Inwi" class="h-10 w-10 mb-1">
         </div>
         
         <form class="space-y-4">
@@ -51,7 +51,7 @@
             <button 
                 type="button"
                 id="btn"
-                class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300 flex items-center justify-center shadow-sm text-sm font-medium"
+                class="w-full bg-fuchsia-700 text-white py-2 rounded-lg hover:bg-violt-700 transition duration-300 flex items-center justify-center shadow-sm text-sm font-medium"
             >
                 <i class="fas fa-sign-in-alt mr-2 text-sm"></i>Connexion
             </button>
@@ -69,12 +69,7 @@
                 <a href="#" class="text-fuchsia-700 hover:underline">Mot de passe oublié ?</a>
             </div>
             
-            <div class="mt-4 text-center text-xs">
-                <p class="text-gray-500">
-                    Pas encore de compte ? 
-                    <a href="#" class="text-fuchsia-700 hover:underline font-medium">Demander un accès</a>
-                </p>
-            </div>
+           
         </form>
     </div>
 
@@ -112,7 +107,7 @@
                     if (data.user_role === 'admin') {
                         window.location.href = "/Admin/administration"; // Redirect to admin panel
                     } else {
-                        window.location.href = "/suivi"; // Redirect to suivi page
+                        window.location.href = "/accueil"; // Redirect to suivi page
                     }
                 } else {
                     // Show alert if authentication fails

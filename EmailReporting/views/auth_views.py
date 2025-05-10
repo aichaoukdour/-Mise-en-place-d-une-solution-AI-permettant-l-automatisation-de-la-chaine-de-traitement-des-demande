@@ -22,7 +22,9 @@ def accueil(request):
     return response
 
   
- 
+def accueil_inwi(request):
+    return render(request, 'accueil.html', {})
+
 
 @require_POST
 @csrf_exempt  # Retire ça si tu as déjà le token CSRF dans le frontend
