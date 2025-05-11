@@ -5,6 +5,7 @@
 {% block content %}
 <div class="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-indigo-50 min-h-screen font-sans">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
     <!-- Page Header -->
     <div class="mb-12 text-center">
       <h1 class="text-4xl md:text-5xl font-bold text-indigo-900 mb-4 tracking-tight fade-in-up font-['Inter']">
@@ -20,6 +21,8 @@
     {% for conv in conversation %}
     <!-- Conversation Thread -->
     <div class="mb-12 fade-in-delay-2">
+
+      <!-- Conversation Status -->
       <div class="flex justify-start mb-6">
         <span class="inline-flex items-center bg-green-100 text-green-800 px-5 py-2 rounded-full text-sm font-semibold shadow-sm tooltip" data-tip="Statut actuel de la conversation">
           <i class="fas fa-info-circle mr-2"></i> Statut : {{ conv.status }}
@@ -27,6 +30,7 @@
       </div>
 
       <div class="space-y-10">
+
         <!-- Initial Message -->
         <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card">
           <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
@@ -47,7 +51,7 @@
         </div>
 
         {% if conv.body_env %}
-        <!-- Response with Excel Report -->
+        <!-- System Response with Excel Report -->
         <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card ml-0 sm:ml-12">
           <div class="bg-gradient-to-r from-blue-100 to-blue-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
             <div class="flex items-center space-x-4 mb-3 sm:mb-0">
@@ -63,7 +67,6 @@
           </div>
           <div class="p-6">
             <p class="text-gray-800 text-base leading-relaxed mb-6">{{ conv.body_env }}</p>
-
             <!-- Excel File Download -->
             <div class="bg-green-50 border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm">
               <div class="flex items-center mb-4 sm:mb-0">
@@ -90,15 +93,18 @@
           </div>
         </div>
         {% endif %}
+
       </div>
+    </div>
     {% endfor %}
+
   </div>
 </div>
 
 <!-- Script for Tooltips and Animations -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Simple tooltip implementation (can be replaced with Tippy.js)
+    // Simple tooltip implementation
     document.querySelectorAll('.tooltip').forEach(el => {
       el.addEventListener('mouseenter', () => {
         const tip = document.createElement('div');
@@ -131,55 +137,21 @@
 
   /* Animations */
   @keyframes fadeInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(20px);}
+    100% { opacity: 1; transform: translateY(0);}
   }
-
   @keyframes pulseGlow {
-    0% {
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-    }
-    100% {
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-    }
+    0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);}
+    50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);}
+    100% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);}
   }
-
-  .fade-in-up {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .fade-in-delay-1 {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 0.2s;
-    opacity: 0;
-  }
-
-  .fade-in-delay-2 {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 0.4s;
-    opacity: 0;
-  }
-
-  .fade-in-delay-3 {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 0.6s;
-    opacity: 0;
-  }
+  .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;}
+  .fade-in-delay-1 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.2s; opacity: 0;}
+  .fade-in-delay-2 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.4s; opacity: 0;}
+  .fade-in-delay-3 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.6s; opacity: 0;}
 
   /* Button Gradient */
-  .button-gradient {
-    transition: all 0.3s ease-in-out;
-  }
-
+  .button-gradient { transition: all 0.3s ease-in-out;}
   .button-gradient:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
@@ -187,27 +159,13 @@
 
   /* Responsive Adjustments */
   @media (max-width: 640px) {
-    h1 {
-      font-size: 2.25rem;
-    }
-
-    .text-lg {
-      font-size: 1rem;
-    }
-
-    .p-6 {
-      padding: 1.25rem;
-    }
-
-    .glass-card {
-      margin-left: 0 !important;
-    }
+    h1 { font-size: 2.25rem;}
+    .text-lg { font-size: 1rem;}
+    .p-6 { padding: 1.25rem;}
+    .glass-card { margin-left: 0 !important;}
   }
 
   /* Tooltip Styling */
-  .tooltip {
-    position: relative;
-    cursor: pointer;
-  }
+  .tooltip { position: relative; cursor: pointer;}
 </style>
 {% endblock %}

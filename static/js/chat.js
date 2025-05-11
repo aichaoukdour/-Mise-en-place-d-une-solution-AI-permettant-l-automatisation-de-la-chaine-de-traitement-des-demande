@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
-    let conversations = [];
     let activeConversationId = null;
 
     // --- Elements ---
@@ -16,19 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- API ---
     const api = {
-        getConversations: async () => {
-            const response = await fetch('/all_conversations');
-            if (!response.ok) throw new Error(`Failed to fetch conversations: ${response.statusText}`);
-            return response.json();
+        async getConversations() {
+            const res = await fetch('/all_conversations');
+            if (!res.ok) throw new Error(`Failed to fetch conversations: ${res.statusText}`);
+            return res.json();
         },
-        getMessages: async (convId) => {
+        async getMessages(convId) {
             if (!convId) return { messages: [] };
-            const response = await fetch(`/all_msg_by_conv/${convId}`);
-            if (!response.ok) throw new Error(`Failed to fetch messages for ${convId}: ${response.statusText}`);
-            return response.json();
+            const res = await fetch(`/all_msg_by_conv/${convId}`);
+            if (!res.ok) throw new Error(`Failed to fetch messages for ${convId}: ${res.statusText}`);
+            return res.json();
         },
-        sendMessage: async (convId, messageContent) => {
-            const response = await fetch(`/create_conversation/`, {
+        async sendMessage(convId, messageContent) {
+            const res = await fetch(`/create_conversation/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -36,23 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...(convId && { conv_id: convId })
                 }),
             });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: 'Failed to send message' }));
-                throw new Error(errorData.detail || `Failed to send message: ${response.statusText}`);
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ detail: 'Failed to send message' }));
+                throw new Error(errorData.detail || `Failed to send message: ${res.statusText}`);
             }
-            return response.json();
+            return res.json();
         },
-        updateConversation: async (messageContent, id_msg) => {
-            const response = await fetch(`/update_conversation/${encodeURIComponent(messageContent)}/${id_msg}/`, {
+        async updateConversation(messageContent, id_msg) {
+            const res = await fetch(`/update_conversation/${encodeURIComponent(messageContent)}/${id_msg}/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ message: messageContent, id_msg: id_msg }),
+                body: new URLSearchParams({ message: messageContent, id_msg }),
             });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: 'Failed to update message' }));
-                throw new Error(errorData.detail || `Failed to update message: ${response.statusText}`);
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ detail: 'Failed to update message' }));
+                throw new Error(errorData.detail || `Failed to update message: ${res.statusText}`);
             }
-            return response.json();
+            return res.json();
         }
     };
 
@@ -60,21 +59,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHTML(str) {
         if (!str) return '';
         return str.replace(/[&<>'"]/g, tag => ({
-            '&': '&',
-            '<': '<',
-            '>': '>',
-            "'": "''",
-            '"': '"'
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
         }[tag] || tag));
     }
 
     function clearMessages() {
         const wrapper = elements.chatMessages.querySelector('.max-w-3xl.mx-auto.w-full');
-        if (wrapper) {
-            wrapper.innerHTML = '';
-        } else {
-            elements.chatMessages.innerHTML = '';
-        }
+        (wrapper || elements.chatMessages).innerHTML = '';
     }
 
     function showWelcomeMessage() {
@@ -93,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(errorDiv);
         setTimeout(() => {
             errorDiv.style.opacity = '0';
-            setTimeout(() => { errorDiv.remove(); }, 300);
+            setTimeout(() => errorDiv.remove(), 300);
         }, 5000);
     }
 
@@ -101,42 +96,37 @@ document.addEventListener('DOMContentLoaded', () => {
     async function updateConversationList() {
         try {
             const data = await api.getConversations();
-            const conversationsFromServer = data.conversations || [];
-            const isNewConversationActive = activeConversationId === null;
-            const tempNewEntryHTML = isNewConversationActive ? document.getElementById('conv-new')?.outerHTML || '' : '';
+            const conversations = data.conversations || [];
+            const isNew = activeConversationId === null;
+            const tempNewEntryHTML = isNew ? document.getElementById('conv-new')?.outerHTML || '' : '';
             elements.conversationList.innerHTML = `
                 <div class="px-0 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-200">Recent Chats</div>
             `;
-
-            if (isNewConversationActive && tempNewEntryHTML) {
+            if (isNew && tempNewEntryHTML) {
                 elements.conversationList.innerHTML += tempNewEntryHTML;
                 document.getElementById('conv-new')?.addEventListener('click', () => setActiveConversation(null));
             }
-
-            const serverListHTML = conversationsFromServer.map(conv => {
-                const convId = conv.conv_id;
-                const convTitle = escapeHTML(conv.subject || 'Untitled Conversation');
-                if (!convId) return '';
-                const isActive = activeConversationId === convId;
-                return `
-                    <div id="conv-${convId}"
-                        class="flex items-center px-2 py-0.25 text-xs cursor-pointer ${isActive ? 'bg-violet-200' : 'hover:bg-violet-100'} transition-colors duration-200"
-                        data-id="${convId}" role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
-                        <div class="flex-shrink-0 w-6 h-6 mr-1">
-                            <i class="fa ${isActive ? 'fa-solid fa-comment' : 'fa-regular fa-comment'} text-sm ${isActive ? 'text-violet-600' : 'text-gray-400'}"></i>
+            elements.conversationList.insertAdjacentHTML('beforeend',
+                conversations.map(conv => {
+                    const convId = conv.conv_id;
+                    const convTitle = escapeHTML(conv.subject || 'Untitled Conversation');
+                    if (!convId) return '';
+                    const isActive = activeConversationId === convId;
+                    return `
+                        <div id="conv-${convId}"
+                            class="flex items-center px-2 py-0.25 text-xs cursor-pointer ${isActive ? 'bg-violet-200' : 'hover:bg-violet-100'} transition-colors duration-200"
+                            data-id="${convId}" role="button" tabindex="0" aria-current="${isActive ? 'page' : 'false'}">
+                            <div class="flex-shrink-0 w-6 h-6 mr-1">
+                                <i class="fa ${isActive ? 'fa-solid fa-comment' : 'fa-regular fa-comment'} text-sm ${isActive ? 'text-violet-600' : 'text-gray-400'}"></i>
+                            </div>
+                            <span class="truncate flex-1 text-gray-700 leading-tight">${convTitle}</span>
                         </div>
-                        <span class="truncate flex-1 text-gray-700 leading-tight">${convTitle}</span>
-                    </div>
-                `;
-            }).join('');
-            elements.conversationList.insertAdjacentHTML('beforeend', serverListHTML);
-
+                    `;
+                }).join('')
+            );
             elements.conversationList.addEventListener('click', (event) => {
-                const targetButton = event.target.closest('[data-id]');
-                if (targetButton) {
-                    const id = targetButton.getAttribute('data-id');
-                    if (id) setActiveConversation(id);
-                }
+                const target = event.target.closest('[data-id]');
+                if (target) setActiveConversation(target.getAttribute('data-id'));
             });
             updateConversationHighlight();
         } catch (error) {
@@ -145,28 +135,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateConversationHighlight() {
-        const listItems = elements.conversationList.querySelectorAll('[data-id]');
-        listItems.forEach(div => {
+        elements.conversationList.querySelectorAll('[data-id]').forEach(div => {
             const id = div.getAttribute('data-id');
             const isActive = (activeConversationId !== null && id === activeConversationId) ||
                 (activeConversationId === null && id === 'new');
-            if (isActive) {
-                div.classList.add('bg-violet-50');
-                div.querySelector('i').classList.remove('fa-regular', 'text-gray-400');
-                div.querySelector('i').classList.add('fa-solid', 'text-violet-600');
-            } else {
-                div.classList.remove('bg-violet-50');
-                div.querySelector('i').classList.remove('fa-solid', 'text-violet-600');
-                div.querySelector('i').classList.add('fa-regular', 'text-gray-400');
-                div.classList.add('hover:bg-gray-50');
-            }
+            div.classList.toggle('bg-violet-50', isActive);
+            div.querySelector('i').classList.toggle('fa-solid', isActive);
+            div.querySelector('i').classList.toggle('fa-regular', !isActive);
+            div.querySelector('i').classList.toggle('text-violet-600', isActive);
+            div.querySelector('i').classList.toggle('text-gray-400', !isActive);
+            div.classList.toggle('hover:bg-gray-50', !isActive);
             div.setAttribute('aria-current', isActive ? 'page' : 'false');
         });
     }
 
     function createNewConversationEntry() {
-        const existingDraft = document.getElementById('conv-new');
-        if (existingDraft) existingDraft.remove();
+        document.getElementById('conv-new')?.remove();
         const draftHTML = `
             <div id="conv-new"
                 class="flex items-center px-4 py-2.5 text-sm bg-violet-50 cursor-pointer transition-colors duration-200"
@@ -194,20 +178,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Conversation Messages ---
     async function setActiveConversation(convId) {
-        const trimmedConvId = typeof convId === 'string' ? convId.trim() : convId;
-        if (trimmedConvId === 'new' || trimmedConvId === null || trimmedConvId === undefined) {
+        const id = typeof convId === 'string' ? convId.trim() : convId;
+        if (id === 'new' || id === null || id === undefined) {
             if (activeConversationId !== null) startNewConversation();
             return;
         }
-        if (activeConversationId === trimmedConvId) return;
-        activeConversationId = trimmedConvId;
+        if (activeConversationId === id) return;
+        activeConversationId = id;
         clearMessages();
         hideWelcomeMessage();
         elements.messageInput.value = '';
         handleInputChange();
         elements.submitButton.disabled = true;
-        const tempNewEntry = document.getElementById('conv-new');
-        if (tempNewEntry) tempNewEntry.remove();
+        document.getElementById('conv-new')?.remove();
         try {
             const data = await api.getMessages(activeConversationId);
             if (data.messages && data.messages.length > 0) {
@@ -222,17 +205,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             error: false,
                         });
                     }
-                    if (msg.hasOwnProperty('res_user')) {
+                    if ('res_user' in msg) {
                         let content = null;
                         if (msg.res_user) {
                             content = msg.type_res === "list" ? msg.message : msg.res_user;
-                        } else if (msg.res_user == " ") {
+                        } else if (msg.res_user === " ") {
                             content = "le message sera affiché ici";
                         }
                         renderMessage({
                             data_type: msg.type_res,
                             id: `bot-${msg.msg_id || Date.now()}-${Math.random()}`,
-                            content: content,
+                            content,
                             role: 'bot',
                             timestamp: new Date(msg.timestamp || Date.now()),
                             error: msg.error || false,
@@ -290,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarBg = 'bg-violet-700';
             bubbleBg = 'bg-violet-100 text-violet-700 border border-violet-700 rounded-lg';
         }
-        const contentHTML = `
+        messageElement.innerHTML = `
             <div class="flex w-full items-start gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
                 <div class="flex-shrink-0">
                     <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
@@ -311,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        messageElement.innerHTML = contentHTML;
         wrapper.appendChild(messageElement);
         requestAnimationFrame(() => {
             messageElement.classList.remove('message-enter');
@@ -342,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarBg = 'bg-violet-700';
             bubbleBg = 'bg-violet-100 text-violet-700 border border-violet-700 rounded-lg';
         }
-        const contentHTML = `
+        messageElement.innerHTML = `
             <div class="flex w-full items-start gap-3 ${messageData.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
                 <div class="flex-shrink-0">
                     <div class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarBg} text-white">
@@ -359,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        messageElement.innerHTML = contentHTML;
         messageElement.id = messageData.id || messageElement.id;
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
     }
@@ -370,15 +351,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContent = elements.messageInput.value.trim();
         if (!messageContent) return;
         const wasNewConversation = activeConversationId === null;
-        const userMessage = {
+        renderMessage({
             data_type: "str",
             id: `msg-user-${Date.now()}`,
             content: messageContent,
             role: 'user',
             timestamp: new Date(),
             error: false,
-        };
-        renderMessage(userMessage);
+        });
         elements.messageInput.value = '';
         handleInputChange();
         elements.submitButton.disabled = true;
@@ -440,79 +420,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Table Result Rendering ---
     function createResultContent(result) {
-        if (Array.isArray(result) && result.length > 0) {
-            const columns = Object.keys(result[0]);
-            const rows = result.slice(0, 10);
-            let tableHTML = `<div class="overflow-x-auto w-full">
-                <table class="w-full border-collapse">
-                    <thead class="bg-violet-200">
-                        <tr>
-                            ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+        if (!Array.isArray(result) || !result.length) return '';
+        const columns = Object.keys(result[0]);
+        const rows = result.slice(0, 10);
+        let tableHTML = `<div class="overflow-x-auto w-full">
+            <table class="w-full border-collapse">
+                <thead class="bg-violet-200">
+                    <tr>
+                        ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row, i) => `
+                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
+                            ${columns.map(col => {
+                                const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
+                                return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
+                            }).join('')}
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${rows.map((row, i) => `
-                            <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
-                                ${columns.map(col => {
-                                    const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                    return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
-                                }).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>`;
-            if (result.length > 10) {
-                tableHTML += `
-                    <div class="mt-2 text-sm text-gray-500 flex justify-center items-center gap-2" style="margin-top: -45px;">
-                        <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
-                        <button class="text-violet-600 hover:text-violet-500 view-all-results">Voir tout</button>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>`;
+        if (result.length > 10) {
+            tableHTML += `
+                <div class="mt-2 text-sm text-gray-500 flex justify-center items-center gap-2" style="margin-top: -45px;">
+                    <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
+                    <button class="text-violet-600 hover:text-violet-500 view-all-results">Voir tout</button>
+                </div>
+            `;
+        }
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('view-all-results')) {
+                const fullTableHTML = `
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-violet-200">
+                                <tr>
+                                    ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.map((row, i) => `
+                                    <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
+                                        ${columns.map(col => {
+                                            const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
+                                            return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
+                                        }).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 `;
+                document.getElementById('modalTableContent').innerHTML = fullTableHTML;
+                document.getElementById('fullTableModal').classList.remove('hidden');
             }
-            document.addEventListener('click', function (e) {
-                if (e.target && e.target.classList.contains('view-all-results')) {
-                    const fullTableHTML = `
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full border-collapse">
-                                <thead class="bg-violet-200">
-                                    <tr>
-                                        ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${result.map((row, i) => `
-                                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
-                                            ${columns.map(col => {
-                                                const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                                return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
-                                            }).join('')}
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                    document.getElementById('modalTableContent').innerHTML = fullTableHTML;
-                    document.getElementById('fullTableModal').classList.remove('hidden');
-                }
-            });
-            document.getElementById('closeModal')?.addEventListener('click', () => {
-                document.getElementById('fullTableModal').classList.add('hidden');
-            });
-            document.getElementById('downloadExcel')?.addEventListener('click', () => {
-                if (!columns.length || !result.length) return;
-                const data = [
-                    columns,
-                    ...result.map(row => columns.map(col => row[col] ?? ''))
-                ];
-                const worksheet = XLSX.utils.aoa_to_sheet(data);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-                XLSX.writeFile(workbook, `report_${Date.now()}.xlsx`);
-            });
-            return tableHTML;
-        }
+        });
+        document.getElementById('closeModal')?.addEventListener('click', () => {
+            document.getElementById('fullTableModal').classList.add('hidden');
+        });
+        document.getElementById('downloadExcel')?.addEventListener('click', () => {
+            if (!columns.length || !result.length) return;
+            const data = [
+                columns,
+                ...result.map(row => columns.map(col => row[col] ?? ''))
+            ];
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
+            XLSX.writeFile(workbook, `report_${Date.now()}.xlsx`);
+        });
+        return tableHTML;
     }
 
     // --- Input Handlers ---
@@ -541,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Theme ---
     function initTheme() {
-        document.documentElement.classList.remove('dark'); // Force light theme
+        document.documentElement.classList.remove('dark');
     }
 
     // --- Event Listeners ---
@@ -553,9 +532,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Init ---
-    initTheme();
-    initEventListeners();
-    showWelcomeMessage();
-    updateConversationList();
-    handleInputChange();
+    function init() {
+        initTheme();
+        initEventListeners();
+        showWelcomeMessage();
+        updateConversationList();
+        handleInputChange();
+    }
+
+    init();
 });

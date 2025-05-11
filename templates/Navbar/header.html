@@ -1,82 +1,87 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
-
 </head>
 <body class="bg-gray-50">
-    <!-- Navbar Horizontale avec hauteur réduite -->
+
+    <!-- Navbar -->
     <nav class="bg-white shadow-lg fixed top-0 left-0 right-0 z-40">
         <div class="max-w-7xl mx-auto px-1">
             <div class="flex justify-between h-12">
+
+                <!-- Logo & Main Menu -->
                 <div class="flex items-center">
-                    <!-- Logo avec gradient -->
+                    <!-- Logo -->
                     <div class="py-2 px-3 flex items-center logo-container">
-                        
-                            <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-9 w-9 object-contain">
-                       
+                        <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-9 w-9 object-contain">
                         <span class="font-bold text-sm text-gray-700 ml-2 logo-text">Query</span>
                     </div>
-                    
-                    <!-- Menu Principal - La classe active-menu est ajoutée dynamiquement en fonction de la page active -->
+
+                    <!-- Main Navigation -->
                     <div class="ml-16 flex items-center space-x-4">
                         <a href="accueil" class="nav-link flex items-center" id="nav-accueil">
                             <i data-lucide="home" class="h-4 w-4 mr-1"></i>
                             <span>Accueil</span>
                         </a>
-                        
                         <a href="suivi" class="nav-link flex items-center" id="nav-rapports">
                             <i data-lucide="file-text" class="h-4 w-4 mr-1"></i>
                             <span>Rapports</span>
                         </a>
-
                         <a href="chat" class="nav-link flex items-center" id="nav-chatbot">
                             <i data-lucide="message-circle" class="h-4 w-4 mr-1"></i>
                             <span>ChatBot</span>
                         </a>
                     </div>
                 </div>
-                
-                <!-- Actions Utilisateur -->
+
+                <!-- User Actions -->
                 <div class="flex items-center">
                     <!-- Notifications -->
                     <button class="p-1 rounded-full text-gray-500 hover:text-purple-700 hover:bg-purple-50 transition-all mr-3 relative">
                         <i data-lucide="bell" class="h-4 w-4"></i>
                         <span class="absolute top-0 right-0 h-1.5 w-1.5 bg-red-500 rounded-full"></span>
                     </button>
-                    
-                    <!-- Profil Utilisateur -->
-                    <div class="relative">
-                        <div class="flex items-center">                            
-                            <span class="font-medium text-xs text-gray-700 mr-2">Demandeur</span>
 
-                            <button id="profileBtn" class="bg-gradient-to-r from-purple-100 to-indigo-100 hover:from-purple-200 hover:to-indigo-200 rounded-full p-1.5 flex items-center justify-center transition-all duration-300" onclick="toggleDropdown()">
+                    <!-- User Profile Dropdown -->
+                    <div class="relative">
+                        <div class="flex items-center">
+                            <span class="font-medium text-xs text-gray-700 mr-2">Demandeur</span>
+                            <button id="profileBtn"
+                                class="bg-gradient-to-r from-purple-100 to-indigo-100 hover:from-purple-200 hover:to-indigo-200 rounded-full p-1.5 flex items-center justify-center transition-all duration-300"
+                                onclick="toggleDropdown()">
                                 <i data-lucide="user" class="h-4 w-4 text-purple-700"></i>
                             </button>
-                            
-                            <!-- Dropdown menu -->
-                            <div id="dropdown" class="hidden dropdown-animation absolute right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl w-56" style="top: 40px">
+                            <!-- Dropdown Menu -->
+                            <div id="dropdown"
+                                class="hidden dropdown-animation absolute right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl w-56"
+                                style="top: 40px">
                                 <div class="p-3 border-b border-gray-100">
                                     <p class="text-sm font-medium text-gray-800">ben</p>
                                     <p class="text-xs text-gray-500">benmehdi10@outlook.com</p>
                                 </div>
                                 <ul class="py-1">
                                     <li class="px-1">
-                                        <a href="#" class="block px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg flex items-center">
+                                        <a href="#"
+                                            class="block px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg flex items-center">
                                             <i data-lucide="settings" class="h-3.5 w-3.5 mr-2 text-gray-500"></i>
                                             <span>Paramètres</span>
                                         </a>
                                     </li>
                                     <li class="px-1">
-                                        <a href="{% url 'home' %}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg flex items-center">
+                                        <a href="{% url 'home' %}"
+                                            class="block px-3 py-2 text-xs text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg flex items-center">
                                             <i data-lucide="log-out" class="h-3.5 w-3.5 mr-2 text-gray-500"></i>
                                             <span>Déconnexion</span>
                                         </a>
@@ -86,76 +91,18 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </nav>
-    
-    <!-- Contenu principal avec marge supérieure ajustée -->
+
+    <!-- Main Content -->
     <div class="mt-16">
         {% block content %}
         {% endblock %}
     </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        lucide.createIcons();
-        
-        // Détection de la page active basée sur l'URL
-        const currentPath = window.location.pathname;
-        
-        // Retirer la classe active-menu de tous les liens
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active-menu');
-        });
-        
-        // Ajouter la classe active-menu selon l'URL actuelle
-        if (currentPath.includes('accueil')) {
-            document.getElementById('nav-accueil').classList.add('active-menu');
-        } else if (currentPath.includes('suivi')) {
-            document.getElementById('nav-rapports').classList.add('active-menu');
-        } else if (currentPath.includes('chat')) {
-            document.getElementById('nav-chatbot').classList.add('active-menu');
-        }
-        
-        // Pour la démonstration, vous pouvez également ajouter ces écouteurs d'événements
-        // pour changer manuellement la page active en cliquant sur les liens
-        document.getElementById('nav-accueil').addEventListener('click', function(e) {
-            activateLink('nav-accueil');
-        });
-        
-        document.getElementById('nav-rapports').addEventListener('click', function(e) {
-            activateLink('nav-rapports');
-        });
-        
-        document.getElementById('nav-chatbot').addEventListener('click', function(e) {
-            activateLink('nav-chatbot');
-        });
-    });
-    
-    function activateLink(linkId) {
-        // Retirer la classe active de tous les liens
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active-menu');
-        });
-        
-        // Ajouter la classe active au lien cliqué
-        document.getElementById(linkId).classList.add('active-menu');
-    }
-
-    function toggleDropdown() {
-        const dropdown = document.getElementById('dropdown');
-        dropdown.classList.toggle('hidden');
-    }
-
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('dropdown');
-        const profileBtn = document.getElementById('profileBtn');
-        
-        if (!dropdown.contains(event.target) && !profileBtn.contains(event.target)) {
-            dropdown.classList.add('hidden');
-        }
-    });
-</script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/header.js' %}"></script>
 </body>
 </html>
-

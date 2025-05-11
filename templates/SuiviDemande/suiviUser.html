@@ -1,258 +1,204 @@
 {% extends 'Navbar/header.html' %}
+{% load static %}
 
 {% block title %}Suivi des Demandes{% endblock %}
 
+{% block styles %}
+{% endblock %}
+
 {% block content %}
-    <main class="pt-4 max-w-6xl mx-auto px-4 sm:px-6 pb-8 bg-gray-50">
-        <!-- En-tête de la page -->
-        <div class="mb-5 mt-4">
-            <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
-            <p class="text-gray-600 text-xs">Suivi et gestion des demandes analytiques</p>
-        </div>
-        
-        <!-- Statistiques Rapides -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
-                <div class="flex items-center">
-                    <div class="bg-blue-50 p-2 rounded mr-3">
-                        <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-blue-600">Total</h3>
-                        <p class="text-lg font-bold">{{ all_mails_count }}</p>
-                    </div>
+<main class="pt-4 max-w-6xl mx-auto px-4 sm:px-6 pb-8 bg-gray-50">
+
+    <!-- Page Header -->
+    <div class="mb-5 mt-4">
+        <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
+        <p class="text-gray-600 text-xs">Suivi et gestion des demandes analytiques</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <!-- Stat: Total -->
+        <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
+            <div class="flex items-center">
+                <div class="bg-blue-50 p-2 rounded mr-3">
+                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
                 </div>
-            </div>
-            
-            <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
-                <div class="flex items-center">
-                    <div class="bg-green-50 p-2 rounded mr-3">
-                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-green-600">Terminées</h3>
-                        <p class="text-lg font-bold">{{all_mail_count_env}}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
-                <div class="flex items-center">
-                    <div class="bg-yellow-50 p-2 rounded mr-3">
-                        <i data-lucide="loader" class="w-4 h-4 text-yellow-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-orange-600">En Cours</h3>
-                        <p class="text-lg font-bold">{{all_mails_count_encours}}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
-                <div class="flex items-center">
-                    <div class="bg-red-50 p-2 rounded mr-3">
-                        <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-red-600">Erreurs</h3>
-                        <p class="text-lg font-bold">{{all_mail_count_fail}}</p>
-                    </div>
+                <div>
+                    <h3 class="text-xl font-bold text-blue-600">Total</h3>
+                    <p class="text-lg font-bold">{{ all_mails_count }}</p>
                 </div>
             </div>
         </div>
-
-        <!-- Tableau des Demandes -->
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <!-- En-tête avec Filtres -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border-b">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3 md:mb-0">Suivi des Demandes</h2>
-                
-                <div class="flex flex-wrap gap-2">
-                    <!-- Filtres -->
-                    <div class="relative">
-                        <i data-lucide="filter" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
-                        <select id="filter-status" class="border rounded pl-7 pr-6 py-1.5 text-xs focus:ring-1 focus:ring-purple-500 appearance-none">
-                            <option value="all">Tous les Statuts</option>
-                            <option value="En attente">En attente</option>
-                            <option value="Envoyé">Envoyé</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-3 h-3"></i>
-                    </div>
-                    
-                    <div class="relative">
-                        <i data-lucide="calendar" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
-                        <select id="filter-period" class="border rounded pl-7 pr-6 py-1.5 text-xs focus:ring-1 focus:ring-purple-500 appearance-none">
-                            <option value="all">Toutes périodes</option>
-                            <option value="week">Dernière semaine</option>
-                            <option value="month">Dernier mois</option>
-                            <option value="year">Année en cours</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-3 h-3"></i>
-                    </div>
-    
-                    <div class="relative">
-                        <i data-lucide="search" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-4 h-4"></i>
-                        <input 
-                            type="text" 
-                            id="search-input"
-                            placeholder="Rechercher..." 
-                            class="border rounded pl-7 py-1.5 text-sm focus:ring-1 focus:ring-violet-500"
-                        >
-                    </div>
+        <!-- Stat: Completed -->
+        <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
+            <div class="flex items-center">
+                <div class="bg-green-50 p-2 rounded mr-3">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                 </div>
-            </div>
-
-            <!-- Tableau -->
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
-                            <th class="px-4 py-3 text-left">Email</th>
-                            <th class="px-4 py-3 text-left">Date</th>
-                            <th class="px-4 py-3 text-left">Objet</th>
-                            <th class="px-4 py-3 text-left">Statut</th>
-                            <th class="px-4 py-3 text-left">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="demandes-table-body" class="divide-y divide-gray-100">
-                        {% for email in demandes %}
-                            <tr class="hover:bg-gray-50"
-                            data-status="{{ email.status }}"
-                            data-date="{{ email.date_rec|date:'Y-m-d' }}"
-                            data-search=" {{ email.subject }} {{ email.status }}">
-                                <td class="px-4 py-3 text-sm text-gray-800">{{ email.email_rec }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ email.date_rec|date:"d/m/Y H:i" }}</td>
-                                <td class="px-4 py-3 text-sm font-medium text-gray-800">{{ email.subject }}</td>
-                                <td class="px-4 py-3">
-                                    {% if email.status == "En attente" %}
-                                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 flex items-center w-fit">
-                                            <i data-lucide="clock" class="mr-1 w-3 h-3"></i>
-                                            {{ email.status }}
-                                        </span>
-                                    {% elif email.status == "Envoyé" %}
-                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 flex items-center w-fit">
-                                            <i data-lucide="check" class="mr-1 w-3 h-3"></i>
-                                            {{ email.status }}
-                                        </span>
-                                    {% else %}
-                                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 flex items-center w-fit">
-                                            <i data-lucide="mail" class="mr-1 w-3 h-3"></i>
-                                            {{ email.status }}
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="flex space-x-2">
-                                        <button type="button" class="text-purple-600 hover:text-purple-900 details-btn flex items-center text-xs" title="Détails" id="details" data-id="{{ email.id_mail}}">
-                                            <i data-lucide="eye" class="w-3 h-3 mr-1"></i>
-                                            Détails
-                                        </button>
-                                        <button class="text-blue-600 hover:text-blue-900 conv-detail flex items-center text-xs" title="Voir la conversation" data-id="{{ email.conversation_id}}">
-                                            <i data-lucide="message-square" class="w-3 h-3 mr-1"></i>
-                                            Conversation
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                                    <div class="flex flex-col items-center">
-                                        <i data-lucide="inbox" class="w-8 h-8 text-gray-300 mb-2"></i>
-                                        <p class="text-sm font-medium">Aucune demande trouvée</p>
-                                        <p class="text-xs text-gray-500 mt-1">Ajustez vos filtres ou essayez une autre recherche</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="flex justify-between items-center px-4 py-3 border-t bg-gray-50">
-                <div class="text-xs text-gray-600">
-                    Affichage de <span class="font-medium">1</span> à <span class="font-medium">10</span> sur <span class="font-medium">{{ all_mails_count }}</span> entrées
-                </div>
-                <div class="flex space-x-1">
-                    <button class="px-2 py-1 text-xs bg-white border rounded text-gray-600 hover:bg-gray-50 flex items-center">
-                        <i data-lucide="chevron-left" class="inline-block mr-1 w-3 h-3"></i>
-                        Précédent
-                    </button>
-                    <button class="px-2 py-1 text-xs bg-purple-600 border border-purple-600 rounded text-white">
-                        1
-                    </button>
-                    <button class="px-2 py-1 text-xs bg-white border rounded text-gray-600 hover:bg-gray-50 flex items-center">
-                        Suivant
-                        <i data-lucide="chevron-right" class="inline-block ml-1 w-3 h-3"></i>
-                    </button>
+                <div>
+                    <h3 class="text-xl font-bold text-green-600">Terminées</h3>
+                    <p class="text-lg font-bold">{{ all_mail_count_env }}</p>
                 </div>
             </div>
         </div>
-    </main>
+        <!-- Stat: In Progress -->
+        <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
+            <div class="flex items-center">
+                <div class="bg-yellow-50 p-2 rounded mr-3">
+                    <i data-lucide="loader" class="w-4 h-4 text-yellow-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-600">En cours</h3>
+                    <p class="text-lg font-bold">{{ all_mail_count_progress }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Stat: Errors -->
+        <div class="bg-violet-100 rounded-lg shadow-2xl p-3 border-l-4 border-violet-900">
+            <div class="flex items-center">
+                <div class="bg-red-50 p-2 rounded mr-3">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-red-600">Erreurs</h3>
+                    <p class="text-lg font-bold">{{ all_mail_count_fail }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        lucide.createIcons();
-        document.addEventListener("DOMContentLoaded", function () {
-            // Handle detail buttons
-            document.querySelectorAll(".details-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    const id = this.getAttribute("data-id");
-                    if (id) window.location.href = `/suivi/${id}/`;
-                });
-            });
-            
-            // Handle conversation buttons
-            document.querySelectorAll(".conv-detail").forEach(button => {
-                button.addEventListener("click", function () {
-                    const id = this.getAttribute("data-id");
-                    if (id) window.location.href = `/get_conversation/${id}/`;
-                });
-            });
-            
-            // Filter functionality
-            const statusFilter = document.getElementById('filter-status');
-            const periodFilter = document.getElementById('filter-period');
-            const searchInput = document.getElementById('search-input');
-            const rows = document.querySelectorAll('#demandes-table-body tr');
-            
-            function applyFilters() {
-                const statusValue = statusFilter.value;
-                const periodValue = periodFilter.value;
-                const searchValue = searchInput.value.toLowerCase();
-                const now = new Date();
-                
-                rows.forEach(row => {
-                    const rowStatus = row.getAttribute('data-status');
-                    const rowDate = new Date(row.getAttribute('data-date'));
-                    const rowSearch = row.getAttribute('data-search').toLowerCase();
-                    
-                    // Status filter
-                    const statusMatch = statusValue === 'all' || rowStatus === statusValue;
-                    
-                    // Period filter
-                    let periodMatch = true;
-                    if (periodValue !== 'all') {
-                        const timeDiff = now - rowDate;
-                        const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-                        
-                        if (periodValue === 'week' && daysDiff > 7) periodMatch = false;
-                        if (periodValue === 'month' && daysDiff > 30) periodMatch = false;
-                        if (periodValue === 'year' && daysDiff > 365) periodMatch = false;
-                    }
-                    
-                    // Search filter
-                    const searchMatch = rowSearch.includes(searchValue);
-                    
-                    // Show/hide row based on filters
-                    row.style.display = (statusMatch && periodMatch && searchMatch) ? '' : 'none';
-                });
-            }
-            
-            // Add event listeners
-            statusFilter.addEventListener('change', applyFilters);
-            periodFilter.addEventListener('change', applyFilters);
-            searchInput.addEventListener('input', applyFilters);
-        });
-    </script>
+    <!-- Requests Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+
+        <!-- Table Header & Filters -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3 md:mb-0">Suivi des Demandes</h2>
+            <div class="flex flex-wrap gap-2">
+
+                <!-- Status Filter -->
+                <div class="relative">
+                    <i data-lucide="filter" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                    <select id="filter-status" class="border rounded pl-7 pr-6 py-1.5 text-xs focus:ring-1 focus:ring-purple-500 appearance-none">
+                        <option value="all">Tous les Statuts</option>
+                        <option value="En attente">En attente</option>
+                        <option value="Envoyé">Envoyé</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-3 h-3"></i>
+                </div>
+
+                <!-- Period Filter -->
+                <div class="relative">
+                    <i data-lucide="calendar" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                    <select id="filter-period" class="border rounded pl-7 pr-6 py-1.5 text-xs focus:ring-1 focus:ring-purple-500 appearance-none">
+                        <option value="all">Toutes périodes</option>
+                        <option value="week">Dernière semaine</option>
+                        <option value="month">Dernier mois</option>
+                        <option value="year">Année en cours</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-3 h-3"></i>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-violet-400 w-4 h-4"></i>
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="Rechercher..." 
+                        class="border rounded pl-7 py-1.5 text-sm focus:ring-1 focus:ring-violet-500"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
+                        <th class="px-4 py-3 text-left">Email</th>
+                        <th class="px-4 py-3 text-left">Date</th>
+                        <th class="px-4 py-3 text-left">Objet</th>
+                        <th class="px-4 py-3 text-left">Statut</th>
+                        <th class="px-4 py-3 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="demandes-table-body" class="divide-y divide-gray-100">
+                    {% for email in demandes %}
+                    <tr class="hover:bg-gray-50"
+                        data-status="{{ email.status }}"
+                        data-date="{{ email.date_rec|date:'Y-m-d' }}"
+                        data-search="{{ email.subject }} {{ email.status }}">
+                        <td class="px-4 py-3 text-sm text-gray-800">{{ email.email_rec }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ email.date_rec|date:"d/m/Y H:i" }}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-800">{{ email.subject }}</td>
+                        <td class="px-4 py-3">
+                            {% if email.status == "En attente" %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 flex items-center w-fit">
+                                    <i data-lucide="clock" class="mr-1 w-3 h-3"></i>
+                                    {{ email.status }}
+                                </span>
+                            {% elif email.status == "Envoyé" %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 flex items-center w-fit">
+                                    <i data-lucide="check" class="mr-1 w-3 h-3"></i>
+                                    {{ email.status }}
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 flex items-center w-fit">
+                                    <i data-lucide="mail" class="mr-1 w-3 h-3"></i>
+                                    {{ email.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex space-x-2">
+                                <button type="button" class="text-purple-600 hover:text-purple-900 details-btn flex items-center text-xs" title="Détails" data-id="{{ email.id_mail }}">
+                                    <i data-lucide="eye" class="w-3 h-3 mr-1"></i>
+                                    Détails
+                                </button>
+                                <button class="text-blue-600 hover:text-blue-900 conv-detail flex items-center text-xs" title="Voir la conversation" data-id="{{ email.conversation_id }}">
+                                    <i data-lucide="message-square" class="w-3 h-3 mr-1"></i>
+                                    Conversation
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="inbox" class="w-8 h-8 text-gray-300 mb-2"></i>
+                                <p class="text-sm font-medium">Aucune demande trouvée</p>
+                                <p class="text-xs text-gray-500 mt-1">Ajustez vos filtres ou essayez une autre recherche</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center px-4 py-3 border-t bg-gray-50">
+            <div class="text-xs text-gray-600">
+                Affichage de <span class="font-medium">1</span> à <span class="font-medium">10</span> sur <span class="font-medium">{{ all_mails_count }}</span> entrées
+            </div>
+            <div class="flex space-x-1">
+                <button class="px-2 py-1 text-xs bg-white border rounded text-gray-600 hover:bg-gray-50 flex items-center">
+                    <i data-lucide="chevron-left" class="inline-block mr-1 w-3 h-3"></i>
+                    Précédent
+                </button>
+                <button class="px-2 py-1 text-xs bg-purple-600 border border-purple-600 rounded text-white">
+                    1
+                </button>
+                <button class="px-2 py-1 text-xs bg-white border rounded text-gray-600 hover:bg-gray-50 flex items-center">
+                    Suivant
+                    <i data-lucide="chevron-right" class="inline-block ml-1 w-3 h-3"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="{% static 'js/suiviUser.js' %}"></script>
 {% endblock %}

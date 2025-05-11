@@ -5,6 +5,11 @@ from ChatBot.views.chatbot import *
 
 
 from .views import *
+from .views.auth_views import *
+from .views.mail_views import *
+from .views.user_views import *
+from .views.misc_views import *
+from .views.dashboard_views import *
 
 
 

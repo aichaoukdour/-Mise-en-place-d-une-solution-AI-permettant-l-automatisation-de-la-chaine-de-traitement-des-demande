@@ -189,4 +189,3 @@ def update_conversation(request, msg_user, id_msg):
 
 
  
-

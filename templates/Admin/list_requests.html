@@ -3,11 +3,13 @@
 {% block title %}Admin{% endblock %}
 
 {% block content %}
-
 <body class="bg-gray-100 py-10">
     <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-3xl font-bold mb-6 text-center">Suivi des Demandes Analytiques</h2>
+        <h2 class="text-3xl font-bold mb-6 text-center">
+            Suivi des Demandes Analytiques
+        </h2>
 
+        <!-- Requests Table -->
         <table id="requestTable" class="w-full border-collapse">
             <thead>
                 <tr class="bg-gray-200">
@@ -34,7 +36,9 @@
                         </span>
                     </td>
                     <td class="p-3">
-                        <a href="{% url 'request_status' request.Id_message %}" class="text-blue-600 hover:underline">Voir</a>
+                        <a href="{% url 'request_status' request.Id_message %}" class="text-blue-600 hover:underline">
+                            Voir
+                        </a>
                     </td>
                 </tr>
                 {% empty %}
@@ -45,7 +49,7 @@
             </tbody>
         </table>
 
-        <!-- Pagination -->
+        <!-- Pagination Controls -->
         <div class="mt-4 flex justify-center">
             {% if requests.has_previous %}
                 <a href="?page=1" class="mx-2 px-4 py-2 bg-gray-300 rounded">Début</a>
@@ -60,19 +64,29 @@
             {% endif %}
         </div>
 
+        <!-- Home Link -->
         <div class="mt-6 text-center">
             <a href="/static" class="text-blue-600 hover:underline">Retour à l'accueil</a>
         </div>
     </div>
-        <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Table Sorting Script -->
     <script>
+        /**
+         * Sorts the table rows based on the clicked column.
+         * @param {number} columnIndex - Index of the column to sort by.
+         */
         function sortTable(columnIndex) {
-            let table = document.getElementById("requestTable");
-            let rows = Array.from(table.rows).slice(1);
-            let sortedRows = rows.sort((rowA, rowB) =>
-                rowA.cells[columnIndex].innerText.localeCompare(rowB.cells[columnIndex].innerText)
+            const table = document.getElementById("requestTable");
+            const rows = Array.from(table.tBodies[0].rows);
+            const sortedRows = rows.sort((a, b) =>
+                a.cells[columnIndex].innerText.localeCompare(b.cells[columnIndex].innerText)
             );
             table.tBodies[0].append(...sortedRows);
         }
     </script>
+</body>
 {% endblock %}

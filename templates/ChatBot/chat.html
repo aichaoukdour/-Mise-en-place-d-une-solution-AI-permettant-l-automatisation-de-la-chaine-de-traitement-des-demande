@@ -7,9 +7,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant BDA</title>
+    <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <!-- XLSX Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-gradient-to-b from-gray-50 to-gray-100 text-gray-900 font-sans antialiased">
@@ -17,10 +21,12 @@
         <div class="flex flex-1 overflow-hidden">
             <!-- Sidebar -->
             <aside id="sidebar" class="fixed top-14 inset-y-0 left-0 z-40 flex flex-col shadow-lg bg-white w-64">
+                <!-- Logo -->
                 <div class="flex h-16 items-center px-4 border-b border-gray-100">
                     <img src="{% static 'logo/inwi-icon.png' %}" alt="INWI" class="h-14 w-14 object-contain mr-3">
                 </div>
                 <hr class="border-gray-300">
+                <!-- New Chat Button -->
                 <div class="p-4">
                     <button id="newConversationBtn" class="w-full px-4 py-2.5 rounded-lg flex items-center justify-center text-sm bg-violet-200 text-gray-800 hover:bg-violet-400 transition-all shadow-sm">
                         <span class="w-4 h-4 mr-2 flex items-center justify-center">+</span>
@@ -28,17 +34,19 @@
                     </button>
                 </div>
                 <hr class="border-gray-300">
+                <!-- Conversation List -->
                 <div id="conversationList" class="flex-1 overflow-y-auto py-2 space-y-1 px-6">
-                    <!-- Dynamic conversation list will be populated by JavaScript -->
+                    <!-- Populated by JavaScript -->
                 </div>
             </aside>
 
-            <!-- Main content -->
+            <!-- Main Content -->
             <div id="mainContent" class="flex-1 flex flex-col ml-64">
                 <main class="flex flex-col flex-1 overflow-hidden relative">
-                    <!-- Chat messages area -->
+                    <!-- Chat Messages Area -->
                     <div id="chatMessages" class="flex-1 overflow-y-auto p-6 pb-32 space-y-6">
                         <div class="max-w-3xl mx-auto w-full">
+                            <!-- Welcome Message -->
                             <div id="welcomeMessage" class="flex items-center justify-center h-full min-h-[70vh]">
                                 <div class="max-w-md text-center p-8 rounded-xl shadow-sm message-animation">
                                     <div class="flex justify-center mb-6">
@@ -57,7 +65,7 @@
                 </main>
             </div>
 
-            <!-- Chat input form -->
+            <!-- Chat Input Form -->
             <div id="chatInputContainer" class="fixed bottom-0 left-64 right-0 bg-gradient-to-t from-gray-50 to-transparent pt-6 pb-4 px-6 z-10">
                 <div class="max-w-3xl mx-auto w-full">
                     <form id="chatForm" class="w-full">
@@ -82,6 +90,7 @@
                                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                 </svg>
                             </button>
+                            <!-- Loading Spinner -->
                             <div id="loadingSpinner" class="absolute right-12 bottom-2 hidden">
                                 <svg class="animate-spin h-5 w-5 text-violet-500" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -98,18 +107,21 @@
     <!-- Table Modal -->
     <div id="fullTableModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm transition-all">
         <div class="bg-white rounded-lg w-11/12 max-w-4xl max-h-[80vh] overflow-auto relative p-6 shadow-2xl border border-gray-200">
+            <!-- Close Modal Button -->
             <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-indigo-600 text-xl font-bold transition-colors">×</button>
+            <!-- Download Excel Button -->
             <button id="downloadExcel" class="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg text-sm font-medium transition-all flex items-center">
                 <svg class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
                 Télécharger Excel
             </button>
+            <!-- Modal Table Content -->
             <div id="modalTableContent" class="text-gray-900"></div>
         </div>
     </div>
 
-    <!-- JS -->
+    <!-- Custom JS -->
     <script src="{% static 'js/chat.js' %}"></script>
 </body>
 </html>

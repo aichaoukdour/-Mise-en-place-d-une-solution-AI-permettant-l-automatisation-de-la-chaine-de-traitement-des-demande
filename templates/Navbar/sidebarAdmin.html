@@ -7,112 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-        .sidebar-collapsed {
-            width: 80px !important;
-        }
-        .sidebar-collapsed .menu-text,
-        .sidebar-collapsed .profile-info,
-        .sidebar-collapsed h3 {
-            display: none;
-        }
-        .sidebar-collapsed .menu-item {
-            justify-content: center;
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-        }
-        .sidebar-collapsed .menu-icon {
-            margin: 0 auto;
-        }
-        .menu-item {
-            display: flex;
-            align-items: center;
-            border-radius: 0.5rem;
-            gap: 0.75rem;
-        }
-        .active-menu {
-            color: rgb(223, 125, 242) !important;
-            border-left: 4px solid rgb(199, 125, 242) !important;
-            background-color: #f3f0fa !important;
-            padding-left: 1.25rem !important;
-        }
-        .sidebar-collapsed .active-menu {
-            padding-left: 0.5rem !important;
-            border-left: 2px solid rgb(199, 125, 242) !important;
-        }
-        .dropdown-animation {
-            animation: fadeIn 0.2s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .hover-scale:hover { transform: scale(1.05); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb {
-            background: #c5c5c5;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
-        .sidebar-expanded { display: block; }
-        .sidebar-collapsed .sidebar-expanded { display: none; }
-        .sidebar-collapsed nav { width: 80px; }
-        
-        /* Style pour centrer le logo en mode réduit */
-        .sidebar-collapsed .logo-container {
-            justify-content: center;
-            padding: 0.5rem;
-        }
-        .sidebar-collapsed .logo-text {
-            display: none;
-        }
-        
-        /* Style pour le profile en mode réduit */
-        .sidebar-collapsed .profile-container {
-            justify-content: center;
-        }
-        
-        /* Style pour le dropdown du profil */
-        #dropdown {
-            bottom: 100%; /* Positionne le dropdown au-dessus du bouton au lieu d'en-dessous */
-            right: 0;
-            margin-bottom: 10px; /* Espace entre le bouton et le dropdown */
-        }
-        
-        @media (max-width: 768px) {
-            .menu-icon {
-                height: 15px !important;
-                width: 15px !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/sidebarAdmin.css' %}">       
 </head>
 <body class="bg-gray-50">
 <div class="flex">
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar bg-white fixed h-full flex flex-col z-20 shadow-2xl" style="width: 270px;">
+        <!-- Logo Section -->
         <div class="border-b border-gray-100 py-4 px-4 flex items-center logo-container">
-            <button id="toggleSidebar" ">
+            <button id="toggleSidebar">
                 <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-10 w-10 object-contain">
             </button>
             <span class="font-bold text-xm text-gray-700 ml-2 logo-text">Query</span>
         </div>
         <hr class="border-t-1 border-gray-200">
 
+        <!-- Navigation Menu -->
         <nav class="bg-white flex-grow overflow-y-auto py-4 px-2 space-y-1.5">
             <div>
+                <!-- Main Menu -->
                 <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Menu Principale</h3>
-                
                 <a href="{% url 'administrationinfo' %}" class="menu-item px-8 gap-2 py-1.5 hover:bg-gray-100 {% if request.path == administrationinfo_url %}active-menu{% endif %}">
                     <i data-lucide="layout-dashboard" class="menu-icon h-4 w-4 text-gray-600"></i>
                     <span class="menu-text text-xs text-gray-700">Tableau de Bord</span>
                 </a>
 
-
+                <!-- Requests Management -->
                 <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Gestion des demandes</h3>
                 <a href="{% url 'allrequests' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == allrequests_url %}active-menu{% endif %}">
                     <i data-lucide="file-text" class="menu-icon h-4 w-4 text-gray-600"></i>
@@ -126,8 +46,10 @@
                     <i data-lucide="alert-triangle" class="menu-icon h-4 w-4 text-gray-600"></i>
                     <span class="menu-text text-xs text-gray-700">Demandes Échues</span>
                 </a>
-                <h3 class="text-xs text-gray-400 uppercase font-semibold px-5  mt-6 mb-2 sidebar-expanded">Utilisateurs</h3>
-                <a href="{% url 'UserList' %}" class="menu-item px-8 py-1.5  gap-2 hover:bg-gray-100 {% if request.path == user_list_url %}active-menu{% endif %}">
+
+                <!-- Users Management -->
+                <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Utilisateurs</h3>
+                <a href="{% url 'UserList' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == user_list_url %}active-menu{% endif %}">
                     <i data-lucide="users" class="menu-icon h-4 w-4 text-gray-600"></i>
                     <span class="menu-text text-xs text-gray-700">Liste des Utilisateurs</span>
                 </a>
@@ -141,14 +63,15 @@
                 </a>
             </div>
         </nav>
-        <!-- Footer Profile -->
+
+        <!-- Footer Profile Section -->
         <div class="py-3 px-2 border-t border-gray-100 items-center flex justify-between">
             <div class="px-1 py-2 flex profile-container">
                 <div class="relative">
                     <button id="profileBtn" class="bg-gray-100 rounded-full shadow-2xl border-2 p-3 flex items-center justify-center hover-scale">
                         <i data-lucide="user" class="text-purple-700 h-5 w-5"></i>
                     </button>
-                    <!-- Le dropdown est maintenant positionné en position fixed au lieu de absolute pour éviter les problèmes de débordement -->
+                    <!-- Profile Dropdown -->
                     <div id="dropdown" class="hidden dropdown-animation fixed bg-white border border-gray-200 rounded-lg shadow-lg w-56 z-50" style="left: 80px; bottom: 60px;">
                         <div class="px-3 py-2 border-b border-gray-100">
                             <p class="text-sm text-neutral-400">username</p>
@@ -170,61 +93,13 @@
 
     <!-- Main Content -->
     <main id="mainContent" class="p-6 transition-all duration-300" style="margin-left: 270px; width: calc(100% - 270px);">
-       <div class="flex items-center mb-4">
+        <div class="flex items-center mb-4">
             <p class="text-sm text-gray-500 mt-1">Gérez et consultez toutes les demandes sur la plateforme</p>
         </div>
         {% block content %}{% endblock %}
     </main>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        lucide.createIcons();
-
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleSidebar');
-        const mainContent = document.getElementById('mainContent');
-        const profileBtn = document.getElementById('profileBtn');
-        const dropdown = document.getElementById('dropdown');
-
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('sidebar-collapsed');
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                mainContent.style.marginLeft = "80px";
-                mainContent.style.width = "calc(100% - 80px)";
-            } else {
-                mainContent.style.marginLeft = "270px";
-                mainContent.style.width = "calc(100% - 270px)";
-            }
-        });
-
-        // Highlight active menu
-        const currentPath = window.location.pathname;
-        document.querySelectorAll(".menu-item").forEach(link => {
-            if (link.getAttribute("href") === currentPath) {
-                link.classList.add("active-menu");
-            }
-        });
-
-        // Profile dropdown
-        profileBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
-            console.log('Profile button clicked', dropdown.classList.contains('hidden'));
-        });
-        
-        // Prevent dropdown from closing when clicking inside it
-        dropdown.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        
-        // Close dropdown when clicking elsewhere
-        document.addEventListener('click', function () {
-            if (!dropdown.classList.contains('hidden')) {
-                dropdown.classList.add('hidden');
-            }
-        });
-    });
-</script>
+<script src={% static 'js/sidebarAdmin.js' %}></script>
 </body>
 </html>
