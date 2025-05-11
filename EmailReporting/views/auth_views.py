@@ -11,7 +11,9 @@ import json
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from Db_handler.Database import EmailDatabase
+# auth_views.py
+from Db_handler import EmailDatabase
+
 EmailDatabase_instance = EmailDatabase()
 
 def accueil(request):
