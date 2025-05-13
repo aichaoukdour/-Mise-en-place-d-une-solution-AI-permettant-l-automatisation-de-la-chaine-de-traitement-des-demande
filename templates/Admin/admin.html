@@ -3,6 +3,37 @@
 {% block title %}Administration Dashboard{% endblock %}
 
 {% block content %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    function applySearch() {
+      const inputValue = document.getElementById('searchInput').value.trim().toLowerCase();
+      const tableRows = document.querySelectorAll('#demandes-table-body tr');
+
+      tableRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        row.style.display = rowText.includes(inputValue) ? '' : 'none';
+      });
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      let searchTimeout;
+
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applySearch, 300);
+      });
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          clearTimeout(searchTimeout);
+          applySearch();
+        }
+      });
+    }
+  });
+</script>
 
 <!-- ===================== STAT CARDS ===================== -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -80,11 +111,17 @@
       Gestion des Demandes
     </h2>
     <div class="flex items-center gap-3">
-      <!-- Search -->
-      <div class="relative">
-        <input type="text" placeholder="Rechercher..." class="text-sm pl-8 pr-4 py-1.5 border border-gray-300 rounded-lg shadow-2xl focus:ring-2 focus:ring-blue-300 focus:border-violet-500 transition-all duration-200 outline-none">
-        <i data-lucide="search" class="absolute left-2.5 top-2.5 text-gray-400 w-4 h-4"></i>
-      </div>
+      <!-- Barre de recherche -->
+  <div class="relative p-4">
+    <input 
+      id="searchInput"
+      type="text" 
+      placeholder="Rechercher..." 
+      class="text-sm pl-8 pr-3 py-1.5 border border-gray-300 rounded-lg shadow-2xl focus:ring-2 focus:ring-blue-300 focus:border-violet-500 transition-all duration-200 outline-none"
+    >
+    <i data-lucide="search" class="absolute left-5 top-5 translate-y-[-50%] text-gray-400 w-4 h-4"></i>
+  </div>
+
       <!-- Status Filter -->
       <select id="filter-status" class="text-sm border border-gray-300 rounded-lg shadow-2xl px-3 py-1.5 focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 outline-none bg-white">
         <option value="all">Tous les Statuts</option>
