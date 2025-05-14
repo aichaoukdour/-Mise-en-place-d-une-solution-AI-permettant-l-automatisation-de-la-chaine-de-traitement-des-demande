@@ -31,15 +31,15 @@
 
                     <!-- Main Navigation -->
                     <div class="ml-16 flex items-center space-x-4">
-                        <a href="accueil" class="nav-link flex items-center" id="nav-accueil">
+                        <a href="{% url 'accueil_inwi' %}" class="nav-link flex items-center" id="nav-accueil">
                             <i data-lucide="home" class="h-4 w-4 mr-1"></i>
                             <span>Accueil</span>
                         </a>
-                        <a href="suivi" class="nav-link flex items-center" id="nav-rapports">
+                        <a href="{% url 'suivi' %}" class="nav-link flex items-center" id="nav-rapports">
                             <i data-lucide="file-text" class="h-4 w-4 mr-1"></i>
                             <span>Rapports</span>
                         </a>
-                        <a href="chat" class="nav-link flex items-center" id="nav-chatbot">
+                        <a href="{% url 'chatbot' %}" class="nav-link flex items-center" id="nav-chatbot">
                             <i data-lucide="message-circle" class="h-4 w-4 mr-1"></i>
                             <span>ChatBot</span>
                         </a>
