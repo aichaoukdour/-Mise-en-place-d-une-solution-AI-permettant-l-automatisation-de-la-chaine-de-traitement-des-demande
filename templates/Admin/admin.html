@@ -110,7 +110,7 @@
         </tr>
       </thead>
       <tbody id="demandes-table-body">
-        {% for mail in all_mails|slice:":5" %}
+        {% for mail in all_mails|slice:":4" %}
         <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors" data-status="{{ mail.status }}">
           <td class="p-3 whitespace-nowrap">
             <span class="font-mono text-[13px] text-gray-700">{{ mail.id_mail|slice:":8" }}</span>
@@ -157,18 +157,36 @@
   </div>
 
   <!-- Pagination -->
-  <div class="mt-4 flex justify-between items-center text-[12px]">
-    <p class="text-gray-600">Affichage de 1 à 5 sur {{ l_all_mails }} entrées</p>
-    <div class="flex">
-      <button class="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-l hover:bg-gray-200 disabled:opacity-50" disabled>Précédent</button>
-      <button class="px-2.5 py-1 bg-violet-600 text-white mx-1 rounded">1</button>
-      <button class="px-2.5 py-1 bg-gray-100 text-gray-700 mx-1 rounded hover:bg-gray-200">2</button>
-      <button class="px-2.5 py-1 bg-gray-100 text-gray-700 mx-1 rounded hover:bg-gray-200">3</button>
-      <button class="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-r hover:bg-gray-200">Suivant</button>
-    </div>
+<div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-[12px] gap-3">
+  <p class="text-gray-600">Affichage de <span class="font-medium">1</span> à <span class="font-medium">{{ all_mails|slice:":4"|length }}</span> sur <span class="font-medium">{{ l_all_mails }}</span> entrées</p>
+  <div class="inline-flex shadow-sm rounded-md">
+    <a href="?page=1" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-l-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if page_obj.number == 1 %}opacity-50 cursor-not-allowed{% endif %}">
+      <i data-lucide="chevrons-left" class="w-3 h-3 mr-1"></i>
+      Premier
+    </a>
+    <a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not page_obj.has_previous %}opacity-50 cursor-not-allowed{% endif %}">
+      <i data-lucide="chevron-left" class="w-3 h-3 mr-1"></i>
+      Précédent
+    </a>
+    
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <a href="?page={{ i }}" class="px-3 py-1.5 bg-violet-600 text-white border-l border-white hover:bg-violet-700 transition-colors">{{ i }}</a>
+      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+        <a href="?page={{ i }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 transition-colors">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    <a href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not page_obj.has_next %}opacity-50 cursor-not-allowed{% endif %}">
+      Suivant
+      <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+    </a>
+    <a href="?page={{ paginator.num_pages }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-r-lg border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if page_obj.number == paginator.num_pages %}opacity-50 cursor-not-allowed{% endif %}">
+      Dernier
+      <i data-lucide="chevrons-right" class="w-3 h-3 ml-1"></i>
+    </a>
   </div>
 </div>
-
 <!-- ===================== USERS SECTION ===================== -->
 <div class="bg-white rounded-xl shadow-2xl p-6 mb-6 border border-gray-100">
   <div class="flex justify-between items-center mb-6">
@@ -192,7 +210,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for user in all_users|slice:":5" %}
+        {% for user in all_users|slice:":4" %}
         <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
           <td class="p-3 whitespace-nowrap">
             <div class="flex items-center">
