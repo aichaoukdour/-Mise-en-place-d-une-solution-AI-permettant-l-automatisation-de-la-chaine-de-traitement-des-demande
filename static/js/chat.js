@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let activeConversationId = null;
+    function formattedTime() {
+        const timestamp = new Date();
+        return `${String(timestamp.getHours()).padStart(2, '0')}:${String(timestamp.getMinutes()).padStart(2, '0')}`;
+    }
 
     // --- Elements ---
     const elements = {
@@ -198,10 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (msg.msg_user) {
                         renderMessage({
                             data_type: "str",
-                            id: `user-${msg.msg_id || Date.now()}-${Math.random()}`,
+                            id: `${msg.msg_id}`,
                             content: msg.msg_user,
                             role: 'user',
-                            timestamp: new Date(msg.timestamp || Date.now()),
+                            timestamp: msg.date_env,
                             error: false,
                         });
                     }
@@ -214,10 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         renderMessage({
                             data_type: msg.type_res,
-                            id: `bot-${msg.msg_id || Date.now()}-${Math.random()}`,
+                            id: `${msg.msg_id}`,
                             content,
                             role: 'bot',
-                            timestamp: new Date(msg.timestamp || Date.now()),
+                            timestamp: msg.date_rec,
                             error: msg.error || false,
                         });
                     }
@@ -228,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: `notice-${Date.now()}`,
                     content: 'Aucun message dans cette conversation.',
                     role: 'bot',
-                    timestamp: new Date(),
+                    timestamp: formattedTime(),
                     error: false,
                 });
             }
@@ -254,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.className = `chat-message ${message.role === 'user' ? 'user' : 'assistant'} message-animation`;
         let sanitizedContent = '';
         if (message.data_type === "list") {
-            sanitizedContent = createResultContent(message.content);
+            sanitizedContent = createResultContent(message.content,message.id);
         } else {
             sanitizedContent = escapeHTML(message.content || '');
         }
@@ -281,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} w-full">
-                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[75%]">
+                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[100%]">
                         ${message.isLoading
                             ? '<div class="flex items-center gap-2"><div class="loader"></div><span class="text-gray-500 text-xs italic">Génération...</span></div>'
                             : sanitizedContent
@@ -289,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     ${!message.isLoading ? `
                     <div class="text-xs text-gray-500 mt-1 px-1">
-                        ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        ${message.timestamp}
                     </div>` : ''}
                 </div>
             </div>
@@ -309,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!messageElement || !messageData) return;
         let sanitizedContent = '';
         if (messageData.type_res === "list") {
-            sanitizedContent = createResultContent(messageData.content);
+            sanitizedContent = createResultContent(messageData.content,messageData.id);
         } else {
             sanitizedContent = escapeHTML(messageData.content || '');
         }
@@ -332,11 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="flex flex-col ${messageData.role === 'user' ? 'items-end' : 'items-start'} w-full">
-                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[75%]">
+                    <div class="message-content p-4 rounded-lg shadow-sm text-sm ${bubbleBg} max-w-[85%] md:max-w-[100%]">
                         ${sanitizedContent}
                     </div>
                     <div class="text-xs text-gray-500 mt-1 px-1">
-                        ${messageData.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        ${messageData.timestamp}
                     </div>
                 </div>
             </div>
@@ -356,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: `msg-user-${Date.now()}`,
             content: messageContent,
             role: 'user',
-            timestamp: new Date(),
+            timestamp: formattedTime(),
             error: false,
         });
         elements.messageInput.value = '';
@@ -367,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: `msg-bot-loading-${Date.now()}`,
             role: 'bot',
             content: 'Génération...',
-            timestamp: new Date(),
+            timestamp: formattedTime(),
             isLoading: true,
         };
         const loadingElement = renderMessage(loadingMessageData);
@@ -401,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: loadingElement.id,
                 content: `Erreur: ${error.message || "Impossible d'envoyer le message."}`,
                 role: 'bot',
-                timestamp: new Date(),
+                timestamp: formattedTime(),
                 error: error.message || true,
                 isLoading: false,
             });
@@ -419,80 +423,118 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Table Result Rendering ---
-    function createResultContent(result) {
-        if (!Array.isArray(result) || !result.length) return '';
-        const columns = Object.keys(result[0]);
-        const rows = result.slice(0, 10);
-        let tableHTML = `<div class="overflow-x-auto w-full">
-            <table class="w-full border-collapse">
-                <thead class="bg-violet-200">
-                    <tr>
-                        ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows.map((row, i) => `
-                        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
-                            ${columns.map(col => {
-                                const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
-                            }).join('')}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>`;
-        if (result.length > 10) {
-            tableHTML += `
-                <div class="mt-2 text-sm text-gray-500 flex justify-center items-center gap-2" style="margin-top: -45px;">
-                    <span>* ${result.length} lignes trouvées, affichage limité aux 10 premières.</span>
-                    <button class="text-violet-600 hover:text-violet-500 view-all-results">Voir tout</button>
-                </div>
-            `;
-        }
-        document.addEventListener('click', function (e) {
-            if (e.target && e.target.classList.contains('view-all-results')) {
-                const fullTableHTML = `
-                    <div class="overflow-x-auto w-full">
-                        <table class="w-full border-collapse">
-                            <thead class="bg-violet-200">
-                                <tr>
-                                    ${columns.map(col => `<th class="border border-violet-300 px-3 py-2 text-left text-sm">${col}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${result.map((row, i) => `
-                                    <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-violet-100'}">
-                                        ${columns.map(col => {
-                                            const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
-                                            return `<td class="border border-violet-300 px-3 py-2 text-sm">${cellContent}</td>`;
-                                        }).join('')}
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                document.getElementById('modalTableContent').innerHTML = fullTableHTML;
-                document.getElementById('fullTableModal').classList.remove('hidden');
-            }
-        });
-        document.getElementById('closeModal')?.addEventListener('click', () => {
-            document.getElementById('fullTableModal').classList.add('hidden');
-        });
-        document.getElementById('downloadExcel')?.addEventListener('click', () => {
-            if (!columns.length || !result.length) return;
-            const data = [
-                columns,
-                ...result.map(row => columns.map(col => row[col] ?? ''))
-            ];
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-            XLSX.writeFile(workbook, `report_${Date.now()}.xlsx`);
-        });
-        return tableHTML;
+
+    let currentDownloadMsgId = null;
+
+
+    function createResultContent(result, id_msg) {
+    if (!Array.isArray(result) || result.length === 0) return '';
+
+    const columns = Object.keys(result[0]);
+    const rows = result.slice(0, 10); // Afficher seulement les 10 premières lignes
+
+    // Construction du tableau HTML
+    // Construction du tableau HTML
+    let tableHTML = `
+<div class="overflow-x-auto w-full">
+    <table class="w-full border-collapse">
+        <thead class="bg-gray-100">
+            <tr>
+                ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left text-sm font-medium text-gray-700">${col}</th>`).join('')}
+            </tr>
+        </thead>
+        <tbody>
+            ${rows.map((row, i) => `
+                <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                    ${columns.map(col => {
+                        const cellContent = String(row[col] ?? '').replace(/<br\s*\/?>/gi, '');
+                        return `<td class="border border-gray-300 px-3 py-2 text-sm text-gray-700">${cellContent}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+</div>
+    `;
+
+    // Si plus de 10 lignes, bouton "Voir tout"
+    if (result.length >= 10) {
+        tableHTML += `
+<div class="mt-3 flex items-center justify-between">
+    <span class="text-xs text-gray-500">
+        Affichage de 10 sur ${result.length} lignes
+    </span>
+    <button 
+        class="view-all-results px-3 py-1 text-xs font-medium text-violet-600 hover:text-violet-800 bg-violet-50 hover:bg-violet-100 rounded-md transition-colors"
+        data-id="${id_msg}"
+    >
+        Voir tout
+    </button>
+</div>
+        `;
     }
+
+    // Stocker les résultats complets pour usage ultérieur
+    window.fullResultsById = window.fullResultsById || {};
+    window.fullResultsById[id_msg] = result;
+
+
+    return tableHTML;
+}
+
+// Voir tous les résultats dans une modale
+document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('view-all-results')) {
+        const id_msg = e.target.getAttribute('data-id');
+        const fullResult = window.fullResultsById?.[id_msg];
+        if (!fullResult) return;
+        currentDownloadMsgId = id_msg;
+
+        const columns = Object.keys(fullResult[0] || {});
+        const fullTableHTML = `
+            <div class="overflow-x-auto w-full">
+                <table class="w-full border-collapse text-sm">
+                    <thead class="bg-gray-100 dark:bg-gray-700">
+                        <tr>
+                            ${columns.map(col => `<th class="border px-3 py-2 text-left">${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${fullResult.map((row, i) => `
+                            <tr class="${i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
+                                ${columns.map(col => `<td class="border px-3 py-2">${String(row[col] ?? '').replace(/<br\s*\/?>/gi, '')}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        document.getElementById('modalTableContent').innerHTML = fullTableHTML;
+        document.getElementById('fullTableModal')?.classList.remove('hidden');
+       
+    }
+   
+});
+
+// Fermer la modale
+document.getElementById('closeModal')?.addEventListener('click', () => {
+    document.getElementById('fullTableModal')?.classList.add('hidden');
+});
+document.getElementById('downloadExcel')?.addEventListener('click', () => {
+    id_msg =currentDownloadMsgId
+    console.log("iddddddd",id_msg)
+   
+    const downloadUrl = `/new_excel/${id_msg}/`;
+
+    console.log("downloadUrl",downloadUrl)
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `response_${id_msg}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});    
 
     // --- Input Handlers ---
     function handleInputChange() {

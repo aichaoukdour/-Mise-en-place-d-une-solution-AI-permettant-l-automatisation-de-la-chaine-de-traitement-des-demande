@@ -8,9 +8,13 @@
     <!-- En-tête avec titre et bouton -->
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-xl font-bold text-gray-800">Détails de la Demande</h1>
+        {% if request.type_data == "list" %}
+        <a href="{% url 'download_excel_user' request.id_mail %}">
         <button class="bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors flex items-center text-xs shadow">
             <i data-lucide="download" class="w-3 h-3 mr-1"></i>Télécharger
         </button>
+        </a>
+        {% endif %}
     </div>
 
     <!-- Layout principal -->
@@ -54,9 +58,34 @@
                     <h2 class="text-sm font-semibold text-gray-700">Détails du Rapport</h2>
                 </div>
                 <div class="p-4">
+                    {% if request.type_data == "str" %}
                     <div class="bg-gray-50 p-3 rounded border border-gray-100 text-sm">
                         <p class="text-gray-700">{{ request.body_env }}</p>
                     </div>
+                    {% endif %}
+                    {% if request.type_data == "list" %}
+                    <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                        <table class="min-w-full text-left text-sm text-gray-700 border border-gray-200">
+                              <thead class="bg-gray-100 border-b">
+                                <tr>
+                                  {% for key in request.data.0.keys %}
+                                  <th class="px-4 py-2 font-medium text-gray-900">{{ key }}</th>
+                                  {% endfor %}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for row in request.data %}
+                                <tr class="border-b hover:bg-gray-50">
+                                  {% for value in row.values %}
+                                  <td class="px-4 py-2">{{ value }}</td>
+                                  {% endfor %}
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div> 
+                   
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -16,6 +16,7 @@ urlpatterns = [
     path('all_msg_by_conv/<str:conv_id>/', all_msg_by_conv, name='all_msg_by_conv'),
     path('create_conversation/', create_conversation, name='create_conversation'),
     path('update_conversation/<str:msg_user>/<uuid:id_msg>/', update_conversation, name='update_conversation'),
+    path('new_excel/<uuid:id_msg>/', download_excel_view, name='new_excel'),
 ]
 
     

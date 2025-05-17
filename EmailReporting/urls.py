@@ -18,7 +18,10 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
+    path('download_excel/<str:id_msg>/', download_excel_view, name='download_excel_user'),
+    path('Admin/download_excel/<str:id_msg>/', download_excel_view, name='download_excel'),
     path("suivi/<str:id>/", suiviinfo_user, name="request_status"), 
+    path("Admin/suivi/<str:id>/", suiviinfo_user, name="Admin_request_status"), 
     path("get_conversation/<str:id>/", conversation_user, name="get_conversation"), 
     path("chat", chat, name="chatbot"),
     path("suivi", get_all_mails_by_user, name="suivi"),
@@ -42,7 +45,7 @@ urlpatterns = [
     path('Admin/Update_User',update_user,name='update_user'),
     path('Admin/Update/<str:id>/',user_f,name='update'),
     path('accueil', accueil_inwi, name='accueil_inwi'),
-
+    path('logout', logout_view, name='logout'),
    
 
 

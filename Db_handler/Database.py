@@ -484,7 +484,7 @@ class EmailDatabase:
         cur = conn.cursor()
         try:
             query = """
-            INSERT INTO login_history (user_id, ip_address, success, user_agent, date_l)
+            INSERT INTO login_history (user_id, ip_adress, success, user_agent, date_l)
             VALUES (%s, %s, %s, %s, %s)
             """
             cur.execute(query, (user_id, ip_addr, success, user_agent, date_l))
@@ -521,7 +521,7 @@ class EmailDatabase:
             cur.close()
             self._release_connection(conn)
 
-    def historique(self):
+    def historique(self, user_id):
         conn = self._get_connection()
         if conn is None:
             logger.error("No database connection. Cannot fetch data.")
@@ -535,10 +535,10 @@ class EmailDatabase:
                 SELECT conv_id, MIN(dt_msg)
                 FROM cht_bt
                 GROUP BY conv_id
-            )
+            ) AND user_id = %s
             ORDER BY dt_msg
             """
-            cur.execute(query)
+            cur.execute(query, (user_id,))
             res = cur.fetchall()
             return [
                 {
@@ -555,7 +555,7 @@ class EmailDatabase:
             cur.close()
             self._release_connection(conn)
 
-    def insert_res_msg(self, msg_r, dt_r, id_msg, sql_r):
+    def insert_res_msg(self, msg_r, dt_r, id_msg, sql_r, ct_msg):
         conn = self._get_connection()
         if conn is None:
             logger.error("No database connection. Cannot fetch data.")
@@ -563,9 +563,9 @@ class EmailDatabase:
         cur = conn.cursor()
         try:
             query = """
-            UPDATE cht_bt SET res_user = %s, dt_res_user = %s, req_sql = %s WHERE mes_id = %s
+            UPDATE cht_bt SET res_user = %s, dt_res_user = %s, req_sql = %s , ct_msg = %s WHERE mes_id = %s 
             """
-            cur.execute(query, (encrypt(msg_r), dt_r, encrypt(sql_r) if sql_r else None, id_msg))
+            cur.execute(query, (encrypt(msg_r), dt_r, encrypt(sql_r) if sql_r else None, ct_msg, id_msg))
             conn.commit()
             return cur.rowcount > 0
         except Exception as e:
@@ -575,15 +575,36 @@ class EmailDatabase:
             cur.close()
             self._release_connection(conn)
 
-    def get_all_msg_con(self, conv_id):
+    def gey_name_user(self, user_id):
+        conn = self._get_connection()
+        if conn is None:
+            logger.error("No database connection. Cannot fetch data.")
+            return None, None
+        cur = conn.cursor()
+        try:
+            query = "SELECT name_user, last_name_user, email_user FROM user_inwi WHERE email_user = %s LIMIT 1"
+            cur.execute(query, (user_id,))
+            res = cur.fetchone()
+            if res and res[0] and res[1]:
+                full_name = f"{res[0]} {res[1]}"
+                return full_name, decrypt(res[2]) if res[2] else ""
+            return "None", "None"
+        except Exception as e:
+            logger.error(f"Failed to fetch data: {e}")
+            return None, None
+        finally:
+            cur.close()
+            self._release_connection(conn)
+
+    def get_all_msg_con(self, conv_id, user_id):
         conn = self._get_connection()
         if conn is None:
             logger.error("No database connection. Cannot fetch data.")
             return []
         cur = conn.cursor()
         try:
-            query = "SELECT * FROM cht_bt WHERE conv_id = %s ORDER BY dt_msg"
-            cur.execute(query, (conv_id,))
+            query = "SELECT * FROM cht_bt WHERE conv_id = %s AND user_id = %s ORDER BY dt_msg"
+            cur.execute(query, (conv_id, user_id))
             res = cur.fetchall()
             return [
                 {

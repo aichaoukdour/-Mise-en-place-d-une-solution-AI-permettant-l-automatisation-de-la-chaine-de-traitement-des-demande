@@ -16,9 +16,8 @@
         <!-- Logo Section -->
         <div class="border-b border-gray-100 py-4 px-4 flex items-center logo-container">
             <button id="toggleSidebar">
-                <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-10 w-10 object-contain">
+                <img src="{% static 'logo/inwi_logo.jpeg' %}" alt="INWI" class="h-16 w-50 object-contain">
             </button>
-            <span class="font-bold text-xm text-gray-700 ml-2 logo-text">Query</span>
         </div>
         <hr class="border-t-1 border-gray-200">
 
@@ -74,12 +73,12 @@
                     <!-- Profile Dropdown -->
                     <div id="dropdown" class="hidden dropdown-animation fixed bg-white border border-gray-200 rounded-lg shadow-lg w-56 z-50" style="left: 80px; bottom: 60px;">
                         <div class="px-3 py-2 border-b border-gray-100">
-                            <p class="text-sm text-neutral-400">username</p>
-                            <p class="text-sm text-neutral-400">utilisateur@exemple.com</p>
+                            <p class="text-sm text-neutral-400">{{name_user}}</p>
+                            <p class="text-sm text-neutral-400">{{email_user}}</p>
                         </div>
                         <ul class="py-2">
                             <li>
-                                <a href="{% url 'home' %}" class="block px-3 py-2 text-gray-700 hover:bg-purple-600 hover:text-white rounded-lg flex items-center gap-2">
+                                <a href="{% url 'logout' %}" class="block px-3 py-2 text-gray-700 hover:bg-purple-600 hover:text-white rounded-lg flex items-center gap-2">
                                     <i data-lucide="log-out" class="h-4 w-4"></i>
                                     <span class="profile-info text-sm">Déconnexion</span>
                                 </a>

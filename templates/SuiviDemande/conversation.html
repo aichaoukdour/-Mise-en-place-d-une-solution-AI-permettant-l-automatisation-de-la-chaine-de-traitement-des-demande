@@ -76,31 +76,48 @@
           </div>
         </div>
         <div class="p-5">
+          {% if conv.type_data == "str" %}
           <p class="text-gray-900 leading-relaxed mb-5">{{ conv.body_env }}</p>
-
-          <!-- Attached File -->
-          {% if conv.file_name %}
-          <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all duration-200">
-            <div class="flex items-center">
-              <div class="bg-purple-100 p-2.5 rounded-lg mr-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+          {% endif %}
+          {% if conv.type_data == "list" %}
+          <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+            <table class="min-w-full text-left text-sm text-gray-700 border border-gray-200">
+              <thead class="bg-gray-100 border-b">
+                <tr>
+                  {% for key in conv.data.0.keys %}
+                  <th class="px-4 py-2 font-medium text-gray-900">{{ key }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in conv.data %}
+                <tr class="border-b hover:bg-gray-50">
+                  {% for value in row.values %}
+                  <td class="px-4 py-2">{{ value }}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="bg-green-50 border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm">
+            <div class="flex items-center mb-4 sm:mb-0">
+              <div class="bg-green-100 p-3 rounded mr-4">
+                <i class="fas fa-file-excel text-green-600 text-lg"></i>
               </div>
               <div>
-                <p class="font-medium text-violet-900 text-sm">{{ conv.file_name }}</p>
-                <p class="text-xs text-violet-600">Fichier disponible au téléchargement</p>
+                <p class="font-semibold text-gray-900">{{ conv.body_env }}</p>
+                
               </div>
             </div>
-            <a href="#" class="flex items-center bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-xs w-full md:w-auto text-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Télécharger
+            <a href="{% url 'download_excel_user' conv.id %}" class="flex items-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 button-gradient" aria-label="Télécharger le rapport">
+              <i class="fas fa-download mr-2"></i> Télécharger
             </a>
           </div>
-          {% endif %}
-        </div>
+
+          {%endif%}
+
+    
       </div>
       {% else %}
       <!-- No Response Alert -->

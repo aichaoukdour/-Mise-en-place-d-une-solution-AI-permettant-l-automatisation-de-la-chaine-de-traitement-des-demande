@@ -62,9 +62,11 @@
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-2xl font-medium text-violet-900 tracking-tight">Détails de la Demande</h2>
-                    <a href="#" class="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 button-soft flex items-center gap-2 text-sm font-medium">
+                    {% if request.type_data == "list" %}
+                    <a href="{% url 'download_excel' request.id_mail %}" class="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 button-soft flex items-center gap-2 text-sm font-medium">
                         <i class="fas fa-download"></i> Télécharger
                     </a>
+                    {% endif %}
                 </div>
                 <!-- Request Info -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -88,9 +90,34 @@
                 <!-- Report Details -->
                 <div class="fade-in-delay-2">
                     <h3 class="text-xl font-medium text-violet-900 mb-4 tracking-tight">Détails du Rapport</h3>
+                    {% if request.type_data == "str" %}
+
                     <div class="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                        <p class="text-gray-600 text-sm leading-relaxed">{{ request.body_env }}</p>
+                        <p class="text-gray-600 text-sm leading-relaxed">{{ request.data }}</p>
                     </div>
+                    {% endif %}
+                    {% if request.type_data == "list" %}
+                    <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                        <table class="min-w-full text-left text-sm text-gray-700 border border-gray-200">
+                          <thead class="bg-gray-100 border-b">
+                            <tr>
+                              {% for key in request.data.0.keys %}
+                              <th class="px-4 py-2 font-medium text-gray-900">{{ key }}</th>
+                              {% endfor %}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for row in request.data %}
+                            <tr class="border-b hover:bg-gray-50">
+                              {% for value in row.values %}
+                              <td class="px-4 py-2">{{ value }}</td>
+                              {% endfor %}
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    {% endif %}
                 </div>
             </section>
             <!-- Right Column: Timeline -->

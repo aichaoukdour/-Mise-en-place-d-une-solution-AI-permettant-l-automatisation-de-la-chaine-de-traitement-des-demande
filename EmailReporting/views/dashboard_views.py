@@ -1,8 +1,11 @@
 # Dashboard Views
 from email.message import EmailMessage
 from django.shortcuts import render
-from Db_handler.Database import EmailDatabase
-EmailDatabase_instance = EmailDatabase()
+#from Db_handler.Database import EmailDatabase
+#EmailDatabase_instance = EmailDatabase()
+from EmailReporting.Db_handler.db import DatabaseManager
+
+EmailDatabase_instance = DatabaseManager()
 
 
 def admin(request):

@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    
 </head>
 <body class="bg-gray-50">
 
@@ -25,8 +26,7 @@
                 <div class="flex items-center">
                     <!-- Logo -->
                     <div class="py-2 px-3 flex items-center logo-container">
-                        <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-9 w-9 object-contain">
-                        <span class="font-bold text-sm text-gray-700 ml-2 logo-text">Query</span>
+                        <img src="{% static 'logo/inwi_logo.jpeg' %}" alt="INWI" class="h-10 w-26 object-contain">
                     </div>
 
                     <!-- Main Navigation -->
@@ -57,7 +57,7 @@
                     <!-- User Profile Dropdown -->
                     <div class="relative">
                         <div class="flex items-center">
-                            <span class="font-medium text-xs text-gray-700 mr-2">Demandeur</span>
+                            <span class="font-medium text-xs text-gray-700 mr-2">{{ name_user }}</span>
                             <button id="profileBtn"
                                 class="bg-gradient-to-r from-purple-100 to-indigo-100 hover:from-purple-200 hover:to-indigo-200 rounded-full p-1.5 flex items-center justify-center transition-all duration-300"
                                 onclick="toggleDropdown()">
@@ -68,8 +68,8 @@
                                 class="hidden dropdown-animation absolute right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl w-56"
                                 style="top: 40px">
                                 <div class="p-3 border-b border-gray-100">
-                                    <p class="text-sm font-medium text-gray-800">ben</p>
-                                    <p class="text-xs text-gray-500">benmehdi10@outlook.com</p>
+                                    <p class="text-sm font-medium text-gray-800">{{ name_user }}</p>
+                                    <p class="text-xs text-gray-500">{{ email_user }}</p>
                                 </div>
                                 <ul class="py-1">
                                     <li class="px-1">
@@ -80,7 +80,7 @@
                                         </a>
                                     </li>
                                     <li class="px-1">
-                                        <a href="{% url 'home' %}"
+                                        <a href="{% url 'logout' %}"
                                             class="block px-3 py-2 text-xs text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg flex items-center">
                                             <i data-lucide="log-out" class="h-3.5 w-3.5 mr-2 text-gray-500"></i>
                                             <span>Déconnexion</span>

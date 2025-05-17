@@ -13,8 +13,21 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 # auth_views.py
 from Db_handler import EmailDatabase
+from EmailReporting.Db_handler.db import DatabaseManager
 
-EmailDatabase_instance = EmailDatabase()
+EmailDatabase_instance = DatabaseManager()
+
+def user_info(request):
+    email_user = request.session.get('email_user')
+    name_user = ''
+    
+    if email_user:
+        name_user, email_user_db = EmailDatabase_instance.gey_name_user(email_user)
+
+    return {
+        'name_user': name_user,
+        'email_user': email_user_db,
+    }
 
 def accueil(request):
     # Don't clear session data here
@@ -82,4 +95,6 @@ def check_email_view(request):
         print(f"[Erreur] check_email_view: {str(e)}")
         return JsonResponse({"error": "Erreur interne du serveur."}, status=500)
         
-   
+def logout_view(request):
+    request.session.flush()
+    return redirect('home')

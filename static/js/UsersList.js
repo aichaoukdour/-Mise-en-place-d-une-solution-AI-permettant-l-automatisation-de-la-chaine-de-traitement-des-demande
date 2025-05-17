@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const userRows = usersTable.querySelectorAll('tbody tr');
     const emptyStateTemplate = document.getElementById('emptyState');
     
+
+    
     roleFilter.addEventListener('change', function() {
         const selectedRole = this.value;
         let visibleRows = 0;
@@ -102,6 +104,15 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('closeCreateModal')?.addEventListener('click', () => {
         document.getElementById('createUserModal').classList.add('hidden');
     });
+    document.querySelectorAll(".details-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const id = this.getAttribute("data-id"); // Get ID
+            if (id) {
+                window.location.href = `/Admin/get_all_user_mail/${id}/`; // Redirect with ID
+            }
+        });
+    });
+
     
     // Custom Toast function
     function showToast(message, type = 'info') {

@@ -2,14 +2,38 @@
 
 from datetime import timezone
 from email.message import EmailMessage
-from django.http import JsonResponse
+import os
+from django.http import FileResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
-from Db_handler.Database import EmailDatabase
+import pandas as pd
+#from Db_handler.Database import EmailDatabase
 from django.core.paginator import Paginator
 from datetime import timedelta
 from django.utils import timezone
 
-EmailDatabase_instance = EmailDatabase()
+    #EmailDatabase_instance = EmailDatabase()
+from EmailReporting.Db_handler.db import DatabaseManager
+
+EmailDatabase_instance = DatabaseManager()
+def download_excel_view(request, id_msg):
+    path_of_excel = "C:/Users/benme/OneDrive/Bureau/Bennani_test/excel_responses/response_"
+    file_path = f"{path_of_excel}{id_msg[-30:]}.xlsx"
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=f"response_{id_msg[-30:]}.xlsx")
+    return HttpResponseNotFound("Fichier non trouvé.")
+def read_excel(id_msg):
+    print("id_msg", id_msg)
+    path_of_excel = "C:/Users/benme/OneDrive/Bureau/Bennani_test/excel_responses/response_"
+    file_path = f"{path_of_excel}{id_msg}.xlsx"
+    
+    if os.path.exists(file_path):
+        df = pd.read_excel(file_path, engine='openpyxl', index_col=None, skiprows=7)
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        df = df.dropna(axis=1, how='all')
+        return df.head(10).to_dict(orient='records')
+    else:
+        print("File does not exist:", file_path)
+        return None
 
 def request_status(request, id):
     print(id)
@@ -22,6 +46,13 @@ def request_status(request, id):
 
 def conversation_user(request,id):
     coversation_detail,subject = EmailDatabase_instance.get_all_mail_by_conversation(conversation_id=id)
+    for mail in coversation_detail:
+        if mail['body_env'].endswith(".xlsx"):
+           mail['type_data'] = "list"
+           mail['data'] = read_excel(id_msg=mail['id'][-30:])
+        else:
+           mail['type_data'] = "str"
+           mail['data'] = mail['body_env']
     return render(request, "SuiviDemande/conversation.html",{
         "conversation": coversation_detail,
         "subject":subject
@@ -29,6 +60,15 @@ def conversation_user(request,id):
     
 def conversation(request,id):
     Email_convers,subject= EmailDatabase_instance.get_all_mail_by_conversation(conversation_id=id)
+    for mail in Email_convers:
+       print(mail['id'])
+       if mail['body_env'].endswith(".xlsx"):
+           mail['type_data'] = "list"
+           mail['data'] = read_excel(id_msg=mail['id'][-30:])
+       else:
+           mail['type_data'] = "str"
+           mail['data'] = mail['body_env']
+   
     
     return render(request, 'Admin/conversation.html',{
         "conversation":Email_convers,
@@ -43,13 +83,30 @@ def suivi(request):
 
 def suiviinfo(request,id):
     mail_detail = EmailDatabase_instance.get_mail_by_id(id_mail=id)
+    if mail_detail['body_env'].endswith(".xlsx"):
+        mail_detail['type_data'] = "list"
+        mail_detail['data'] = read_excel(id_msg=id[-30:])
+    else:
+        if mail_detail['body_env'] == "":
+            mail_detail['type_data'] = "str"     
+            mail_detail['data'] = "Aucune réponse à ce message"
+        else:
+            mail_detail['type_data'] = "str"     
+            mail_detail['data'] = mail_detail['body_env']
     return render(request, "Admin/info_suivi.html",{
         "request": mail_detail
     })
+
     
     
 def suiviinfo_user(request,id):
     mail_detail = EmailDatabase_instance.get_mail_by_id(id_mail=id)
+    if mail_detail['body_env'].endswith(".xlsx"):
+        mail_detail['type_data'] = "list"
+        mail_detail['data'] = read_excel(id_msg=id[-30:])
+    else:
+        mail_detail['type_data'] = "str"
+        mail_detail['data'] = mail_detail['body_env']
     return render(request, "SuiviDemande/detail.html",{
         "request": mail_detail
     })    
@@ -140,4 +197,3 @@ def get_all_mails_by_user_Admin(request,id):
             return JsonResponse({"error": f"Database error: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Aucun utilisateur trouvé en session"}, status=400)       
-

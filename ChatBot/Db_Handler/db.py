@@ -164,4 +164,3 @@ class DatabaseManager:
     def close(self):
         if self.engine:
             self.engine.dispose()
-
