@@ -1,0 +1,128 @@
+{% extends 'Navbar/header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant BDA</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <!-- XLSX Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gradient-to-b from-gray-50 to-gray-100 text-gray-900 font-sans antialiased">
+    <div class="flex flex-col h-screen w-full overflow-hidden">
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="fixed top-14 inset-y-0 left-0 z-40 flex flex-col shadow-lg bg-white w-64">
+                <!-- Logo -->
+                <div class="flex h-16 items-center px-4 border-b border-gray-100">
+                    <img src="{% static 'logo/inwi-icon.png' %}" alt="INWI" class="h-14 w-14 object-contain mr-3">
+                </div>
+                <hr class="border-gray-300">
+                <!-- New Chat Button -->
+                <div class="p-4">
+                    <button id="newConversationBtn" class="w-full px-4 py-2.5 rounded-lg flex items-center justify-center text-sm bg-violet-200 text-gray-800 hover:bg-violet-400 transition-all shadow-sm">
+                        <span class="w-4 h-4 mr-2 flex items-center justify-center">+</span>
+                        <span class="font-medium">New Chat</span>
+                    </button>
+                </div>
+                <hr class="border-gray-300">
+                <!-- Conversation List -->
+                <div id="conversationList" class="flex-1 overflow-y-auto py-2 space-y-1 px-6">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-1 flex flex-col ml-64">
+                <main class="flex flex-col flex-1 overflow-hidden relative">
+                    <!-- Chat Messages Area -->
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 pb-32 space-y-6">
+                        <div class="max-w-3xl mx-auto w-full">
+                            <!-- Welcome Message -->
+                            <div id="welcomeMessage" class="flex items-center justify-center h-full min-h-[70vh]">
+                                <div class="max-w-md text-center p-8 rounded-xl shadow-sm message-animation">
+                                    <div class="flex justify-center mb-6">
+                                        <img src="{% static 'logo/logo.png' %}" alt="INWI" class="h-16 w-16 object-contain">
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-3">
+                                        Bienvenue sur l'Assistant BDA
+                                    </h3>
+                                    <p class="text-base text-gray-600">
+                                        Votre assistant intelligent pour toutes vos questions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Chat Input Form -->
+            <div id="chatInputContainer" class="fixed bottom-0 left-64 right-0 bg-gradient-to-t from-gray-50 to-transparent pt-6 pb-4 px-6 z-10">
+                <div class="max-w-3xl mx-auto w-full">
+                    <form id="chatForm" class="w-full">
+                        {% csrf_token %}
+                        <div class="relative flex items-end rounded-lg border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-violet-500 shadow-md hover:shadow-lg transition-all">
+                            <textarea
+                                id="messageInput"
+                                name="message"
+                                placeholder="Posez votre question ou écrivez votre requête..."
+                                class="min-h-[50px] max-h-[150px] w-full resize-none rounded-lg border-0 bg-transparent p-3 pr-14 text-sm placeholder-gray-400 focus:outline-none text-gray-900"
+                                rows="1"
+                                aria-label="Entrez votre message"
+                            ></textarea>
+                            <button
+                                type="submit"
+                                class="absolute right-2 bottom-2 h-9 w-9 rounded-full bg-violet-600 p-2 text-white shadow-md hover:bg-violet-700 hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center"
+                                aria-label="Envoyer le message"
+                                disabled
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                            <!-- Loading Spinner -->
+                            <div id="loadingSpinner" class="absolute right-12 bottom-2 hidden">
+                                <svg class="animate-spin h-5 w-5 text-violet-500" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Modal -->
+    <div id="fullTableModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm transition-all">
+        <div class="bg-white rounded-lg w-11/12 max-w-4xl max-h-[80vh] overflow-auto relative p-6 shadow-2xl border border-gray-200">
+            <!-- Close Modal Button -->
+            <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-indigo-600 text-xl font-bold transition-colors">×</button>
+            <!-- Download Excel Button -->
+            <button id="downloadExcel" class="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg text-sm font-medium transition-all flex items-center">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Télécharger Excel
+            </button>
+            <!-- Modal Table Content -->
+            <div id="modalTableContent" class="text-gray-900"></div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{% static 'js/chat.js' %}"></script>
+</body>
+</html>
+{% endblock %}

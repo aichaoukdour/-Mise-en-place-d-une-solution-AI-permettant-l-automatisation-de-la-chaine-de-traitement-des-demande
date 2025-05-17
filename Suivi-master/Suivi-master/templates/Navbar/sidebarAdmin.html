@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/sidebarAdmin.css' %}">       
+</head>
+<body class="bg-gray-50">
+<div class="flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-white fixed h-full flex flex-col z-20 shadow-2xl" style="width: 270px;">
+        <!-- Logo Section -->
+        <div class="border-b border-gray-100 py-4 px-4 flex items-center logo-container">
+            <button id="toggleSidebar">
+                <img src="{% static 'logo/inwi_logo.jpeg' %}" alt="INWI" class="h-25 w-25 object-contain">
+            </button>
+        </div>
+        <hr class="border-t-1 border-gray-200">
+
+        <!-- Navigation Menu -->
+        <nav class="bg-white flex-grow overflow-y-auto py-4 px-2 space-y-1.5">
+            <div>
+                <!-- Main Menu -->
+                <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Menu Principale</h3>
+                <a href="{% url 'administrationinfo' %}" class="menu-item px-8 gap-2 py-1.5 hover:bg-gray-100 {% if request.path == administrationinfo_url %}active-menu{% endif %}">
+                    <i data-lucide="layout-dashboard" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Tableau de Bord</span>
+                </a>
+
+                <!-- Requests Management -->
+                <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Gestion des demandes</h3>
+                <a href="{% url 'allrequests' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == allrequests_url %}active-menu{% endif %}">
+                    <i data-lucide="file-text" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Toutes les Demandes</span>
+                </a>
+                <a href="{% url 'PendingRequests' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == pending_requests_url %}active-menu{% endif %}">
+                    <i data-lucide="clock" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Demandes en Attente</span>
+                </a>
+                <a href="{% url 'OverdueRequests' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == overdue_requests_url %}active-menu{% endif %}">
+                    <i data-lucide="alert-triangle" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Demandes Échues</span>
+                </a>
+
+                <!-- Users Management -->
+                <h3 class="text-xs text-gray-400 uppercase font-semibold px-5 mt-6 mb-2 sidebar-expanded">Utilisateurs</h3>
+                <a href="{% url 'UserList' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == user_list_url %}active-menu{% endif %}">
+                    <i data-lucide="users" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Liste des Utilisateurs</span>
+                </a>
+                <a href="{% url 'create_user' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == create_user_url %}active-menu{% endif %}">
+                    <i data-lucide="user-plus" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Créer un Utilisateur</span>
+                </a>
+                <a href="{% url 'blacklist' %}" class="menu-item px-8 py-1.5 gap-2 hover:bg-gray-100 {% if request.path == blacklist_url %}active-menu{% endif %}">
+                    <i data-lucide="shield-alert" class="menu-icon h-4 w-4 text-gray-600"></i>
+                    <span class="menu-text text-xs text-gray-700">Liste Noire</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Footer Profile Section -->
+        <div class="py-3 px-2 border-t border-gray-100 items-center flex justify-between">
+            <div class="px-1 py-2 flex profile-container">
+                <div class="relative">
+                    <button id="profileBtn" class="bg-gray-100 rounded-full shadow-2xl border-2 p-3 flex items-center justify-center hover-scale">
+                        <i data-lucide="user" class="text-purple-700 h-5 w-5"></i>
+                    </button>
+                    <!-- Profile Dropdown -->
+                    <div id="dropdown" class="hidden dropdown-animation fixed bg-white border border-gray-200 rounded-lg shadow-lg w-56 z-50" style="left: 80px; bottom: 60px;">
+                        <div class="px-3 py-2 border-b border-gray-100">
+                            <p class="text-sm text-neutral-400">{{name_user}}</p>
+                            <p class="text-sm text-neutral-400">{{email_user}}</p>
+                        </div>
+                        <ul class="py-2">
+                            <li>
+                                <a href="{% url 'logout' %}" class="block px-3 py-2 text-gray-700 hover:bg-purple-600 hover:text-white rounded-lg flex items-center gap-2">
+                                    <i data-lucide="log-out" class="h-4 w-4"></i>
+                                    <span class="profile-info text-sm">Déconnexion</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="p-6 transition-all duration-300" style="margin-left: 270px; width: calc(100% - 270px);">
+        <div class="flex items-center mb-4">
+            <p class="text-sm text-gray-500 mt-1">Gérez et consultez toutes les demandes sur la plateforme</p>
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src={% static 'js/sidebarAdmin.js' %}></script>
+</body>
+</html>

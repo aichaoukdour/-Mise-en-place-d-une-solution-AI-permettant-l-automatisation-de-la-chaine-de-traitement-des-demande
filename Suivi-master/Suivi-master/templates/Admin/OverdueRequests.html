@@ -1,0 +1,129 @@
+{% extends 'Navbar/sidebarAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-2xl p-6 text-sm">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <i data-lucide="alert-triangle" class="w-6 h-6 mr-2 text-violet-600"></i>
+                <h1 class="text-xl font-bold text-gray-700">Demandes Échues</h1>
+            </div>
+            <div class="flex space-x-2">
+                <select id="overdueTypeFilter" class="border rounded px-3 py-2 text-sm">
+                    <option value="">Tous les Types</option>
+                    <option value="financial">Rapport Financier</option>
+                    <option value="marketing">Analyse Marketing</option>
+                    <option value="sales">Analyse Ventes</option>
+                </select>
+                <button id="filterButton" class="bg-violet-500 text-white px-3 py-1 rounded text-xs flex items-center shadow-xl justify-center">
+                    <i data-lucide="filter" class="inline-block mr-1 h-3 w-3"></i>
+                    Filtrer
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <table id="overdueRequestsTable" class="w-full text-sm">
+            <thead>
+                <tr class="bg-violet-100 border-b text-gray-400 text-xs font-medium uppercase tracking-wider">
+                    <th class="p-2 text-left">ID</th>
+                    <th class="p-2 text-left">Utilisateur</th>
+                    <th class="p-2 text-left">Type de Demande</th>
+                    <th class="p-2 text-left">Date Limite</th>
+                    <th class="p-2 text-left">Retard</th>
+                    <th class="p-2 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="overdueRequestsTableBody">
+                <!-- Overdue requests will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // -------------------------------
+    // Sample Data
+    // -------------------------------
+    const overdueRequests = [
+        {
+            id: 'REQ-005',
+            user: 'sophie.dupuis@example.com',
+            type: 'Analyse Marketing',
+            deadline: '2024-03-10',
+            typeCode: 'marketing'
+        },
+        {
+            id: 'REQ-006',
+            user: 'thomas.moreau@example.com',
+            type: 'Rapport Financier',
+            deadline: '2024-03-05',
+            typeCode: 'financial'
+        },
+        // Add more overdue requests as needed
+    ];
+
+    // -------------------------------
+    // Utility Functions
+    // -------------------------------
+    function calculateOverdueTime(deadline) {
+        const deadlineDate = new Date(deadline);
+        const today = new Date();
+        const overdueDays = Math.floor((today - deadlineDate) / (1000 * 60 * 60 * 24));
+        return `${overdueDays} jours`;
+    }
+
+    // -------------------------------
+    // Rendering Functions
+    // -------------------------------
+    function renderOverdueRequests(filteredRequests = overdueRequests) {
+        const tableBody = document.getElementById('overdueRequestsTableBody');
+        tableBody.innerHTML = '';
+
+        filteredRequests.forEach(request => {
+            const row = document.createElement('tr');
+            row.classList.add('border-b');
+            row.innerHTML = `
+                <td class="p-2 text-sm">${request.id}</td>
+                <td class="p-2 text-sm">${request.user}</td>
+                <td class="p-2 text-sm">${request.type}</td>
+                <td class="p-2 text-sm">${request.deadline}</td>
+                <td class="p-2 bg-gray-200 text-sm text-red-900">${calculateOverdueTime(request.deadline)}</td>
+                <td class="p-2 text-sm">
+                    <div class="flex space-x-2">
+                        <button class="text-violet-500" title="Détails">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-red-500" title="Escalader">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Reinitialize Lucide icons
+        lucide.createIcons();
+    }
+
+    // -------------------------------
+    // Event Listeners
+    // -------------------------------
+    document.getElementById('filterButton').addEventListener('click', () => {
+        const typeFilter = document.getElementById('overdueTypeFilter').value;
+        const filteredRequests = typeFilter
+            ? overdueRequests.filter(req => req.typeCode === typeFilter)
+            : overdueRequests;
+        renderOverdueRequests(filteredRequests);
+    });
+
+    // -------------------------------
+    // Initial Render
+    // -------------------------------
+    renderOverdueRequests();
+</script>
+{% endblock %}

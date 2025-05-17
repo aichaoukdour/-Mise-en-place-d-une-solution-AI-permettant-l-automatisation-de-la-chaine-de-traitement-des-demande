@@ -1,0 +1,68 @@
+{% extends 'Navbar/sidebarAdmin.html' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+        <main class="flex-1 p-6 bg-gray-100">
+            <div class="bg-white rounded-lg shadow p-8">
+                <h1 class="text-2xl font-bold mb-6 text-gray-800">Politique d'Accès pour Utilisateurs en Liste Noire</h1>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold mb-4">Restrictions d'Accès</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2" id="block_login">
+                                <label for="block_login">Bloquer la Connexion</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2" id="block_requests">
+                                <label for="block_requests">Bloquer les Nouvelles Demandes</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2" id="block_notifications">
+                                <label for="block_notifications">Bloquer les Notifications</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold mb-4">Options de Déblocage</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block mb-2">Période de Blocage</label>
+                                <select class="w-full border rounded px-3 py-2">
+                                    <option>1 Semaine</option>
+                                    <option>1 Mois</option>
+                                    <option>3 Mois</option>
+                                    <option>Permanent</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-2">Action de Déblocage</label>
+                                <select class="w-full border rounded px-3 py-2">
+                                    <option>Requête Manuelle</option>
+                                    <option>Réexamen Automatique</option>
+                                    <option>Validation Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-red-50 border-l-4 border-red-500 p-4">
+                    <h3 class="font-semibold text-red-800">Note Importante</h3>
+                    <p class="text-red-700">Ces paramètres s'appliqueront à tous les utilisateurs actuellement sur liste noire. Soyez prudent lors de la modification.</p>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Annuler</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer la Politique</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+{% endblock %}

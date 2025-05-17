@@ -1,0 +1,199 @@
+{% extends 'Navbar/sidebarAdmin.html' %}
+
+{% block title %}Admin - Suivi de Demande{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-indigo-50 min-h-screen font-sans">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Page Header -->
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold text-indigo-900 mb-4 tracking-tight fade-in-up font-['Inter']">
+        Suivi de Conversation
+      </h1>
+      <div class="flex items-center justify-center gap-4 fade-in-delay-1">
+        <span class="inline-flex items-center bg-indigo-100 text-indigo-800 px-5 py-2 rounded-full text-sm font-semibold shadow-sm">
+          <i class="fas fa-envelope mr-2"></i> Objet : {{ subject }}
+        </span>
+      </div>
+    </div>
+
+    {% for conv in conversation %}
+    <!-- Conversation Thread -->
+    <div class="mb-12 fade-in-delay-2">
+
+      <!-- Conversation Status -->
+      <div class="flex justify-start mb-6">
+        <span class="inline-flex items-center bg-green-100 text-green-800 px-5 py-2 rounded-full text-sm font-semibold shadow-sm tooltip" data-tip="Statut actuel de la conversation">
+          <i class="fas fa-info-circle mr-2"></i> Statut : {{ conv.status }}
+        </span>
+      </div>
+
+      <div class="space-y-10">
+
+        <!-- Initial Message -->
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card">
+          <div class="bg-gradient-to-r from-indigo-100 to-indigo-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex items-center space-x-4">
+              <div class="bg-indigo-200 p-3 rounded-full">
+                <i class="fas fa-user text-indigo-600 text-lg"></i>
+              </div>
+              <span class="font-semibold text-indigo-900 text-lg">{{ conv.email_rec }}</span>
+            </div>
+            <div class="text-sm text-gray-600 flex items-center mt-3 sm:mt-0">
+              <span class="mr-3"><i class="fas fa-id-badge"></i></span>
+              <span><i class="fas fa-clock mr-1"></i> {{ conv.date_rec|date:"Y-m-d H:i:s" }}</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <p class="text-gray-800 text-base leading-relaxed">{{ conv.body }}</p>
+          </div>
+        </div>
+
+        {% if conv.body_env %}
+
+        <!-- System Response with Excel Report -->
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 glass-card ml-0 sm:ml-12">
+          <div class="bg-gradient-to-r from-blue-100 to-blue-50 px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex items-center space-x-4 mb-3 sm:mb-0">
+              <div class="bg-blue-200 p-3 rounded-full">
+                <i class="fas fa-robot text-blue-600 text-lg"></i>
+              </div>
+              <span class="font-semibold text-blue-900 text-lg">Système</span>
+            </div>
+            <div class="text-sm text-gray-600 flex items-center">
+              <span class="mr-3"><i class="fas fa-id-badge"></i></span>
+              <span><i class="fas fa-clock mr-1"></i> {{ conv.date_env|date:"Y-m-d H:i:s" }}</span>
+            </div>
+          </div>
+         
+          <div class="p-6">
+            {% if conv.type_data == "str" %}
+            <p class="text-gray-800 text-base leading-relaxed mb-6">{{ conv.body_env }}</p>
+            {% endif %}
+            {% if conv.type_data == "list" %}
+            <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+              <table class="min-w-full text-left text-sm text-gray-700 border border-gray-200">
+                <thead class="bg-gray-100 border-b">
+                  <tr>
+                    {% for key in conv.data.0.keys %}
+                    <th class="px-4 py-2 font-medium text-gray-900">{{ key }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in conv.data %}
+                  <tr class="border-b hover:bg-gray-50">
+                    {% for value in row.values %}
+                    <td class="px-4 py-2">{{ value }}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm">
+              <div class="flex items-center mb-4 sm:mb-0">
+                <div class="bg-green-100 p-3 rounded mr-4">
+                  <i class="fas fa-file-excel text-green-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">{{ conv.body_env }}</p>
+                  
+                </div>
+              </div>
+              <a href="{% url 'download_excel' conv.id %}" class="flex items-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 button-gradient" aria-label="Télécharger le rapport">
+                <i class="fas fa-download mr-2"></i> Télécharger
+              </a>
+            </div>
+          {% endif %}
+          
+            <!-- Excel File Download -->
+            
+          </div>
+        </div>
+        {% else %}
+        <!-- No Response Message -->
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-5 rounded-xl ml-0 sm:ml-12 shadow-sm fade-in-delay-3">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-exclamation-circle text-yellow-600 text-lg"></i>
+            <p class="font-semibold text-base">Aucun retour disponible pour cette conversation.</p>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<!-- Script for Tooltips and Animations -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Simple tooltip implementation
+    document.querySelectorAll('.tooltip').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const tip = document.createElement('div');
+        tip.className = 'absolute bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg';
+        tip.style.top = `${el.offsetTop - 30}px`;
+        tip.style.left = `${el.offsetLeft}px`;
+        tip.textContent = el.dataset.tip;
+        document.body.appendChild(tip);
+      });
+      el.addEventListener('mouseleave', () => {
+        document.querySelectorAll('.tooltip div').forEach(tip => tip.remove());
+      });
+    });
+  });
+</script>
+
+<!-- Custom CSS for Enhanced Styling -->
+<style>
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Glassmorphism Card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px);}
+    100% { opacity: 1; transform: translateY(0);}
+  }
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);}
+    50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);}
+    100% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);}
+  }
+  .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;}
+  .fade-in-delay-1 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.2s; opacity: 0;}
+  .fade-in-delay-2 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.4s; opacity: 0;}
+  .fade-in-delay-3 { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 0.6s; opacity: 0;}
+
+  /* Button Gradient */
+  .button-gradient { transition: all 0.3s ease-in-out;}
+  .button-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 640px) {
+    h1 { font-size: 2.25rem;}
+    .text-lg { font-size: 1rem;}
+    .p-6 { padding: 1.25rem;}
+    .glass-card { margin-left: 0 !important;}
+  }
+
+  /* Tooltip Styling */
+  .tooltip { position: relative; cursor: pointer;}
+</style>
+{% endblock %}
