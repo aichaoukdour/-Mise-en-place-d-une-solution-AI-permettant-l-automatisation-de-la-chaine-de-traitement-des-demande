@@ -1,0 +1,40 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0.75rem;
+    color: #4B5563;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.active-menu {
+    background-color: rgba(147, 51, 234, 0.15);
+    border-left: 4px solid #9333EA;
+    color: rgb(132, 130, 134);
+    border-radius: 0.375rem;
+    padding-left: 0.5rem;
+}
+
+.nav-link:hover:not(.active-menu) {
+    background-color: rgba(147, 51, 234, 0.05);
+    border-radius: 0.375rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-animation {
+    animation: fadeInUp 0.2s ease-out forwards;
+}
