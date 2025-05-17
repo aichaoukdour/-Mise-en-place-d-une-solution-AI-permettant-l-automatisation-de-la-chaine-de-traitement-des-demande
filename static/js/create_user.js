@@ -32,7 +32,7 @@ function generateStrongPassword() {
 }
 
 // Fonction pour créer et télécharger le PDF avec les informations de l'utilisateur
-/*
+
 function createUserPDF() {
     // Récupérer les valeurs du formulaire
     const firstName = document.getElementById('first_name').value;
@@ -227,4 +227,4 @@ function createUserPDF() {
     }
         
 }
-    */
+    

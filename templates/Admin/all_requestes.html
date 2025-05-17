@@ -128,6 +128,56 @@
                 Réinitialiser les filtres
             </button>
         </div>
+
+        <!-- Pagination - Always visible when there are more than 5 items -->
+        <div class="mt-6 flex justify-between items-center pagination-container">
+            <div class="text-sm text-gray-600">
+                Affichage de <span class="font-medium">{{ emails.start_index }}</span> à <span class="font-medium">{{ emails.end_index }}</span> sur <span class="font-medium">{{ emails.paginator.count }}</span> demandes
+            </div>
+            <div class="flex items-center space-x-2">
+                {% if emails.has_previous %}
+                <a href="?page={{ emails.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="flex items-center px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i data-lucide="chevron-left" class="w-4 h-4 mr-1"></i>
+                    Précédent
+                </a>
+                {% else %}
+                <span class="flex items-center px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed">
+                    <i data-lucide="chevron-left" class="w-4 h-4 mr-1"></i>
+                    Précédent
+                </span>
+                {% endif %}
+
+                <!-- Page Numbers -->
+                <div class="hidden sm:flex space-x-1">
+                    {% for i in emails.paginator.page_range %}
+                        {% if emails.number == i %}
+                        <span class="flex items-center justify-center w-8 h-8 text-sm font-medium bg-violet-600 text-white rounded-md">
+                            {{ i }}
+                        </span>
+                        {% elif i > emails.number|add:'-3' and i < emails.number|add:'3' %}
+                        <a href="?page={{ i }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}"
+                           class="flex items-center justify-center w-8 h-8 text-sm bg-white border border-gray-200 text-gray-600 rounded-md hover:bg-gray-50 transition-colors">
+                            {{ i }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if emails.has_next %}
+                <a href="?page={{ emails.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="flex items-center px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                    Suivant
+                    <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                </a>
+                {% else %}
+                <span class="flex items-center px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed">
+                    Suivant
+                    <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                </span>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -190,6 +240,12 @@ document.addEventListener("DOMContentLoaded", function() {
             tableElement.classList.remove('hidden');
             emptyState.classList.add('hidden');
         }
+
+        // Hide pagination when filtering results to zero
+        const paginationElement = document.querySelector('.pagination-container');
+        if (paginationElement) {
+            paginationElement.style.display = visibleRows === 0 ? 'none' : '';
+        }
     }
 
     // Event listeners for filters
@@ -202,6 +258,24 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('dateFilter').value = '';
         applyFilters();
     });
+
+    // Pre-select filters from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    const dateParam = urlParams.get('date');
+    
+    if (statusParam) {
+        document.getElementById('filter-status').value = statusParam;
+    }
+    
+    if (dateParam) {
+        document.getElementById('dateFilter').value = dateParam;
+    }
+    
+    // Apply filters on page load if needed
+    if (statusParam || dateParam) {
+        applyFilters();
+    }
 });
 </script>
 {% endblock %}
