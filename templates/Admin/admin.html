@@ -72,7 +72,7 @@
 </div>
 
 <!-- ===================== DEMANDES TABLE ===================== -->
-<div class="bg-white rounded-xl shadow-2xl p-6 mb-6 border border-violet-100 text-[13px]">
+<div class=" rounded-xl shadow-2xl p-6 mb-6 border border-violet-100 text-[13px]">
   <!-- Table Header -->
   <div class="flex flex-col md:flex-row justify-between items-center mb-6">
     <h2 class="text-lg font-bold text-gray-800 mb-4 md:mb-0">
@@ -98,7 +98,7 @@
 
   <!-- Table Content -->
   <div class="overflow-x-auto">
-    <table class="w-full text-[13px]" id="requestsTable">
+    <table class="w-full text-[13px]" id="requestsTable shadow-2xl">
       <thead>
         <tr class="bg-violet-100 border-b border-gray-200">
           <th class="p-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">ID</th>
@@ -156,36 +156,30 @@
     </table>
   </div>
 
-  <!-- Pagination -->
-<div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-[12px] gap-3">
-  <p class="text-gray-600">Affichage de <span class="font-medium">1</span> à <span class="font-medium">{{ all_mails|slice:":4"|length }}</span> sur <span class="font-medium">{{ l_all_mails }}</span> entrées</p>
+<!-- Emails Pagination - Update this section -->
+<div class="mt-4 px-80 flex flex-col sm:flex-row justify-between items-center text-[12px] gap-3">
   <div class="inline-flex shadow-sm rounded-md">
-    <a href="?page=1" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-l-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if page_obj.number == 1 %}opacity-50 cursor-not-allowed{% endif %}">
-      <i data-lucide="chevrons-left" class="w-3 h-3 mr-1"></i>
-      Premier
-    </a>
-    <a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not page_obj.has_previous %}opacity-50 cursor-not-allowed{% endif %}">
+    
+    <a href="{% if all_mails.has_previous %}?emails_page={{ all_mails.previous_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_mails.has_previous %}opacity-50 cursor-not-allowed{% endif %}">
       <i data-lucide="chevron-left" class="w-3 h-3 mr-1"></i>
       Précédent
     </a>
     
-    {% for i in paginator.page_range %}
-      {% if page_obj.number == i %}
-        <a href="?page={{ i }}" class="px-3 py-1.5 bg-violet-600 text-white border-l border-white hover:bg-violet-700 transition-colors">{{ i }}</a>
-      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
-        <a href="?page={{ i }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 transition-colors">{{ i }}</a>
+    {% for i in all_mails.paginator.page_range %}
+      {% if all_mails.number == i %}
+        <a href="?emails_page={{ i }}" class="px-3 py-1.5 bg-violet-600 text-white border-l border-white hover:bg-violet-700 transition-colors">{{ i }}</a>
+      {% elif i > all_mails.number|add:"-3" and i < all_mails.number|add:"3" %}
+        <a href="?emails_page={{ i }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 transition-colors">{{ i }}</a>
       {% endif %}
     {% endfor %}
     
-    <a href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not page_obj.has_next %}opacity-50 cursor-not-allowed{% endif %}">
+    <a href="{% if all_mails.has_next %}?emails_page={{ all_mails.next_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_mails.has_next %}opacity-50 cursor-not-allowed{% endif %}">
       Suivant
       <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
     </a>
-    <a href="?page={{ paginator.num_pages }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-r-lg border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if page_obj.number == paginator.num_pages %}opacity-50 cursor-not-allowed{% endif %}">
-      Dernier
-      <i data-lucide="chevrons-right" class="w-3 h-3 ml-1"></i>
-    </a>
+    
   </div>
+</div>
 </div>
 <!-- ===================== USERS SECTION ===================== -->
 <div class="bg-white rounded-xl shadow-2xl p-6 mb-6 border border-gray-100">
@@ -202,7 +196,7 @@
   <div class="overflow-x-auto">
     <table class="w-full text-sm" id="usersTable">
       <thead>
-        <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
+        <tr class="bg-violet-100 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
           <th class="p-3 text-left font-medium">Email</th>
           <th class="p-3 text-left font-medium">Rôle</th>
           <th class="p-3 text-left font-medium">Statut</th>
@@ -243,6 +237,30 @@
       </tbody>
     </table>
   </div>
+  <!-- Users Pagination -->
+<div class="mt-4 px-80 flex flex-col sm:flex-row justify-between items-center text-[12px] gap-3">
+  <div class="inline-flex shadow-sm rounded-md">
+    
+    <a href="{% if all_users.has_previous %}?users_page={{ all_users.previous_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_users.has_previous %}opacity-50 cursor-not-allowed{% endif %}">
+      <i data-lucide="chevron-left" class="w-3 h-3 mr-1"></i>
+      Précédent
+    </a>
+    
+    {% for i in all_users.paginator.page_range %}
+      {% if all_users.number == i %}
+        <a href="?users_page={{ i }}" class="px-3 py-1.5 bg-violet-600 text-white border-l border-white hover:bg-violet-700 transition-colors">{{ i }}</a>
+      {% elif i > all_users.number|add:"-3" and i < all_users.number|add:"3" %}
+        <a href="?users_page={{ i }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 transition-colors">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    <a href="{% if all_users.has_next %}?users_page={{ all_users.next_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_users.has_next %}opacity-50 cursor-not-allowed{% endif %}">
+      Suivant
+      <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+    </a>
+  
+  </div>
+</div>
 </div>
 
 <!-- ===================== BLACKLIST SECTION ===================== -->
@@ -256,7 +274,7 @@
   <div class="overflow-x-auto">
     <table class="w-full text-xs" id="blacklistTable">
       <thead>
-        <tr class="bg-gray-50 border-b border-gray-200">
+        <tr class="bg-violet-100 border-b border-gray-200">
           <th class="p-2 text-left font-medium text-gray-500 uppercase tracking-wider">Email</th>
           <th class="p-2 text-left font-medium text-gray-500 uppercase tracking-wider">Raison</th>
           <th class="p-2 text-left font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -288,6 +306,30 @@
       </tbody>
     </table>
   </div>
+  <!-- Pending Emails Pagination -->
+<div class="mt-4 px-80 flex flex-col sm:flex-row justify-between items-center text-[12px] gap-3">
+  <div class="inline-flex shadow-sm rounded-md">
+   
+    <a href="{% if all_mails_p.has_previous %}?pending_page={{ all_mails_p.previous_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_mails_p.has_previous %}opacity-50 cursor-not-allowed{% endif %}">
+      <i data-lucide="chevron-left" class="w-3 h-3 mr-1"></i>
+      Précédent
+    </a>
+    
+    {% for i in all_mails_p.paginator.page_range %}
+      {% if all_mails_p.number == i %}
+        <a href="?pending_page={{ i }}" class="px-3 py-1.5 bg-violet-600 text-white border-l border-white hover:bg-violet-700 transition-colors">{{ i }}</a>
+      {% elif i > all_mails_p.number|add:"-3" and i < all_mails_p.number|add:"3" %}
+        <a href="?pending_page={{ i }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 transition-colors">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    <a href="{% if all_mails_p.has_next %}?pending_page={{ all_mails_p.next_page_number }}{% else %}#{% endif %}" class="px-3 py-1.5 bg-gray-100 text-gray-700 border-l border-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors {% if not all_mails_p.has_next %}opacity-50 cursor-not-allowed{% endif %}">
+      Suivant
+      <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+    </a>
+    
+  </div>
+</div>
 </div>
 
 <!-- ===================== DELETE USER MODAL ===================== -->

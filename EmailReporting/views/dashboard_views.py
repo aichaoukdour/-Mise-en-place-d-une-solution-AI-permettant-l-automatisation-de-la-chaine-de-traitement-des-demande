@@ -1,9 +1,6 @@
-# Dashboard Views
 from email.message import EmailMessage
 from django.shortcuts import render
 from django.core.paginator import Paginator
-#from Db_handler.Database import EmailDatabase
-#EmailDatabase_instance = EmailDatabase()
 from EmailReporting.Db_handler.db import DatabaseManager
 
 EmailDatabase_instance = DatabaseManager()
@@ -11,20 +8,44 @@ EmailDatabase_instance = DatabaseManager()
 
 def admin(request):
     user_role = EmailDatabase_instance.all_roles()
-    all_mails = EmailDatabase_instance.get_all_mails()
-    all_users = EmailDatabase_instance.get_alls_users()
-    all_mail_pending = EmailDatabase_instance.get_all_mails_attente()
-    l_all_mails = len(all_mails)
-    l_all_users = len(all_users)
-    l_all_mails_pending = len(all_mail_pending)
-    return render(request, "Admin/admin.html",{
-        "all_mails" :all_mails,
-        "all_users" :all_users,
-        "all_mails_p" : all_mail_pending,
-        "l_all_mails":l_all_mails,
-        "l_all_users" :l_all_users,
-        "l_all_p":l_all_mails_pending,
-        "user_role":user_role
+    
+    # Get all data
+    all_mails_list = EmailDatabase_instance.get_all_mails()
+    all_users_list = EmailDatabase_instance.get_alls_users()
+    all_mail_pending_list = EmailDatabase_instance.get_all_mails_attente()
+    
+    # Calculate counts for the dashboard stats
+    l_all_mails = len(all_mails_list)
+    l_all_users = len(all_users_list)
+    l_all_mails_pending = len(all_mail_pending_list)
+    
+    # Set up pagination for emails - 5 items per page
+    emails_paginator = Paginator(all_mails_list, 5)
+    emails_page_number = request.GET.get('emails_page', 1)
+    paginated_emails = emails_paginator.get_page(emails_page_number)
+    
+    # Set up pagination for users - 5 items per page
+    users_paginator = Paginator(all_users_list, 5)
+    users_page_number = request.GET.get('users_page', 1)
+    paginated_users = users_paginator.get_page(users_page_number)
+    
+    # Set up pagination for pending emails - 5 items per page
+    pending_paginator = Paginator(all_mail_pending_list, 5)
+    pending_page_number = request.GET.get('pending_page', 1)
+    paginated_pending = pending_paginator.get_page(pending_page_number)
+    
+    return render(request, "Admin/admin.html", {
+        "all_mails": paginated_emails,
+        "all_users": paginated_users,
+        "all_mails_p": paginated_pending,
+        "l_all_mails": l_all_mails,
+        "l_all_users": l_all_users,
+        "l_all_p": l_all_mails_pending,
+        "user_role": user_role,
+        # Add pagination context for template
+        "emails_paginator": emails_paginator,
+        "users_paginator": users_paginator,
+        "pending_paginator": pending_paginator
     })
 
 
@@ -51,12 +72,13 @@ def allrequests(request):
         emails_list = [email for email in emails_list if email.date_rec.strftime('%Y-%m-%d') == date_filter]
     
     # Set up pagination - 5 items per page
-    paginator = Paginator(emails_list, 4)  # Show 5 emails per page
+    paginator = Paginator(emails_list, 3)  # Show 3 emails per page
     page_number = request.GET.get('page')
     emails = paginator.get_page(page_number)
     
     return render(request, "Admin/all_requestes.html", {
-        "emails": emails
+        "emails": emails,
+        "paginator": paginator
     })
     
 
@@ -77,12 +99,13 @@ def PendingRequests(request):
         emails_list = [email for email in emails_list if email.date_rec.strftime('%Y-%m-%d') == date_filter]
     
     # Set up pagination - 5 items per page
-    paginator = Paginator(emails_list, 4)  # Show 5 emails per page
+    paginator = Paginator(emails_list, 3)  # Show 3 emails per page
     page_number = request.GET.get('page')
     mails_pending = paginator.get_page(page_number)
     
     return render(request, "Admin/PendingRequests.html", {
-        "emails": mails_pending
+        "emails": mails_pending,
+        "paginator": paginator
     })
 
 
