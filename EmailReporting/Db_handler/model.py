@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -22,7 +22,7 @@ class UserInwi(Base):
     email_user = Column(Text, nullable=False)
     user_role = Column(String(50), ForeignKey("user_role.user_role"), nullable=False)
     password = Column(Text)
-    
+    is_first_login = Column(Boolean, default=True)  # New field, defaults to True
     role = relationship("UserRole", backref="users")
 
 
@@ -42,11 +42,13 @@ class EmailLo(Base):
     cate_msg = Column(String(255))
     priority = Column(Integer)
     conversation_id = Column(Text)
+
+    
 class LoginHistory(Base):
     __tablename__ = 'login_history'
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(Text)
-    ip_adress = Column(Text)
-    success = Column(Text)
-    user_agent = Column(Text)
-    date_l = Column(DateTime)
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Use INTEGER
+    user_id = Column(String)
+    ip_address = Column(String)
+    success = Column(Boolean)
+    user_agent = Column(String)
+    date_l = Column(String)

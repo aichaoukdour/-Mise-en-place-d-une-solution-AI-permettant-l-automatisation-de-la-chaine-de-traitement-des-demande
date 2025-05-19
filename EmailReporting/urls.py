@@ -6,6 +6,7 @@ from ChatBot.views.chatbot import *
 
 from .views import *
 from .views.auth_views import *
+from .views.auth_views import change_password_view
 from .views.mail_views import *
 from .views.user_views import *
 from .views.misc_views import *
@@ -47,8 +48,21 @@ urlpatterns = [
     path('accueil', accueil_inwi, name='accueil_inwi'),
     path('logout', logout_view, name='logout'),
    
+   
+  path('', accueil, name='home'),
+    path('accueil', accueil_inwi, name='accueil_inwi'),
+    path('check-email/', check_email_view, name='check_email'),
+    path('change-password/', change_password_view, name='change_password'),
+    path('change-password-page/', change_password_page, name='change_password_page'),
+    path('get-user-role/', get_user_role, name='get_user_role'),
+    path('skip-password-change/', skip_password_change, name='skip_password_change'),  # Add this
+    path('suivi', get_all_mails_by_user, name='suivi'),
 
-
+    path('logout/', logout_view, name='logout'),
+  
 ]
+
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
