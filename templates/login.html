@@ -129,7 +129,7 @@
                     window.location.href = '/change-password-page/';
                 } else {
                     console.log("Redirecting based on user_role:", data.user_role);
-                    window.location.href = data.user_role === 'admin' ? '/Admin/administration' : '/suivi';
+                    window.location.href = data.user_role === 'admin' ? '/Admin/administration' : '/accueil';
                 }
             } else {
                 alert("Échec de connexion : " + data.message);

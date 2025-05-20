@@ -40,12 +40,15 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "AutomatisationDemandesAnalytiquesApp.middleware.AdminRequiredMiddleware",
     "AutomatisationDemandesAnalytiquesApp.middleware.DatabaseMiddleware",
-  
+   
 ]
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 1209600
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
 
 ROOT_URLCONF = "AutomatisationDemandesAnalytiquesApp.urls"
 LOGGING = {

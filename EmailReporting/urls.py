@@ -1,27 +1,17 @@
 from django.urls import path
-
 from ChatBot.views.chatbot import *
-
-
-
 from .views import *
-from .views.auth_views import *
+from .views.auth_views import *  # Import all views from auth_views, including accueil
 from .views.auth_views import change_password_view
 from .views.mail_views import *
 from .views.user_views import *
 from .views.misc_views import *
 from .views.dashboard_views import *
-
-
-
 from django.conf import settings
 from django.conf.urls.static import static
 
-from EmailReporting.views import mail_views
-
-
 urlpatterns = [
-    path('', accueil, name='home'),
+    path('', accueil, name='home'),  # Root URL now works with proper import
     path('accueil', accueil_inwi, name='accueil_inwi'),
     path('check-email/', check_email_view, name='check_email'),
     path('change-password/', change_password_view, name='change_password'),
@@ -54,8 +44,6 @@ urlpatterns = [
     path('Admin/Update_User', update_user, name='update_user'),
     path('Admin/Update/<str:id>/', user_f, name='update'),
 ]
-
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

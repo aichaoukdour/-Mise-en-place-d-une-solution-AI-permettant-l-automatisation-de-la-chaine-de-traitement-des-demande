@@ -23,12 +23,18 @@ def user_info(request):
         'email_user': email_user,
     }
 
+# auth_views.py
+def accueil_inwi(request):
+    user_data = user_info(request)
+    return render(request, 'accueil.html', {
+        'name_user': user_data['name_user'],
+        'email_user': user_data['email_user'],
+    })
 def accueil(request):
     print(request.session.get('user_role'))
     response = render(request, "login.html")
     response['Cache-Control'] = 'no-store'
     return response
-
 def accueil_inwi(request):
     return render(request, 'accueil.html', {})
 
@@ -56,6 +62,8 @@ def check_email_view(request):
             request.session['email_user'] = email
             request.session['user_role'] = user.user_role
             request.session['login_count'] = login_count
+            request.session['name_user'] = f"{user.name_user} {user.last_name_user}".strip()  # Add name to session
+            request.session['is_first_login'] = user.is_first_login  # Add first login status
 
             print(f"[✔] Connexion: {email}, IP: {ip_address}, Agent: {user_agent}, Time: {current_time_str}")
             print(f"login_count: {login_count}, user_role: {user.user_role}")
@@ -69,11 +77,12 @@ def check_email_view(request):
                 "user_role": user.user_role,
                 "login_count": login_count,
                 "access_token": access_token,
-                "refresh_token": str(refresh)
+                "refresh_token": str(refresh),
+                "name_user": f"{user.name_user} {user.last_name_user}".strip()
             })
         else:
             print(f"[✘] Échec de connexion: {email}, IP: {ip_address}, Agent: {user_agent}, Time: {current_time_str}")
-            EmailDatabase_instance.create_History(email, ip_address, False, user_agent, current_time_str)
+            EmailDatabase_instance.create_History(hash_email(email), ip_address, False, user_agent, current_time_str)
 
             return JsonResponse({
                 "authenticated": False,
