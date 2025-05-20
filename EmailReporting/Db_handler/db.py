@@ -177,30 +177,22 @@ class DatabaseManager:
     def get_all_mail_user(self, email_rec):
      session = self.Session()
      try:
-        encrypted_email = encrypt(email_rec)
-        logger.debug(f"Querying with encrypted email: {encrypted_email}")
-        emails = session.query(EmailLo).filter_by(email_rec=encrypted_email).order_by(EmailLo.date_rec.desc()).all()
-        if not emails:
-            logger.debug(f"No emails found for encrypted email: {encrypted_email}")
-            # Log all email_rec values for debugging
-            all_emails = session.query(EmailLo).all()
-            for email in all_emails:
-                decrypted = decrypt(email.email_rec) if email.email_rec else ""
-                logger.debug(f"EmailLo ID {email.id}: decrypted email_rec={decrypted}")
-        result = [
-            {
-                "email_rec": decrypt(email.email_rec) if email.email_rec else "",
-                "date_rec": email.date_rec,
-                "subject": email.subject or "",
-                "body": decrypt(email.body) if email.body else "",
-                "body_env": decrypt(email.body_env) if email.body_env else "",
-                "date_env": email.date_env,
-                "status": email.status or "",
-                "id_mail": email.id,
-                "conversation_id": email.conversation_id or ""
-            }
-            for email in emails
-        ]
+        emails = session.query(EmailLo).order_by(EmailLo.date_rec.desc()).all()
+        result = []
+        for email in emails:
+            decrypted_email = decrypt(email.email_rec) if email.email_rec else ""
+            if decrypted_email == email_rec:
+                result.append({
+                    "email_rec": decrypted_email,
+                    "date_rec": email.date_rec,
+                    "subject": email.subject or "",
+                    "body": decrypt(email.body) if email.body else "",
+                    "body_env": decrypt(email.body_env) if email.body_env else "",
+                    "date_env": email.date_env,
+                    "status": email.status or "",
+                    "id_mail": email.id,
+                    "conversation_id": email.conversation_id or ""
+                })
         logger.debug(f"Fetched {len(result)} emails for user {email_rec}")
         return result
      except Exception as e:
@@ -208,7 +200,6 @@ class DatabaseManager:
         return []
      finally:
         session.close()
-
     def create_user(self, name_user, last_name_user, email_user, user_role, password):
         session = self.Session()
         try:
