@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from pathlib import Path
 from dotenv import dotenv_values
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     "EmailReporting",
     'rest_framework',
     'rest_framework_simplejwt',
+ 
     'ChatBot',
     'Db_handler',  # Add this
     'AutomatisationDemandesAnalytiquesApp.apps.AutomatisationDemandesAnalytiquesAppConfig',
@@ -37,6 +39,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "AutomatisationDemandesAnalytiquesApp.middleware.AdminRequiredMiddleware",
+    "AutomatisationDemandesAnalytiquesApp.middleware.DatabaseMiddleware",
+  
 ]
 
 
@@ -120,3 +124,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Allow public access by default
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'USER_ID_FIELD': 'user_id',
+}
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]

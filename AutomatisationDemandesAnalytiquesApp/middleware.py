@@ -8,25 +8,41 @@ class AdminRequiredMiddleware:
         
 
     def __call__(self, request):
-        user_role = request.session.get('user_role')
-        if request.path in ['/favicon.ico', '/check-email/']:
+       
             return self.get_response(request)
 
-        print("user_role",user_role)
-
-        if user_role == 'admin' and not request.path.lower().startswith("/admin") and request.path != "/":
-              return redirect('/') 
-
        
-        if user_role != 'admin' and request.path.lower().startswith("/admin"):
-              return redirect('/') 
- 
-        
-        if user_role == None and request.path != "/":
-            return redirect('/')
         
             
 
 
 
-        return self.get_response(request)
+    # middleware.py
+class DatabaseMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        # Remove: EmailDatabase_instance.engine.dispose()
+        return response
+    
+    
+    # middleware.py
+import logging
+logger = logging.getLogger(__name__)
+
+# EmailReporting/middleware.py
+import logging
+
+logger = logging.getLogger(__name__)
+
+class RedirectDebugMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if response.status_code == 302:
+            logger.debug(f"Redirect from {request.path} to {response.get('Location', 'unknown')}")
+        return response

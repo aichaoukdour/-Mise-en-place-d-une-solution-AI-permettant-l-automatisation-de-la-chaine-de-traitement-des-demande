@@ -1,13 +1,16 @@
 from sqlalchemy import create_engine, func, distinct
-from .model import UserInwi, LoginHistory, UserRole, EmailLo, Base # Add UserRole
-from Db_handler.models import User
-from Db_handler.data_encrypt import hash_email, encrypt, decrypt
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from django.conf import settings
 from datetime import datetime
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, func, distinct
+from .model import UserInwi, LoginHistory, UserRole, EmailLo, Base
+from Db_handler.models import User
+from Db_handler.data_encrypt import hash_email, encrypt, decrypt
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class DatabaseManager:
     def __init__(self):
@@ -23,25 +26,31 @@ class DatabaseManager:
                 f"postgresql+psycopg2://{db_settings['USER']}:{db_settings['PASSWORD']}"
                 f"@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
             )
-            self.engine = create_engine(self.connection_string)
+            self.engine = create_engine(
+                self.connection_string,
+                pool_size=5,
+                max_overflow=10,
+                pool_timeout=30,
+                pool_recycle=3600
+            )
             self.SessionLocal = sessionmaker(bind=self.engine)
-            print("Database connection established.")
+            logger.debug("Database connection established.")
         except SQLAlchemyError as e:
-            print(f"Error connecting to the database: {e}")
+            logger.error(f"Error connecting to the database: {type(e).__name__}: {str(e)}")
             self.engine = None
         except KeyError as e:
-            print(f"Missing database configuration key: {e}")
+            logger.error(f"Missing database configuration key: {type(e).__name__}: {str(e)}")
             self.engine = None
 
     def _create_tables(self):
         if self.engine is None:
-            print("Engine is not initialized. Connection failed.")
+            logger.error("Engine is not initialized. Connection failed.")
             return
         try:
             Base.metadata.create_all(self.engine)
-            print("Tables created successfully.")
+            logger.debug("Tables created successfully.")
         except SQLAlchemyError as e:
-            print(f"Error creating tables: {e}")
+            logger.error(f"Error creating tables: {type(e).__name__}: {str(e)}")
 
     def Session(self):
         if self.SessionLocal is None:
@@ -51,17 +60,16 @@ class DatabaseManager:
     def all_roles(self):
         session = self.Session()
         try:
-            # Query all user_role values from user_role table
             roles = session.query(UserRole.user_role).all()
-            # Extract role names from tuples
-            return [role[0] for role in roles if role[0] is not None]
+            result = [role[0] for role in roles if role[0] is not None]
+            logger.debug(f"Fetched roles: {result}")
+            return result
         except Exception as e:
-            print(f"Error fetching roles: {e}")
+            logger.error(f"Error fetching roles: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
 
-    # Existing methods (unchanged)
     def create_History(self, user_id, ip_address, success, user_agent, date_l):
         session = self.Session()
         try:
@@ -75,10 +83,10 @@ class DatabaseManager:
             )
             session.add(history_entry)
             session.commit()
-            print(f"Login history inserted for {hashed_user_id}, success: {success}")
+            logger.debug(f"Login history inserted for {hashed_user_id}, success: {success}")
         except Exception as e:
             session.rollback()
-            print(f"Failed to insert login history: {e}")
+            logger.error(f"Failed to insert login history: {type(e).__name__}: {str(e)}")
             raise
         finally:
             session.close()
@@ -92,7 +100,7 @@ class DatabaseManager:
             ).scalar()
             return count or 0
         except Exception as e:
-            print(f"Error counting logins: {e}")
+            logger.error(f"Error counting logins: {type(e).__name__}: {str(e)}")
             return 0
         finally:
             session.close()
@@ -100,26 +108,27 @@ class DatabaseManager:
     def email_check(self, email, password):
         session = self.Session()
         try:
-            print(f"Reçu email: {email}, password: {password}")
+            logger.debug(f"Reçu email: {email}, password: [hidden]")
             hashed_email = hash_email(email)
             hashed_password = hash_email(password)
-            print(f"Hashed email: {hashed_email}, Hashed password: {hashed_password}")
+            logger.debug(f"Hashed email: {hashed_email}, Hashed password: [hidden]")
             user = session.query(UserInwi).filter_by(user_id=hashed_email, password=hashed_password).first()
-            print(f"User: {user}")
+            logger.debug(f"User: {user}")
             if user:
                 user_object = User(
                     user_id=user.user_id,
                     name_user=user.name_user,
                     last_name_user=user.last_name_user,
                     email_user=user.email_user,
-                    user_role=user.user_role
+                    user_role=user.user_role,
+                    is_first_login=user.is_first_login
                 )
                 login_count = self.get_login_count(hashed_email)
-                print(f"User object: {user_object}, login_count: {login_count}, user_role: {user.user_role}")
+                logger.debug(f"User object: {user_object}, login_count: {login_count}, user_role: {user.user_role}")
                 return True, user_object, login_count
             return False, None, 0
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error checking email: {type(e).__name__}: {str(e)}")
             return False, None, 0
         finally:
             session.close()
@@ -131,14 +140,14 @@ class DatabaseManager:
             if user:
                 return {
                     "user_id": user.user_id,
-                    "email_user": decrypt(user.email_user),
+                    "email_user": decrypt(user.email_user) if user.email_user else "",
                     "user_role": user.user_role,
                     "name_user": user.name_user,
                     "last_name_user": user.last_name_user
                 }
             return None
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching user by id: {type(e).__name__}: {str(e)}")
             return None
         finally:
             session.close()
@@ -151,13 +160,13 @@ class DatabaseManager:
                 user.name_user = name_user
                 user.last_name_user = last_name_user
                 user.user_role = user_role
-                user.email_user = hash_email(email_user)
+                user.email_user = encrypt(email_user)
                 session.commit()
                 return True
             return False
         except Exception as e:
             session.rollback()
-            print(f"Failed to update data: {e}")
+            logger.error(f"Error updating user: {type(e).__name__}: {str(e)}")
             return False
         finally:
             session.close()
@@ -166,22 +175,24 @@ class DatabaseManager:
         session = self.Session()
         try:
             emails = session.query(EmailLo).filter_by(email_rec=email_rec).order_by(EmailLo.date_rec.desc()).all()
-            return [
+            result = [
                 {
-                    "email_rec": decrypt(email.email_rec),
+                    "email_rec": decrypt(email.email_rec) if email.email_rec else "",
                     "date_rec": email.date_rec,
-                    "subject": email.subject,
-                    "body": decrypt(email.body),
-                    "body_env": decrypt(email.body_env),
+                    "subject": email.subject or "",
+                    "body": decrypt(email.body) if email.body else "",
+                    "body_env": decrypt(email.body_env) if email.body_env else "",
                     "date_env": email.date_env,
-                    "status": email.status,
+                    "status": email.status or "",
                     "id_mail": email.id,
-                    "conversation_id": email.conversation_id
+                    "conversation_id": email.conversation_id or ""
                 }
                 for email in emails
             ]
+            logger.debug(f"Fetched {len(result)} emails for user {email_rec}")
+            return result
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching user emails: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
@@ -200,10 +211,11 @@ class DatabaseManager:
             )
             session.add(user)
             session.commit()
+            logger.debug(f"Created user {email_user}")
             return True
         except Exception as e:
-            print(f"Failed to create user: {e}")
             session.rollback()
+            logger.error(f"Error creating user: {type(e).__name__}: {str(e)}")
             return False
         finally:
             session.close()
@@ -212,7 +224,7 @@ class DatabaseManager:
         session = self.Session()
         try:
             users = session.query(UserInwi).filter(UserInwi.user_role != 'admin').all()
-            return [
+            result = [
                 {
                     "name": user.name_user or "",
                     "last_name": user.last_name_user or "",
@@ -223,18 +235,22 @@ class DatabaseManager:
                 }
                 for user in users
             ]
+            logger.debug(f"Fetched {len(result)} users")
+            return result
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching all users: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
 
     def get_all_mails(self):
-        session = self.Session()
-        try:
-            mails = session.query(EmailLo).order_by(EmailLo.date_rec.desc()).all()
-            return [
-                {
+     session = self.Session()
+     try:
+        mails = session.query(EmailLo).order_by(EmailLo.date_rec.desc()).all()
+        result = []
+        for mail in mails:
+            try:
+                result.append({
                     "email_rec": decrypt(mail.email_rec) if mail.email_rec else "",
                     "date_rec": mail.date_rec,
                     "subject": mail.subject or "",
@@ -244,20 +260,23 @@ class DatabaseManager:
                     "status": mail.status or "",
                     "id_mail": mail.id,
                     "conversation_id": mail.conversation_id or ""
-                }
-                for mail in mails
-            ]
-        except Exception as e:
-            print(f"Failed to fetch data: {e}")
-            return []
-        finally:
-            session.close()
+                })
+            except Exception as e:
+                logger.error(f"Error processing mail ID {mail.id}: {type(e).__name__}: {str(e)}")
+                continue
+        logger.debug(f"Fetched {len(result)} mails")
+        return result
+     except Exception as e:
+        logger.error(f"Error fetching all mails: {type(e).__name__}: {str(e)}")
+        return []
+     finally:
+        session.close()
 
     def get_all_mails_attente(self):
         session = self.Session()
         try:
             mails = session.query(EmailLo).filter(EmailLo.status == 'En attente').order_by(EmailLo.date_rec.desc()).all()
-            return [
+            result = [
                 {
                     "email_rec": decrypt(mail.email_rec) if mail.email_rec else "",
                     "date_rec": mail.date_rec,
@@ -271,8 +290,10 @@ class DatabaseManager:
                 }
                 for mail in mails
             ]
+            logger.debug(f"Fetched {len(result)} pending mails")
+            return result
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching pending mails: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
@@ -281,7 +302,7 @@ class DatabaseManager:
         session = self.Session()
         try:
             mails = session.query(EmailLo).filter(EmailLo.status == 'Failed').order_by(EmailLo.date_rec.desc()).all()
-            return [
+            result = [
                 {
                     "email_rec": decrypt(mail.email_rec) if mail.email_rec else "",
                     "date_rec": mail.date_rec,
@@ -294,8 +315,10 @@ class DatabaseManager:
                 }
                 for mail in mails
             ]
+            logger.debug(f"Fetched {len(result)} failed mails")
+            return result
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching failed mails: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
@@ -319,7 +342,7 @@ class DatabaseManager:
                 }
             return None
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching mail by id: {type(e).__name__}: {str(e)}")
             return None
         finally:
             session.close()
@@ -329,7 +352,7 @@ class DatabaseManager:
         try:
             subquery = session.query(EmailLo.conversation_id, func.min(EmailLo.date_rec).label('latest_date')).group_by(EmailLo.conversation_id).subquery()
             mails = session.query(EmailLo).join(subquery, (EmailLo.conversation_id == subquery.c.conversation_id) & (EmailLo.date_rec == subquery.c.latest_date)).all()
-            return [
+            result = [
                 {
                     "email_rec": decrypt(mail.email_rec) if mail.email_rec else "",
                     "date_rec": mail.date_rec,
@@ -344,8 +367,10 @@ class DatabaseManager:
                 }
                 for mail in mails
             ]
+            logger.debug(f"Fetched {len(result)} conversations")
+            return result
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching conversations: {type(e).__name__}: {str(e)}")
             return []
         finally:
             session.close()
@@ -371,10 +396,11 @@ class DatabaseManager:
                     }
                     for mail in mails
                 ]
+                logger.debug(f"Fetched {len(result)} mails for conversation {conversation_id}")
                 return result, subject
             return [], ""
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching mails by conversation: {type(e).__name__}: {str(e)}")
             return [], ""
         finally:
             session.close()
@@ -386,10 +412,11 @@ class DatabaseManager:
             if user:
                 session.delete(user)
                 session.commit()
+                logger.debug(f"Deleted user {id_user}")
                 return True
             return False
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error deleting user: {type(e).__name__}: {str(e)}")
             return False
         finally:
             session.close()
@@ -400,17 +427,23 @@ class DatabaseManager:
             user = session.query(UserInwi).filter(UserInwi.email_user == user_id).first()
             if user:
                 full_name = f"{user.name_user} {user.last_name_user}"
-                return full_name, decrypt(user.email_user) if user.email_user else ""
+                email = decrypt(user.email_user) if user.email_user else ""
+                logger.debug(f"Fetched name {full_name} for email {email}")
+                return full_name, email
             return "None", "None"
         except Exception as e:
-            print(f"Failed to fetch data: {e}")
+            logger.error(f"Error fetching user name: {type(e).__name__}: {str(e)}")
             return None, None
         finally:
             session.close()
 
 def get_diff(date_tm):
-    current_date = datetime.now()
-    date_diff = current_date - date_tm
-    hours = date_diff.days * 24 + date_diff.seconds // 3600
-    minutes = (date_diff.seconds % 3600) // 60
-    return f"{hours}h:{minutes}m"
+    try:
+        current_date = datetime.now()
+        date_diff = current_date - date_tm
+        hours = date_diff.days * 24 + date_diff.seconds // 3600
+        minutes = (date_diff.seconds % 3600) // 60
+        return f"{hours}h:{minutes}m"
+    except Exception as e:
+        logger.error(f"Error calculating time difference: {type(e).__name__}: {str(e)}")
+        return "0h:0m"
