@@ -12,15 +12,15 @@ from EmailReporting.Db_handler.model import UserInwi
 EmailDatabase_instance = DatabaseManager()
 
 def user_info(request):
-    email_user = request.session.get('email_user')
-    name_user = ''
-    
-    if email_user:
-        name_user, email_user_db = EmailDatabase_instance.get_name_user(email_user)  # Fix typo
-
+    if request.user.is_authenticated:
+        name_user = f"{request.user.name_user} {request.user.last_name_user}".strip()
+        email_user = request.user.email_user  # Assuming email_user is decrypted in the model
+    else:
+        name_user = ''
+        email_user = ''
     return {
         'name_user': name_user,
-        'email_user': email_user_db,
+        'email_user': email_user,
     }
 
 def accueil(request):

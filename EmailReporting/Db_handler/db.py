@@ -153,49 +153,61 @@ class DatabaseManager:
             session.close()
 
     def update_user(self, name_user, last_name_user, email_user, user_role, user_id):
-        session = self.Session()
-        try:
-            user = session.query(UserInwi).filter_by(user_id=user_id).first()
-            if user:
-                user.name_user = name_user
-                user.last_name_user = last_name_user
-                user.user_role = user_role
-                user.email_user = encrypt(email_user)
-                session.commit()
-                return True
-            return False
-        except Exception as e:
-            session.rollback()
-            logger.error(f"Error updating user: {type(e).__name__}: {str(e)}")
-            return False
-        finally:
-            session.close()
+     session = self.Session()
+     try:
+        user = session.query(UserInwi).filter_by(user_id=user_id).first()
+        if user:
+            logger.debug(f"Found user: {user.user_id}, email: {decrypt(user.email_user)}")
+            user.name_user = name_user
+            user.last_name_user = last_name_user
+            user.user_role = user_role
+            user.email_user = encrypt(email_user)
+            session.commit()
+            logger.debug("User updated successfully")
+            return True
+        logger.debug(f"No user found with user_id: {user_id}")
+        return False
+     except Exception as e:
+        session.rollback()
+        logger.error(f"Error updating user: {type(e).__name__}: {str(e)}")
+        return False
+     finally:
+        session.close()
 
     def get_all_mail_user(self, email_rec):
-        session = self.Session()
-        try:
-            emails = session.query(EmailLo).filter_by(email_rec=email_rec).order_by(EmailLo.date_rec.desc()).all()
-            result = [
-                {
-                    "email_rec": decrypt(email.email_rec) if email.email_rec else "",
-                    "date_rec": email.date_rec,
-                    "subject": email.subject or "",
-                    "body": decrypt(email.body) if email.body else "",
-                    "body_env": decrypt(email.body_env) if email.body_env else "",
-                    "date_env": email.date_env,
-                    "status": email.status or "",
-                    "id_mail": email.id,
-                    "conversation_id": email.conversation_id or ""
-                }
-                for email in emails
-            ]
-            logger.debug(f"Fetched {len(result)} emails for user {email_rec}")
-            return result
-        except Exception as e:
-            logger.error(f"Error fetching user emails: {type(e).__name__}: {str(e)}")
-            return []
-        finally:
-            session.close()
+     session = self.Session()
+     try:
+        encrypted_email = encrypt(email_rec)
+        logger.debug(f"Querying with encrypted email: {encrypted_email}")
+        emails = session.query(EmailLo).filter_by(email_rec=encrypted_email).order_by(EmailLo.date_rec.desc()).all()
+        if not emails:
+            logger.debug(f"No emails found for encrypted email: {encrypted_email}")
+            # Log all email_rec values for debugging
+            all_emails = session.query(EmailLo).all()
+            for email in all_emails:
+                decrypted = decrypt(email.email_rec) if email.email_rec else ""
+                logger.debug(f"EmailLo ID {email.id}: decrypted email_rec={decrypted}")
+        result = [
+            {
+                "email_rec": decrypt(email.email_rec) if email.email_rec else "",
+                "date_rec": email.date_rec,
+                "subject": email.subject or "",
+                "body": decrypt(email.body) if email.body else "",
+                "body_env": decrypt(email.body_env) if email.body_env else "",
+                "date_env": email.date_env,
+                "status": email.status or "",
+                "id_mail": email.id,
+                "conversation_id": email.conversation_id or ""
+            }
+            for email in emails
+        ]
+        logger.debug(f"Fetched {len(result)} emails for user {email_rec}")
+        return result
+     except Exception as e:
+        logger.error(f"Error fetching user emails: {type(e).__name__}: {str(e)}")
+        return []
+     finally:
+        session.close()
 
     def create_user(self, name_user, last_name_user, email_user, user_role, password):
         session = self.Session()
@@ -421,21 +433,22 @@ class DatabaseManager:
         finally:
             session.close()
 
-    def get_name_user(self, user_id):
-        session = self.Session()
-        try:
-            user = session.query(UserInwi).filter(UserInwi.email_user == user_id).first()
-            if user:
-                full_name = f"{user.name_user} {user.last_name_user}"
-                email = decrypt(user.email_user) if user.email_user else ""
-                logger.debug(f"Fetched name {full_name} for email {email}")
-                return full_name, email
-            return "None", "None"
-        except Exception as e:
-            logger.error(f"Error fetching user name: {type(e).__name__}: {str(e)}")
-            return None, None
-        finally:
-            session.close()
+def get_name_user(self, user_id):
+    session = self.Session()
+    try:
+        # Query by hashed email (user_id in UserInwi)
+        user = session.query(UserInwi).filter(UserInwi.user_id == hash_email(user_id)).first()
+        if user:
+            full_name = f"{user.name_user} {user.last_name_user}".strip()
+            email = decrypt(user.email_user) if user.email_user else ""
+            logger.debug(f"Fetched name {full_name} for email {email}")
+            return full_name, email
+        return "None", "None"
+    except Exception as e:
+        logger.error(f"Error fetching user name: {type(e).__name__}: {str(e)}")
+        return None, None
+    finally:
+        session.close()
 
 def get_diff(date_tm):
     try:
